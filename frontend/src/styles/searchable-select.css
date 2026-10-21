@@ -1,0 +1,101 @@
+.searchable-select {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-width: 0;
+}
+.searchable-select > label {
+  color: var(--ink-900);
+  font-size: var(--text-ui-small);
+  font-weight: 600;
+}
+.searchable-select__input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.searchable-select__input > .portal-icon {
+  position: absolute;
+  left: 14px;
+  width: 16px;
+  height: 16px;
+  color: var(--ink-500);
+  pointer-events: none;
+}
+.searchable-select__input .input {
+  min-width: 0;
+  width: 100%;
+  height: 44px;
+  min-height: 44px;
+  padding: 8px 48px 8px 40px;
+  border-color: var(--line);
+  border-radius: 9px;
+}
+.searchable-select__input .icon-btn {
+  position: absolute;
+  right: 3px;
+  width: 44px;
+  height: 44px;
+  font-size: 0.75rem;
+}
+.searchable-select__list {
+  min-width: 0;
+  max-height: 250px;
+  margin: 0;
+  padding: 5px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--ink-200);
+  border-radius: 9px;
+  background: var(--surface);
+  list-style: none;
+}
+.searchable-select__list:empty {
+  display: none;
+}
+.searchable-select__list > li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 58px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  color: var(--ink-900);
+  cursor: pointer;
+}
+.searchable-select__list > li:hover,
+.searchable-select__list > li[data-active='true'] {
+  background: var(--green-soft);
+}
+.searchable-select__list strong {
+  display: block;
+  font-size: var(--text-ui-list-title);
+  font-weight: 500;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.searchable-select__list small {
+  display: block;
+  margin-top: 3px;
+  color: var(--ink-500);
+  font-size: var(--text-ui-secondary);
+}
+.searchable-select__list .portal-icon {
+  width: 12px;
+  height: 12px;
+}
+.searchable-select__selection,
+.searchable-select__results {
+  margin: 0;
+  color: var(--ink-500);
+  font-size: var(--text-ui-small);
+  line-height: 1.6;
+}
+.searchable-select__selection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--green);
+}

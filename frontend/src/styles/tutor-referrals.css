@@ -1,0 +1,749 @@
+.tutor-referrals {
+  --referral-line: color-mix(in srgb, var(--line) 55%, var(--surface));
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+  container: tutor-referrals / inline-size;
+}
+.tutor-referrals .page-head {
+  margin: 0;
+}
+.tutor-referrals .page-head__text > p:not(.sr-only) {
+  font-size: 0.8rem;
+}
+.tutor-referrals .page-head__actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 0.78rem;
+}
+.referral-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  padding: 18px 0;
+  border: 1px solid var(--referral-line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.referral-metrics > div {
+  min-width: 0;
+  padding: 0 22px;
+}
+.referral-metrics > div + div {
+  border-left: 1px solid var(--referral-line);
+}
+.referral-metrics dt {
+  color: var(--ink-600);
+  font-size: 0.72rem;
+}
+.referral-metrics dd {
+  display: grid;
+  gap: 5px;
+  margin: 8px 0 0;
+}
+.referral-metrics strong {
+  color: var(--ink-900);
+  font-size: 1.8rem;
+  font-weight: 650;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.referral-metrics > div:first-child strong {
+  color: var(--green);
+}
+.referral-metrics > div:last-child strong {
+  color: var(--danger);
+}
+.referral-metrics small {
+  color: var(--ink-500);
+  font-size: 0.67rem;
+  line-height: 1.6;
+}
+.referral-list {
+  container: referral-list / inline-size;
+  border: 1px solid var(--referral-line);
+  border-radius: 8px;
+  box-shadow: none;
+}
+.referral-list .card__head {
+  padding: 18px 20px 10px;
+  align-items: center;
+}
+.referral-list .card__head h2 {
+  color: var(--ink-800);
+  font-size: 0.94rem;
+  font-weight: 650;
+}
+.referral-view {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--referral-line);
+  border-radius: 6px;
+  background: var(--surface-2);
+}
+.referral-view button {
+  min-height: 36px;
+  padding: 5px 10px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ink-600);
+  font: 500 0.69rem var(--font-body);
+}
+.referral-view button[aria-pressed='true'] {
+  background: var(--surface);
+  color: var(--green-800);
+  box-shadow: 0 1px 3px rgb(22 61 36 / 10%);
+}
+.referral-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 20px 14px;
+  border-bottom: 1px solid var(--referral-line);
+}
+.referral-tabs a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 5px 12px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--ink-600);
+  font-size: 0.74rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+.referral-tabs a:hover {
+  background: var(--surface-2);
+}
+.referral-tabs a[aria-current='page'] {
+  border-color: color-mix(in srgb, var(--green) 18%, var(--surface));
+  background: var(--green-50);
+  color: var(--green-800);
+}
+.referral-tabs a > span {
+  display: grid;
+  place-items: center;
+  min-width: 21px;
+  height: 21px;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--surface-2);
+  color: var(--ink-600);
+  font-size: 0.65rem;
+}
+.referral-tabs a[aria-current='page'] > span {
+  background: var(--surface);
+  color: var(--green-800);
+}
+.referral-list .card__body {
+  padding: 14px 20px 16px;
+}
+.referral-list__content {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.referral-list .toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) repeat(3, minmax(0, 1fr)) auto;
+  gap: 10px;
+  margin: 0;
+}
+.referral-list .toolbar .field {
+  min-width: 0;
+  gap: 4px;
+}
+.referral-list .toolbar .field label {
+  margin: 0;
+  color: var(--ink-500);
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+}
+.referral-list .toolbar__spacer {
+  display: none;
+}
+.referral-list .toolbar > .ui-row {
+  align-self: end;
+  justify-content: flex-end;
+  min-height: 44px;
+}
+.referral-list .toolbar .select,
+.referral-list .search-field {
+  min-height: 44px;
+  font-size: 0.76rem;
+  border-color: var(--referral-line);
+}
+.referral-list .search-field input {
+  font-size: 0.76rem;
+}
+.referral-list .toolbar .small {
+  font-size: 0.67rem;
+}
+.referral-list .data-table-panel__scroll {
+  max-height: min(660px, max(240px, calc(100dvh - 12rem)));
+  overscroll-behavior-y: auto;
+  border: 1px solid var(--referral-line);
+  border-radius: 6px;
+}
+.referral-list .data-table {
+  min-width: 700px;
+}
+.referral-list .data-table :is(th, td) {
+  padding: 14px 10px;
+  border-color: var(--referral-line);
+  font-size: 0.76rem;
+  vertical-align: middle;
+}
+.referral-list .data-table th {
+  background: var(--surface-2);
+  font-size: 0.67rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.referral-list .data-table .th-sort {
+  font-size: inherit;
+}
+.referral-list .data-table tbody tr:hover {
+  background: color-mix(in srgb, var(--green-50) 45%, var(--surface));
+}
+.referral-student {
+  display: block;
+  text-decoration: none;
+}
+.referral-student:hover .person-cell__text strong {
+  text-decoration: underline;
+}
+.referral-list .data-table .person-cell {
+  gap: 10px;
+}
+.referral-list .data-table .avatar {
+  width: 30px;
+  height: 30px;
+  font-size: 0.64rem;
+}
+.referral-list .data-table .person-cell__text {
+  min-width: 120px;
+  max-width: 230px;
+  gap: 4px;
+}
+.referral-list .data-table .person-cell__text strong {
+  font-size: 0.77rem;
+  font-weight: 600;
+}
+.referral-list .data-table .person-cell__text small,
+.referral-list .data-table .cell-note {
+  color: var(--ink-500);
+  font-size: 0.68rem;
+  line-height: 1.6;
+}
+.referral-list .data-table .badge {
+  white-space: nowrap;
+  padding: 3px 7px;
+  font-size: 0.66rem;
+}
+.referral-subject {
+  display: grid;
+  gap: 5px;
+  min-width: 130px;
+  max-width: 280px;
+}
+.referral-subject > strong {
+  color: var(--ink-800);
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+.referral-subject > span {
+  color: var(--ink-600);
+  font-size: 0.71rem;
+  line-height: 1.7;
+}
+.referral-subject > small {
+  color: var(--ink-500);
+  font:
+    0.64rem/1.6 'JetBrains Mono',
+    monospace;
+}
+.referral-date {
+  display: block;
+  color: var(--ink-600);
+  font-size: 0.71rem;
+  white-space: nowrap;
+}
+.referral-state {
+  display: grid;
+  justify-items: start;
+  gap: 7px;
+}
+.referral-open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--green-800);
+  font: 600 0.71rem var(--font-body);
+  white-space: nowrap;
+}
+.referral-open:hover {
+  text-decoration: underline;
+}
+.referral-open > i {
+  font-size: 0.6rem;
+}
+.referral-list--complete .data-table {
+  min-width: 1250px;
+}
+.referral-list--complete .data-table [data-column='motivo'],
+.referral-list--complete .data-table [data-column='siguiente'] {
+  min-width: 200px;
+}
+.referral-list--complete .data-table [data-column='area'] {
+  min-width: 170px;
+}
+.referral-list .card__foot {
+  gap: 10px;
+  padding: 10px 20px;
+  border-color: var(--referral-line);
+  font-size: 0.68rem;
+}
+.referral-text-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--green-800);
+  font: 500 0.71rem var(--font-body);
+}
+.referral-text-action:hover {
+  text-decoration: underline;
+}
+.referral-disclosure {
+  border-top: 1px solid var(--referral-line, var(--line));
+}
+.referral-disclosure > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  color: var(--ink-700);
+  font-size: 0.78rem;
+  cursor: pointer;
+  list-style: none;
+}
+.referral-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+.referral-disclosure > summary > i {
+  color: var(--ink-500);
+  font-size: 0.72rem;
+}
+.referral-disclosure > summary > i:last-child {
+  margin-left: auto;
+  font-size: 0.6rem;
+}
+.referral-disclosure[open] > summary > i:last-child {
+  transform: rotate(180deg);
+}
+.referral-disclosure > summary .badge {
+  font-size: 0.66rem;
+}
+.referral-states {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: 12px;
+  margin: 8px 0 12px;
+  padding: 0;
+  list-style: none;
+}
+.referral-states li {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--referral-line);
+  border-radius: 6px;
+  background: var(--surface);
+}
+.referral-states li > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.referral-states .badge {
+  font-size: 0.67rem;
+}
+.referral-states strong {
+  font-size: 1.1rem;
+}
+.referral-states small {
+  color: var(--ink-500);
+  font-size: 0.67rem;
+  font-weight: 400;
+}
+.referral-states meter {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+}
+.referral-states meter::-webkit-meter-bar {
+  border: 0;
+  border-radius: 4px;
+  background: var(--surface-2);
+}
+.referral-states meter::-webkit-meter-optimum-value {
+  border-radius: 4px;
+  background: var(--green);
+}
+.referral-note {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+  color: var(--ink-500);
+  font-size: 0.7rem;
+  line-height: 1.7;
+}
+.referral-note a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  color: var(--green-800);
+  text-decoration: none;
+}
+.referral-privacy {
+  margin-top: -8px;
+}
+.referral-privacy p {
+  margin: 0 0 16px;
+  color: var(--ink-500);
+  font-size: 0.73rem;
+  line-height: 1.8;
+}
+.sheet:has(:is(.referral-case, .referral-form, .referral-directory)) {
+  --referral-line: color-mix(in srgb, var(--line) 55%, var(--surface));
+}
+.sheet:has(:is(.referral-case, .referral-form, .referral-directory)) .sheet__head h2 {
+  font-size: 1rem;
+}
+.sheet:has(:is(.referral-case, .referral-form, .referral-directory)) .sheet__head p {
+  margin-top: 5px;
+  font-size: 0.76rem;
+}
+.sheet:has(:is(.referral-case, .referral-form, .referral-directory)) .sheet__foot .btn {
+  min-height: 44px;
+  font-size: 0.78rem;
+}
+.referral-directory {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.referral-directory article {
+  padding: 18px;
+  border: 1px solid var(--referral-line);
+  border-radius: 6px;
+}
+.referral-directory article > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 10px;
+}
+.referral-directory strong {
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+.referral-directory .badge {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+}
+.referral-directory p {
+  margin: 8px 0;
+  color: var(--ink-600);
+  font-size: 0.74rem;
+}
+.referral-directory a,
+.referral-directory article > small {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  font-size: 0.71rem;
+  overflow-wrap: anywhere;
+}
+.referral-directory a {
+  color: var(--green-800);
+}
+.referral-directory article > small {
+  color: var(--ink-500);
+}
+.referral-case {
+  display: grid;
+  gap: 18px;
+}
+.referral-case__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.referral-case__badges .badge {
+  font-size: 0.71rem;
+}
+.referral-next {
+  padding: 16px 18px;
+  border: 1px solid var(--referral-line);
+  border-left: 3px solid var(--green);
+  border-radius: 6px;
+  background: var(--surface-2);
+}
+.referral-next h3 {
+  color: var(--ink-500);
+  font-size: 0.68rem;
+  font-weight: 500;
+}
+.referral-next p {
+  margin: 7px 0;
+  color: var(--ink-800);
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.7;
+}
+.referral-next small {
+  color: var(--ink-500);
+  font-size: 0.68rem;
+}
+.referral-case__meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 24px;
+  margin: 0;
+}
+.referral-case__wide {
+  grid-column: 1/-1;
+}
+.referral-case__meta dt {
+  color: var(--ink-500);
+  font-size: 0.69rem;
+}
+.referral-case__meta dd {
+  margin: 5px 0 0;
+  color: var(--ink-800);
+  font-size: 0.8rem;
+  line-height: 1.7;
+}
+.referral-case .alert,
+.referral-form .alert {
+  padding: 14px;
+  font-size: 0.76rem;
+}
+.referral-case .timeline {
+  margin-top: 12px;
+}
+.referral-case .timeline__body {
+  font-size: 0.78rem;
+}
+.referral-case .timeline__body strong {
+  font-weight: 600;
+}
+.referral-case .timeline__body :is(p, .timeline__date) {
+  font-size: 0.7rem;
+}
+.referral-case .timeline__marker > i {
+  font-size: 0.55rem;
+}
+.referral-form :is(.input, .select, .textarea) {
+  font-size: 0.8rem;
+}
+.referral-form .field label {
+  font-size: 0.74rem;
+}
+.referral-form .field__hint {
+  font-size: 0.7rem;
+}
+.referral-form .def-list {
+  padding: 14px;
+  background: var(--surface-2);
+  border-radius: 6px;
+}
+.referral-form .def-list :is(dt, dd) {
+  font-size: 0.75rem;
+}
+@container referral-list (max-width: 850px) {
+  .referral-list .toolbar {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  }
+  .referral-list .filter-search {
+    grid-column: 1/4;
+  }
+  .referral-list .toolbar > .ui-row {
+    grid-column: 4;
+    grid-row: 1;
+  }
+}
+@container tutor-referrals (max-width: 680px) {
+  .referral-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 0;
+  }
+  .referral-metrics > div {
+    padding: 16px;
+  }
+  .referral-metrics > div:nth-child(3) {
+    border-left: 0;
+  }
+  .referral-metrics > div:nth-child(n + 3) {
+    border-top: 1px solid var(--referral-line);
+  }
+  .referral-metrics strong {
+    font-size: 1.55rem;
+  }
+}
+@container referral-list (max-width: 550px) {
+  .referral-list .card__head {
+    padding: 16px 16px 10px;
+  }
+  .referral-view button {
+    min-height: 40px;
+  }
+  .referral-tabs {
+    padding-inline: 16px;
+  }
+  .referral-tabs a {
+    min-height: 44px;
+  }
+  .referral-list .card__body {
+    padding: 14px 16px;
+  }
+  .referral-list .toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .referral-list .filter-search {
+    grid-column: 1/-1;
+  }
+  .referral-list .toolbar > .ui-row {
+    grid-column: 2;
+    grid-row: 3;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .referral-list .card__foot {
+    padding-inline: 16px;
+  }
+}
+@container referral-list (max-width: 750px) {
+  .referral-list:not(.referral-list--complete) .data-table-panel__scroll {
+    max-height: min(720px, max(240px, calc(100dvh - 12rem)));
+    border: 0;
+    background: transparent;
+  }
+  .referral-list:not(.referral-list--complete) .data-table {
+    display: block;
+    min-width: 0;
+  }
+  .referral-list:not(.referral-list--complete) .data-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .referral-list:not(.referral-list--complete) .data-table tbody {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .referral-list:not(.referral-list--complete) .data-table tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border: 1px solid var(--referral-line);
+    border-radius: 6px;
+    background: var(--surface);
+  }
+  .referral-list:not(.referral-list--complete) .data-table tbody td {
+    display: block;
+    min-width: 0;
+    width: auto;
+    border: 0;
+    padding: 10px 12px;
+  }
+  .referral-list:not(.referral-list--complete) .data-table tbody td::before {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--ink-500);
+    font-size: 0.64rem;
+  }
+  .referral-list:not(.referral-list--complete) .data-table tbody [data-column='estudiante'] {
+    grid-column: 1/-1;
+    padding-block: 14px;
+    border-bottom: 1px solid var(--referral-line);
+  }
+  .referral-list:not(.referral-list--complete) .data-table tbody [data-column='solicitud'] {
+    grid-column: 1/-1;
+  }
+  .referral-list:not(.referral-list--complete) .data-table .person-cell__text {
+    min-width: 0;
+    max-width: none;
+  }
+  .referral-list:not(.referral-list--complete) .data-table tbody [data-column='prioridad']::before {
+    content: 'Prioridad';
+  }
+  .referral-list:not(.referral-list--complete) .data-table tbody [data-column='estado']::before {
+    content: 'Estado y prioridad';
+  }
+  .referral-list:not(.referral-list--complete)
+    .data-table
+    tbody
+    [data-column='actualizado']::before {
+    content: 'Actualizado';
+  }
+  .referral-list:not(.referral-list--complete) .data-table tbody [data-column='detalle'] {
+    display: flex;
+    align-items: end;
+    justify-content: flex-end;
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--referral-line);
+    padding-block: 0;
+  }
+  .referral-list:not(.referral-list--complete) .referral-open {
+    gap: 12px;
+    width: 100%;
+  }
+}
+@container referral-list (max-width: 550px) {
+  .referral-list:not(.referral-list--complete) .data-table tbody {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 680px) {
+  .referral-directory {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .referral-case__meta {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .referral-case__wide {
+    grid-column: auto;
+  }
+  .referral-directory a {
+    min-height: 44px;
+  }
+}

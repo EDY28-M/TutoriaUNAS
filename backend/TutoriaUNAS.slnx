@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="TutoriaUNAS.Api.Tests/TutoriaUNAS.Api.Tests.csproj" />
+  <Project Path="TutoriaUNAS.Api/TutoriaUNAS.Api.csproj" />
+</Solution>

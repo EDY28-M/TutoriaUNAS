@@ -1,0 +1,184 @@
+.studies-page {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.studies-page .page-head {
+  margin: 0;
+}
+
+.studies-summary {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.7fr) minmax(0, 2fr);
+  align-items: center;
+  gap: 24px;
+  margin: 0;
+  padding: 16px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+
+.studies-summary > div {
+  min-width: 0;
+}
+
+.studies-summary > div + div {
+  padding-left: 24px;
+  border-left: 1px solid var(--line);
+}
+
+.studies-summary dt {
+  margin-bottom: 6px;
+  font-size: 0.78rem;
+  color: var(--ink-500);
+}
+
+.studies-summary dd {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0;
+  color: var(--ink-900);
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+}
+
+.studies-summary small {
+  color: var(--ink-500);
+  font-size: 0.78rem;
+  font-weight: 400;
+}
+
+.studies-summary .studies-credits {
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+}
+
+.studies-page .data-table [data-column='curso'] {
+  min-width: 220px;
+}
+
+.studies-page .data-table [data-column='docente'] {
+  min-width: 180px;
+}
+
+.studies-page .data-table [data-column='horario'] {
+  min-width: 160px;
+}
+
+.studies-page .data-table [data-column='semestre'] {
+  min-width: 110px;
+}
+
+.studies-page
+  .data-table
+  :is(
+    [data-column='seccion'],
+    [data-column='creditos'],
+    [data-column='nota'],
+    [data-column='repeticion']
+  ) {
+  min-width: 64px;
+  width: 76px;
+}
+
+.studies-credits > strong {
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: var(--green-800);
+}
+
+.studies-evaluations {
+  display: grid;
+  gap: 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.studies-evaluations li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.studies-evaluations li:last-child {
+  border-bottom: 0;
+}
+
+.studies-evaluations li > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.studies-evaluations strong {
+  font-size: var(--text-ui-body);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.studies-evaluations small {
+  color: var(--ink-500);
+  font-size: 0.75rem;
+}
+
+.studies-evaluations li > span {
+  flex: 0 0 auto;
+  color: var(--ink-900);
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.studies-source {
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--ink-500);
+}
+
+.studies-source summary {
+  width: fit-content;
+  cursor: pointer;
+}
+
+.studies-source p {
+  margin: 8px 0 0;
+}
+
+@media (max-width: 520px) {
+  .studies-summary {
+    grid-template-columns: 80px minmax(0, 1fr);
+    padding: 14px;
+    gap: 14px;
+  }
+
+  .studies-summary > div + div {
+    padding-left: 14px;
+  }
+
+  .studies-summary dt,
+  .studies-summary small {
+    font-size: 0.7rem;
+  }
+
+  .studies-summary dd {
+    font-size: 1.3rem;
+  }
+
+  .studies-summary .studies-credits {
+    gap: 4px;
+    font-size: 1rem;
+  }
+
+  .studies-credits > strong {
+    font-size: 0.7rem;
+  }
+}

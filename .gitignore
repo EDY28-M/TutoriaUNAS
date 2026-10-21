@@ -1,0 +1,38 @@
+# --- Dependencias y artefactos de build ---
+node_modules/
+dist/
+coverage/
+test-results/
+playwright-report/
+*.tsbuildinfo
+**/bin/
+**/obj/
+.vs/
+
+# --- Entorno y secretos (nunca subir) ---
+.env
+.env.*
+!.env.example
+*.local.json
+*.user
+
+# --- Cachés de analizadores ---
+.sonarqube/
+.scannerwork/
+
+# --- Carpetas internas que NO se publican en GitHub ---
+docs/
+tools/
+artifacts/
+.cursor/
+.vercel/
+AGENTS.md
+
+# --- Ruido del sistema ---
+*.log
+Thumbs.db
+.DS_Store
+
+# npm no debe reintroducir su lockfile: el proyecto usa pnpm
+package-lock.json
+

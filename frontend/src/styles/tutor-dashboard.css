@@ -1,0 +1,129 @@
+.tutor-dashboard-charts {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.tutor-dashboard-charts__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.tutor-dashboard-charts__head h2 {
+  color: var(--ink-800);
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.tutor-dashboard-charts__head a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: var(--green-800);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.tutor-dashboard-charts__head a:hover {
+  text-decoration: underline;
+}
+
+.tutor-dashboard-charts .analytics-eyebrow:empty {
+  display: none;
+}
+
+.tutor-dashboard-charts .analytics-card-head {
+  padding: 18px 20px 0;
+  gap: 10px;
+}
+
+.tutor-dashboard-charts .analytics-card-head > div:first-child {
+  flex: 1 1 220px;
+}
+
+.tutor-dashboard-charts .analytics-card-head h2 {
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.tutor-dashboard-charts .analytics-card-head p {
+  margin-top: 5px;
+  color: var(--ink-600);
+  font-size: 0.73rem;
+}
+
+.tutor-dashboard-charts .portal-chart-card .card__body {
+  padding: 16px 20px 0;
+}
+
+.chart-simple-totals {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin: 0 0 16px;
+}
+
+.chart-simple-totals > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ink-600);
+  font-size: 0.75rem;
+}
+
+.chart-simple-totals i {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.chart-simple-totals--waves i {
+  width: 18px;
+  height: 3px;
+}
+
+.chart-simple-totals--waves > span:last-child i {
+  background: none !important;
+  border-top: 2px dashed #3676b3;
+}
+
+.chart-simple-totals strong {
+  color: var(--ink-900);
+  font-size: 1.25rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.tutor-dashboard-charts .chart-card--instruments .portal-chart {
+  height: 290px;
+}
+
+.tutor-dashboard-charts .chart-card--formats .portal-chart {
+  height: 320px;
+}
+
+.tutor-dashboard-charts .portal-chart__data,
+.tutor-dashboard-charts .chart-activity-footer {
+  font-size: 0.7rem;
+}
+
+.tutor-dashboard-charts .chart-tabs button {
+  min-height: 40px;
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+@media (max-width: 680px) {
+  .tutor-dashboard-charts .analytics-card-head,
+  .tutor-dashboard-charts .portal-chart-card .card__body {
+    padding-inline: 16px;
+  }
+}

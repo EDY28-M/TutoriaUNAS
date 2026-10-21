@@ -1,0 +1,295 @@
+.teacher-forms__scopes {
+  display: flex;
+  gap: 8px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--forms-line);
+}
+.teacher-forms__scopes button {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ink-500);
+
+  font-family: inherit;
+  font-size: var(--text-ui-tab);
+  font-weight: 500;
+}
+.teacher-forms__scopes button:hover {
+  background: var(--ink-100);
+}
+.teacher-forms__scopes button[aria-pressed='true'] {
+  color: var(--green);
+  border-color: var(--forms-line);
+  background: var(--surface);
+  box-shadow: 0 2px 3px rgb(20 50 30 / 3%);
+}
+.teacher-forms__scopes button > .portal-art {
+  width: 22px;
+  height: 22px;
+}
+.teacher-forms__scopes button > span,
+.teacher-register__count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  min-height: 24px;
+  padding-inline: 5px;
+  border-radius: 6px;
+  background: var(--green-soft);
+  font-size: var(--text-ui-small);
+  font-weight: 600;
+  color: var(--green);
+}
+.teacher-forms__tasks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.teacher-task {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--forms-line);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 3px 12px rgb(20 50 30 / 2%);
+}
+.teacher-task__icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+}
+.teacher-task__icon > .portal-art {
+  width: 36px;
+  height: 36px;
+}
+.teacher-task__body {
+  min-width: 0;
+}
+.teacher-task__code {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--ink-500);
+  font-size: var(--text-ui-secondary);
+}
+.teacher-task h3 {
+  margin: 0;
+  color: var(--ink-900);
+  font-size: var(--text-ui-title);
+  font-weight: 500;
+  letter-spacing: normal;
+  line-height: 1.35;
+}
+.teacher-forms .teacher-task .btn {
+  grid-column: 2 / -1;
+  grid-row: auto;
+  display: flex;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 9px 12px;
+  border-color: var(--forms-line);
+  border-radius: 8px;
+  background: var(--ink-50);
+  box-shadow: none;
+
+  gap: 8px;
+}
+.teacher-task--closing .badge {
+  margin-top: 8px;
+}
+.teacher-task--closing .btn {
+  background: var(--surface);
+}
+.teacher-register {
+  min-width: 0;
+}
+.teacher-register__count {
+  margin-left: 9px;
+  vertical-align: middle;
+}
+.teacher-register__filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-block: 16px;
+}
+.teacher-register__search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 240px;
+  min-width: 0;
+}
+.teacher-register__search > .portal-icon {
+  position: absolute;
+  left: 14px;
+  font-size: 0.75rem;
+  color: var(--ink-500);
+  pointer-events: none;
+}
+.teacher-register__search .input {
+  padding-left: 38px;
+  width: 100%;
+  min-width: 0;
+}
+.teacher-register .input,
+.teacher-register .select {
+  min-height: 44px;
+  border-color: var(--forms-line);
+  border-radius: 8px;
+  background-color: var(--surface);
+}
+.teacher-register__student {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: 1 1 260px;
+  min-width: 0;
+  color: var(--ink-500);
+  font-size: var(--text-ui-small);
+}
+.teacher-register__student .select {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+}
+.teacher-register__list {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+  border: 1px solid var(--forms-line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.teacher-register__row.tutoring-record {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  padding: 18px;
+  border: 0;
+  border-bottom: 1px solid var(--forms-line);
+  border-radius: 0;
+  background: transparent;
+}
+.teacher-register__row:last-child {
+  border-bottom: 0;
+}
+.teacher-register__code {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  color: var(--green);
+  background: var(--ink-50);
+  font:
+    600 var(--text-ui-small) 'JetBrains Mono',
+    monospace;
+}
+.teacher-register__body {
+  min-width: 0;
+}
+.teacher-register__body h3 {
+  margin: 0 0 5px;
+  font-size: var(--text-ui-list-title);
+  font-weight: 500;
+  line-height: 1.5;
+}
+.teacher-register__body p,
+.teacher-register__body small {
+  margin: 0;
+  color: var(--ink-500);
+  font-size: var(--text-ui-secondary);
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.teacher-register__body small {
+  display: block;
+  margin-top: 3px;
+}
+.teacher-register__row > .btn {
+  min-height: 44px;
+  padding: 8px 10px;
+  border-radius: 7px;
+
+  box-shadow: none;
+}
+.teacher-register__row .btn > .portal-icon {
+  font-size: 0.65rem;
+}
+.teacher-register__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 16px;
+  color: var(--ink-500);
+  font-size: var(--text-ui-small);
+}
+.teacher-register__pagination > div {
+  display: flex;
+  gap: 8px;
+}
+.teacher-register__pagination .btn {
+  min-height: 44px;
+}
+@media (max-width: 767px) {
+  .teacher-forms__scopes {
+    flex-direction: column;
+  }
+  .teacher-forms__scopes button {
+    text-align: left;
+  }
+  .teacher-forms__scopes button > span {
+    margin-left: auto;
+  }
+  .teacher-forms__tasks {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .teacher-task {
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+    padding: 16px;
+    gap: 10px;
+  }
+  .teacher-forms .teacher-task .btn {
+    grid-column: 2 / -1;
+    grid-row: auto;
+  }
+  .teacher-register__row.tutoring-record {
+    grid-template-columns: 32px minmax(0, 1fr);
+    padding: 16px;
+    gap: 12px;
+  }
+  .teacher-register__code {
+    width: 32px;
+    height: 36px;
+  }
+  .teacher-register__row > .badge {
+    grid-column: 2;
+    justify-self: start;
+  }
+  .teacher-register__row > .btn {
+    grid-column: 2;
+    width: 100%;
+    justify-content: space-between;
+  }
+  .teacher-register__student {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+}

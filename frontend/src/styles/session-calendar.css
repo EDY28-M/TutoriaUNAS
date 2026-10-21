@@ -1,0 +1,47 @@
+.session-calendar {
+  min-width: 0;
+  display: grid;
+  gap: 16px;
+}
+
+.session-calendar--compact .calendar__day-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  padding: 2px 5px;
+  border-radius: var(--r-full);
+  background: var(--green-50);
+}
+
+.session-calendar--compact .calendar__events > .calendar__more {
+  display: none;
+}
+
+.session-calendar--history .calendar__grid {
+  grid-auto-rows: 88px;
+}
+.session-calendar--history .calendar__day {
+  min-height: 0;
+  padding: 4px;
+}
+.session-calendar--history .calendar__day-select {
+  min-height: 32px;
+}
+.session-calendar--history .calendar__event {
+  height: 44px;
+}
+.session-calendar--history .calendar__event-title {
+  -webkit-line-clamp: 1;
+}
+@container tutorial-calendar (max-width: 600px) {
+  .session-calendar--history .calendar__grid {
+    grid-auto-rows: 64px;
+  }
+  .session-calendar--history .calendar__day {
+    padding: 3px 1px;
+  }
+  .session-calendar--history .calendar__day-select {
+    min-height: 56px;
+  }
+}

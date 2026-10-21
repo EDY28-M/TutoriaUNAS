@@ -1,0 +1,397 @@
+.health-page {
+  --health-line: color-mix(in srgb, var(--line) 55%, var(--surface));
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  container: health-page / inline-size;
+}
+.health-page .page-head {
+  margin: 0;
+}
+.health-page .card {
+  border: 1px solid var(--health-line);
+  border-radius: 8px;
+  box-shadow: none;
+}
+.health-page .card__head {
+  align-items: center;
+  padding: 18px 20px 12px;
+  background: transparent;
+}
+.health-page .card__head h2 {
+  font-size: 0.94rem;
+  font-weight: 650;
+}
+.health-page .card__head p {
+  font-size: 0.75rem;
+}
+.health-page .card__body {
+  padding: 4px 20px 20px;
+}
+.health-page__text-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--green-800);
+  font: 600 0.78rem/1.5 var(--font-body);
+  text-decoration: none;
+}
+.health-page__text-button:hover {
+  color: var(--green);
+  text-decoration: underline;
+}
+.health-page__text-button i {
+  font-size: 0.7rem;
+}
+.health-page__sis {
+  border: 1px solid var(--health-line);
+  border-radius: 6px;
+  background: var(--surface);
+}
+.health-page__sis > summary,
+.health-page__recommendations > summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-height: 52px;
+  padding: 12px 18px;
+  color: var(--ink-700);
+  font-size: 0.78rem;
+  list-style: none;
+  cursor: pointer;
+}
+.health-page__sis > summary::-webkit-details-marker,
+.health-page__recommendations > summary::-webkit-details-marker {
+  display: none;
+}
+.health-page__sis > summary > i:first-child,
+.health-page__recommendations > summary > i:first-child {
+  color: var(--green);
+  font-size: 0.8rem;
+}
+.health-page .badge {
+  font-size: 0.68rem;
+  font-weight: 550;
+}
+.health-page__sis-date {
+  margin-left: auto;
+  color: var(--ink-500);
+  font-size: 0.68rem;
+}
+.health-page__sis summary > .health-page__chevron,
+.health-page__recommendations summary > .health-page__chevron {
+  margin-left: auto;
+  font-size: 0.65rem;
+  color: var(--ink-500);
+}
+.health-page__sis summary > .health-page__sis-date + .health-page__chevron {
+  margin-left: 4px;
+}
+.health-page details[open] > summary > .health-page__chevron {
+  transform: rotate(180deg);
+}
+.health-page__sis-detail {
+  padding: 0 18px 16px;
+  color: var(--ink-600);
+  font-size: 0.75rem;
+  line-height: 1.7;
+}
+.health-page > .tabs {
+  margin: 0;
+}
+.health-page .tabs button {
+  min-height: 44px;
+  padding: 8px 14px;
+  font-size: 0.8rem;
+}
+.health-page .tabs__count {
+  font-size: 0.68rem;
+}
+.health-page__date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+.health-page .data-table {
+  min-width: 560px;
+}
+.health-page .data-table :is(th, td) {
+  padding: 10px 12px;
+}
+.health-page .data-table th {
+  font-size: 0.72rem;
+}
+.health-page .data-table .person-cell__text strong {
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.health-page .data-table .person-cell__text small {
+  font-size: 0.7rem;
+}
+.health-page .data-table [data-column='detalle'] {
+  width: 110px;
+}
+.health-page__recommendations {
+  border-top: 1px solid var(--health-line);
+}
+.health-page__recommendations > summary {
+  padding: 14px 20px;
+  font-size: 0.78rem;
+}
+.health-page__recommendation-list {
+  margin: 0;
+  padding: 0 20px 18px;
+  list-style: none;
+}
+.health-page__recommendation-list li + li {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--health-line);
+}
+.health-page__recommendation-list strong {
+  color: var(--ink-800);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.health-page__recommendation-list p {
+  margin-top: 6px;
+  color: var(--ink-600);
+  font-size: 0.72rem;
+  line-height: 1.7;
+}
+.health-page__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 6px;
+  color: var(--ink-500);
+  font-size: 0.7rem;
+}
+.health-page__campaigns,
+.health-page__services,
+.health-page__benefits {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.health-page__campaigns {
+  padding: 0 20px 8px;
+}
+.health-page__campaigns li,
+.health-page__services li,
+.health-page__benefits li {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+}
+.health-page__campaigns li + li,
+.health-page__services li + li,
+.health-page__benefits li + li {
+  border-top: 1px solid var(--health-line);
+}
+.health-page__day {
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  flex: 0 0 48px;
+  padding: 8px 4px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--green-800);
+}
+.health-page__day strong {
+  font:
+    600 1.05rem/1.2 'JetBrains Mono',
+    monospace;
+}
+.health-page__day span {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+}
+.health-page__item-text {
+  flex: 1;
+  min-width: 0;
+}
+.health-page__item-text > strong {
+  color: var(--ink-800);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+.health-page__item-text > p {
+  margin-top: 4px;
+  color: var(--ink-600);
+  font-size: 0.74rem;
+  line-height: 1.65;
+}
+.health-page__campaigns .health-page__text-button,
+.health-page__services .health-page__text-button {
+  flex-shrink: 0;
+}
+.health-page__services li > i,
+.health-page__benefits li > i {
+  flex: 0 0 24px;
+  color: var(--green);
+  font-size: 0.85rem;
+  text-align: center;
+}
+.health-page__benefits li {
+  align-items: flex-start;
+}
+.health-page__benefits li > i {
+  padding-top: 5px;
+}
+.health-page__privacy {
+  color: var(--ink-500);
+  font-size: 0.72rem;
+}
+.health-page__privacy > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  min-height: 44px;
+  padding: 8px 0;
+  cursor: pointer;
+}
+.health-page__privacy > p {
+  margin-top: 8px;
+  max-width: 85ch;
+  line-height: 1.7;
+}
+.health-page #health-campaign-view .tutorial-calendar {
+  border: 0;
+  box-shadow: none;
+}
+@container health-page (max-width: 560px) {
+  .health-page .card__head {
+    padding: 16px 16px 10px;
+  }
+  .health-page .card__body {
+    padding: 4px 16px 16px;
+  }
+  .health-page__sis-date {
+    display: none;
+  }
+  .health-page__sis > summary {
+    padding: 12px 14px;
+    gap: 8px;
+  }
+  .health-page__sis > summary > span:first-of-type {
+    flex: 1 1 100%;
+  }
+  .health-page__sis > summary > i:first-child {
+    display: none;
+  }
+  .health-page__sis summary > .health-page__sis-date + .health-page__chevron {
+    margin-left: auto;
+  }
+  .health-page .tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+  }
+  .health-page .tabs button {
+    justify-content: center;
+    padding: 8px;
+  }
+  .health-page .data-table {
+    display: block;
+    min-width: 0;
+  }
+  .health-page .data-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .health-page .data-table tbody {
+    display: block;
+  }
+  .health-page .data-table tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'servicio estado' 'fecha detalle';
+    align-items: center;
+    gap: 8px;
+    padding: 14px 12px 8px;
+  }
+  .health-page .data-table tr + tr {
+    border-top: 1px solid var(--health-line);
+  }
+  .health-page .data-table td {
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    white-space: normal;
+  }
+  .health-page .data-table td[data-column='servicio'] {
+    grid-area: servicio;
+  }
+  .health-page .data-table td[data-column='fecha'] {
+    grid-area: fecha;
+  }
+  .health-page .data-table td[data-column='estado'] {
+    grid-area: estado;
+    justify-self: end;
+  }
+  .health-page .data-table td[data-column='detalle'] {
+    grid-area: detalle;
+    width: auto;
+  }
+  .health-page .data-table .person-cell__text small {
+    display: none;
+  }
+  .health-page__campaigns {
+    padding-inline: 16px;
+  }
+  .health-page__campaigns li {
+    flex-wrap: wrap;
+    gap: 10px 12px;
+    align-items: flex-start;
+  }
+  .health-page__campaigns .health-page__item-text {
+    flex-basis: calc(100% - 60px);
+  }
+  .health-page__campaigns .health-page__text-button {
+    margin-left: 60px;
+  }
+  .health-page__services li {
+    flex-wrap: wrap;
+    gap: 8px 12px;
+  }
+  .health-page__services .health-page__item-text {
+    flex-basis: calc(100% - 36px);
+  }
+  .health-page__services .health-page__text-button {
+    margin-left: 36px;
+  }
+  .health-page__benefits li {
+    flex-wrap: wrap;
+    gap: 8px 12px;
+  }
+  .health-page__benefits .health-page__item-text {
+    flex-basis: calc(100% - 36px);
+  }
+  .health-page__benefits li > .badge {
+    margin-left: 36px;
+  }
+  .health-page__recommendations > summary {
+    padding-inline: 16px;
+  }
+  .health-page__recommendations > summary > span:first-of-type {
+    flex: 1 1 140px;
+  }
+  .health-page__recommendation-list {
+    padding-inline: 16px;
+  }
+}
