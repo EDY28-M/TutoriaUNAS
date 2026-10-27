@@ -1,128 +1,82 @@
-import type {
-  CampoFormato,
-  CodigoFormato,
-  DefinicionFormato,
-  Instrumento,
-  Sesion,
-} from '../types/domain';
+import { matriculaDe, nombreCurso } from '../data/academico';
+import {
+  camposVisibles,
+  erroresInstrumento,
+  listaRespuesta,
+  fechaTutoria,
+} from './validacionInstrumentos';
+export {
+  campoVisible,
+  camposVisibles,
+  erroresInstrumento,
+  filasRespuesta,
+  listaRespuesta,
+  fechaTutoria,
+} from './validacionInstrumentos';
+import type { CodigoFormato, DefinicionFormato, Instrumento, Sesion } from '../types/domain';
 import { definicionPorCodigo } from '../data/formatos';
-import { asignaciones, sesiones } from '../data/tutoria';
-import { docentePorId, estudiantePorId, escuelaDe, nombreCompleto } from '../data/personas';
-import { semestreActual } from '../data/catalogos';
+import { asignaciones, planDeEscuela, sesiones } from '../data/tutoria';
+import {
+  comisionTutoria,
+  docentePorId,
+  estudiantePorId,
+  escuelaDe,
+  nombreCompleto,
+} from '../data/personas';
+import {
+  etapaAcademica,
+  etapaDeCiclo,
+  facultades,
+  escuelas,
+  semestreActual,
+} from '../data/catalogos';
+import { respuestasRecordadas } from '../services/expediente';
+
+/** Opciones de matrícula y participantes resueltas desde el mismo ámbito que el guardado. */
+export function contextualizarDefinicion(
+  definicion: DefinicionFormato,
+  instrumento: Instrumento,
+): DefinicionFormato {
+  const cursos = instrumento.estudianteId
+    ? (matriculaDe(instrumento.estudianteId)?.cursos ?? []).map((curso) =>
+        nombreCurso(curso.cursoId),
+      )
+    : [];
+  const nombres = asignaciones
+    .filter(
+      (a) =>
+        a.tutorId === instrumento.tutorId &&
+        a.semestreId === instrumento.semestreId &&
+        a.estado === 'activa',
+    )
+    .map((a) => estudiantePorId(a.estudianteId))
+    .filter((e) => !!e)
+    .map(nombreCompleto);
+  return {
+    ...definicion,
+    secciones: definicion.secciones.map((seccion) => ({
+      ...seccion,
+      campos: seccion.campos.map((campo) => {
+        if (['cursosDificiles', 'materiasFaciles'].includes(campo.codigo))
+          return { ...campo, opciones: [...cursos, 'Ninguno', 'Otro'] };
+        if (campo.codigo === 'asistentes')
+          return {
+            ...campo,
+            columnas: campo.columnas?.map((col) =>
+              col.codigo === 'nombre'
+                ? { ...col, tipo: 'seleccion' as const, opciones: nombres }
+                : col,
+            ),
+          };
+        return campo;
+      }),
+    })),
+  };
+}
 
 export type MomentoTutoria = 'inicio' | 'durante' | 'cierre';
 export function formatoInicial(ciclo: number): CodigoFormato {
-  return ciclo <= 1 ? 'F03' : ciclo <= 7 ? 'F04' : 'F05';
-}
-export function listaRespuesta(valor: string): string[] {
-  try {
-    const lista: unknown = JSON.parse(valor);
-    return Array.isArray(lista)
-      ? lista.filter((item): item is string => typeof item === 'string')
-      : [];
-  } catch {
-    return valor ? [valor] : [];
-  }
-}
-export function filasRespuesta(valor: string): Record<string, string>[] {
-  try {
-    const filas: unknown = JSON.parse(valor);
-    return Array.isArray(filas)
-      ? filas.filter(
-          (fila): fila is Record<string, string> =>
-            Boolean(fila) &&
-            typeof fila === 'object' &&
-            Object.values(fila).every((v) => typeof v === 'string'),
-        )
-      : [];
-  } catch {
-    return [];
-  }
-}
-export function campoVisible(campo: CampoFormato, valores: Record<string, string>): boolean {
-  return !campo.visibleSi || campo.visibleSi.valores.includes(valores[campo.visibleSi.campo] ?? '');
-}
-export function camposVisibles(definicion: DefinicionFormato, valores: Record<string, string>) {
-  return definicion.secciones
-    .flatMap((seccion) => seccion.campos)
-    .filter((campo) => campoVisible(campo, valores));
-}
-export function erroresInstrumento(
-  definicion: DefinicionFormato,
-  valores: Record<string, string>,
-): Record<string, string> {
-  const errores: Record<string, string> = {};
-  for (const campo of camposVisibles(definicion, valores)) {
-    const valor = valores[campo.codigo]?.trim() ?? '';
-    const filas = campo.tipo === 'tabla' ? filasRespuesta(valor) : [];
-    const lista = campo.tipo === 'multiple' ? listaRespuesta(valor) : [];
-    if (
-      campo.obligatorio &&
-      (!valor ||
-        (campo.tipo === 'tabla' && !filas.length) ||
-        (campo.tipo === 'multiple' && !lista.length))
-    )
-      errores[campo.codigo] = 'Completa esta respuesta para enviar.';
-    if (!valor) continue;
-    if (campo.tipo === 'numero' && (!Number.isFinite(Number(valor)) || Number(valor) < 0))
-      errores[campo.codigo] = 'Ingresa un número válido, igual o mayor que cero.';
-    if (
-      ['promedioSecundaria', 'horasEstudio'].includes(campo.codigo) &&
-      Number(valor) > (campo.codigo === 'horasEstudio' ? 24 : 20)
-    )
-      errores[campo.codigo] =
-        campo.codigo === 'horasEstudio'
-          ? 'Un día tiene como máximo 24 horas.'
-          : 'El promedio debe estar entre 0 y 20.';
-    if (
-      campo.tipo === 'fecha' &&
-      (!/^\d{4}-\d{2}-\d{2}$/.test(valor) || Number.isNaN(Date.parse(valor)))
-    )
-      errores[campo.codigo] = 'Selecciona una fecha válida.';
-    if (campo.codigo === 'correo' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor))
-      errores[campo.codigo] = 'Revisa el correo electrónico.';
-    if (campo.tipo === 'tabla') {
-      if (
-        !filas.length ||
-        filas.some((fila) =>
-          campo.columnas?.some(
-            (columna) =>
-              !fila[columna.codigo]?.trim() ||
-              (columna.tipo === 'numero' &&
-                (!Number.isFinite(Number(fila[columna.codigo])) ||
-                  Number(fila[columna.codigo]) < 0)),
-          ),
-        )
-      )
-        errores[campo.codigo] = 'Completa las columnas de cada fila o elimina la fila vacía.';
-      if (
-        campo.codigo === 'administracionTiempo' &&
-        filas.reduce((total, fila) => total + Number(fila.horas || 0), 0) > 24
-      )
-        errores[campo.codigo] = 'Revisa las horas: el total de un día no puede superar 24.';
-    }
-    if (
-      campo.opciones?.includes('Otro') &&
-      (valor === 'Otro' || lista.includes('Otro')) &&
-      !valores[`${campo.codigo}__otro`]?.trim()
-    )
-      errores[`${campo.codigo}__otro`] = 'Indica brevemente tu otra respuesta.';
-  }
-  if (valores.horaInicio && valores.horaFin && valores.horaFin <= valores.horaInicio)
-    errores.horaFin = 'La hora de fin debe ser posterior al inicio.';
-  if (valores.resultado === 'Se programa nueva cita para seguimiento') {
-    if (valores.proximaCita && valores.proximaCita < fechaTutoria())
-      errores.proximaCita = 'La cita de seguimiento no puede estar en el pasado.';
-    if (valores.horaCita && valores.horaFinCita && valores.horaFinCita <= valores.horaCita)
-      errores.horaFinCita = 'La hora de fin debe ser posterior al inicio.';
-  }
-  if (
-    ['F06', 'F07', 'F08', 'F12'].includes(definicion.codigo) &&
-    valores.fecha &&
-    valores.fecha > fechaTutoria()
-  )
-    errores.fecha = 'Registra una atención ya realizada; la fecha no puede ser futura.';
-  return errores;
+  return etapaAcademica[etapaDeCiclo(ciclo)].formato;
 }
 export function avanceInstrumento(
   definicion: DefinicionFormato,
@@ -153,20 +107,118 @@ export function respuestasVisibles(
     }),
   );
 }
+/** Entrevistas iniciales: se responden al inicio del semestre. */
+const FORMATOS_DE_INICIO: CodigoFormato[] = ['F03', 'F04', 'F05'];
+/** Informes y autoevaluación del tutor: al cierre. F10/F11 dependen de cada sesión. */
+const FORMATOS_DE_CIERRE: CodigoFormato[] = ['F01', 'F02', 'F09'];
+
+/** Etapa del semestre en la que corresponde completar cada formato. */
+export function etapaDeFormato(codigo: CodigoFormato): MomentoTutoria {
+  if (FORMATOS_DE_INICIO.includes(codigo)) return 'inicio';
+  if (FORMATOS_DE_CIERRE.includes(codigo)) return 'cierre';
+  return 'durante';
+}
+
+/**
+ * Indica si el formato se puede enviar en la etapa seleccionada.
+ * Las entrevistas iniciales solo al inicio; los informes solo al cierre.
+ * F10/F11 requieren además sesión finalizada y asistencia confirmada.
+ * Los registros del tutor (06, 07, 08 y 12) se completan durante todo
+ * el semestre, cuando ocurre la atención.
+ */
 export function puedeEnviarFormato(codigo: CodigoFormato, momento: MomentoTutoria): boolean {
-  return !['F01', 'F02', 'F09', 'F10', 'F11'].includes(codigo) || momento === 'cierre';
+  const etapa = etapaDeFormato(codigo);
+  return etapa === 'durante' || etapa === momento;
 }
-export function fechaTutoria(): string {
-  return new Intl.DateTimeFormat('sv-SE', { timeZone: 'America/Lima' }).format(new Date());
+
+const MOTIVOS_DERIVACION: Record<string, string> = {
+  'Dificultades de estudio': 'Dificultades de aprendizaje',
+  'Organización del tiempo': 'Dificultades de aprendizaje',
+  'Riesgo académico': 'Dificultades de aprendizaje',
+  'Situación personal': 'Apoyo emocional',
+  'Situación familiar': 'Situación económica o familiar',
+  'Necesidad de apoyo especializado': 'Otro',
+  Otro: 'Otro',
+};
+
+/** Traduce el motivo de una atención 08 a las opciones de la ficha de derivación 12. */
+export function motivoDerivacionDesdeAtencion(motivo: string): string {
+  return MOTIVOS_DERIVACION[motivo] ?? 'Otro';
 }
-export function precargarInstrumento(
+
+/**
+ * Precarga los datos institucionales del formato 01 (informe de la comisión):
+ * facultad y escuela, integrantes de la comisión y actividades del plan tutorial
+ * de la escuela. Así la comisión solo completa lo que falta o lo que cambió.
+ */
+function datosInformeEscuela(instrumento: Instrumento): Record<string, string> {
+  const escuelaId = instrumento.respuestas.escuela ?? '';
+  const escuela = escuelas.find((item) => item.id === escuelaId);
+  if (!escuela) return {};
+  const facultad = facultades.find((item) => item.id === escuela.facultadId);
+  const comision = comisionTutoria
+    .filter(
+      (miembro) =>
+        miembro.cargoTutorial === 'Responsable de Tutoría y Capacitación Docente' ||
+        miembro.ambito.includes(escuela.abreviatura),
+    )
+    .map((miembro) => `${miembro.nombres} · ${miembro.cargoTutorial}`);
+  const actividades = planDeEscuela(escuela.id)
+    .filter((actividad) => actividad.semestreId === instrumento.semestreId)
+    .map((actividad) => ({
+      problematica: actividad.problematica,
+      meta: actividad.meta,
+      // El plan contiene fechas previstas y tipos de evidencia, no ejecución acreditada.
+      fecha: '',
+      justificacion: `${actividad.actividad}. ${actividad.objetivo}`,
+      evidencia: '',
+    }));
+  return {
+    facultad: facultad ? `${facultad.nombre} · ${escuela.nombre}` : escuela.nombre,
+    comision: comision.join('\n'),
+    actividades: actividades.length ? JSON.stringify(actividades) : '',
+  };
+}
+
+export interface PrecargaInstrumento {
+  valores: Record<string, string>;
+  /** Códigos tomados del expediente compartido, no del padrón ni del borrador. */
+  reutilizados: string[];
+}
+
+export function precargarInstrumentoConOrigen(
   instrumento: Instrumento,
   sesionesActuales: Sesion[] = sesiones,
-): Record<string, string> {
+  registrosPrevios: readonly Instrumento[] = [],
+): PrecargaInstrumento {
+  // Un envío es una fotografía de lo declarado en ese momento.
+  if (['enviado', 'aprobado'].includes(instrumento.estado)) {
+    const definicion = definicionPorCodigo(instrumento.formato);
+    return {
+      valores: definicion
+        ? respuestasVisibles(definicion, instrumento.respuestas)
+        : { ...instrumento.respuestas },
+      reutilizados: [],
+    };
+  }
   const estudiante = instrumento.estudianteId ? estudiantePorId(instrumento.estudianteId) : null;
+  const contactoDeclarado = registrosPrevios
+    .filter(
+      (r) =>
+        r.estudianteId === instrumento.estudianteId &&
+        r.semestreId === instrumento.semestreId &&
+        ['F03', 'F04', 'F05'].includes(r.formato) &&
+        ['enviado', 'aprobado'].includes(r.estado),
+    )
+    .sort((a, b) => a.actualizado.localeCompare(b.actualizado) || a.version - b.version)
+    .at(-1)?.respuestas;
   const docente = docentePorId(instrumento.tutorId);
   const asignacion = asignaciones.find(
-    (item) => item.estudianteId === estudiante?.id && item.semestreId === instrumento.semestreId,
+    (item) =>
+      item.estudianteId === estudiante?.id &&
+      item.semestreId === instrumento.semestreId &&
+      item.tutorId === instrumento.tutorId &&
+      item.estado === 'activa',
   );
   const grupo = asignacion?.grupo ?? '';
   const tutorados = asignaciones.filter(
@@ -181,7 +233,7 @@ export function precargarInstrumento(
       item.semestreId === instrumento.semestreId &&
       item.estado === 'realizada',
   );
-  const sesion = realizadas.find((item) => item.id === instrumento.sesionId);
+  const sesion = sesionesActuales.find((item) => item.id === instrumento.sesionId);
   const asistentesDe = (tipo: Sesion['tipo']) => [
     ...new Set(
       realizadas
@@ -220,6 +272,7 @@ export function precargarInstrumento(
           estudiantesAsignados: String(tutorados.length),
         }
       : {}),
+    ...(instrumento.formato === 'F01' ? datosInformeEscuela(instrumento) : {}),
     ...(instrumento.formato === 'F02'
       ? {
           individuales: String(realizadas.filter((item) => item.tipo === 'individual').length),
@@ -246,6 +299,12 @@ export function precargarInstrumento(
     ...(sesion
       ? {
           fecha: sesion.fecha,
+          turno:
+            Number(sesion.horaInicio.slice(0, 2)) < 12
+              ? 'Mañana'
+              : Number(sesion.horaInicio.slice(0, 2)) < 18
+                ? 'Tarde'
+                : 'Noche',
           tema: sesion.tema,
           horaInicio: sesion.horaInicio,
           horaFin: sesion.horaFin,
@@ -262,7 +321,14 @@ export function precargarInstrumento(
                 return {
                   nombre: e ? nombreCompleto(e) : '',
                   ciclo: String(e?.ciclo ?? ''),
-                  grupo: asignaciones.find((as) => as.estudianteId === a.estudianteId)?.grupo ?? '',
+                  grupo:
+                    asignaciones.find(
+                      (as) =>
+                        as.estudianteId === a.estudianteId &&
+                        as.tutorId === instrumento.tutorId &&
+                        as.semestreId === instrumento.semestreId &&
+                        as.estado === 'activa',
+                    )?.grupo ?? '',
                   tipo: 'Académica',
                 };
               }),
@@ -270,7 +336,26 @@ export function precargarInstrumento(
         }
       : {}),
   };
-  const valores = { ...identidad, ...instrumento.respuestas };
+  // Los datos que la persona ya respondió en otros formularios se reutilizan;
+  // el borrador propio y el padrón institucional tienen prioridad sobre ellos.
+  const recordadas = {
+    ...Object.fromEntries(
+      ['correo', 'telefono'].flatMap((codigo) =>
+        contactoDeclarado && typeof contactoDeclarado[codigo] === 'string'
+          ? [[codigo, contactoDeclarado[codigo]]]
+          : [],
+      ),
+    ),
+    ...respuestasRecordadas(instrumento, registrosPrevios),
+  };
+  const valores = { ...identidad, ...recordadas, ...instrumento.respuestas };
+  if (sesion && ['F10', 'F11'].includes(instrumento.formato)) {
+    // La fecha y el turno corresponden a esta sesión, aunque otra evaluación los recordara.
+    valores.fecha = sesion.fecha;
+    valores.turno = identidad.turno!;
+    valores.grupo = grupo;
+    valores.nombreTutor = identidad.nombreTutor!;
+  }
   if (
     instrumento.formato === 'F08' &&
     valores.motivo &&
@@ -303,7 +388,7 @@ export function precargarInstrumento(
     'semestre',
   ])
     if (identidad[codigo]) valores[codigo] = identidad[codigo];
-  if (instrumento.formato === 'F02' && !['enviado', 'aprobado'].includes(instrumento.estado)) {
+  if (['F02', 'F09'].includes(instrumento.formato)) {
     for (const codigo of [
       'individuales',
       'grupales',
@@ -311,9 +396,27 @@ export function precargarInstrumento(
       'atendidosGrupal',
       'ciclosIndividual',
       'ciclosGrupal',
+      'gruposAsignados',
+      'estudiantesAsignados',
     ])
-      valores[codigo] = identidad[codigo] ?? '';
+      if (codigo in identidad) valores[codigo] = identidad[codigo] ?? '';
   }
   const definicion = definicionPorCodigo(instrumento.formato);
-  return definicion ? respuestasVisibles(definicion, valores) : valores;
+  if (!definicion) return { valores, reutilizados: [] };
+  const visibles = respuestasVisibles(definicion, valores);
+  const reutilizados = Object.keys(recordadas).filter(
+    (codigo) =>
+      codigo in visibles &&
+      visibles[codigo] === recordadas[codigo] &&
+      !(codigo in instrumento.respuestas) &&
+      visibles[codigo] !== identidad[codigo],
+  );
+  return { valores: visibles, reutilizados };
+}
+
+export function precargarInstrumento(
+  instrumento: Instrumento,
+  sesionesActuales: Sesion[] = sesiones,
+): Record<string, string> {
+  return precargarInstrumentoConOrigen(instrumento, sesionesActuales).valores;
 }

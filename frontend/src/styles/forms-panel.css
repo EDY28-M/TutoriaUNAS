@@ -79,6 +79,42 @@
 .forms-panel__filters button[aria-pressed='true'] span {
   background: var(--green-soft);
 }
+.forms-panel__filters-actions {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+}
+.forms-panel__etapa {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink-500);
+  font-size: var(--text-ui-small);
+}
+.forms-panel__etapa select {
+  min-width: 0;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 6px 8px;
+  border: 1px solid var(--forms-line);
+  border-radius: 7px;
+  color: var(--ink-600);
+  background: var(--surface);
+}
+.forms-panel__context {
+  margin: 0;
+  color: var(--ink-500);
+  font-size: var(--text-ui-small);
+}
+.forms-panel__stage-note {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px dashed var(--forms-line);
+  border-radius: 10px;
+  color: var(--ink-600);
+  background: var(--ink-50);
+  font-size: var(--text-ui-secondary);
+}
 .forms-panel__results {
   display: grid;
   gap: 30px;
@@ -330,6 +366,11 @@
     justify-content: space-between;
     padding-inline: 10px;
     font-size: var(--text-ui-tab);
+  }
+  .forms-panel__filters-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+    margin-left: 0;
   }
   .form-tile,
   .form-tile--featured {

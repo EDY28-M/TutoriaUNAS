@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+import { useInstrumentWorkspace } from '../../hooks/useInstrumentWorkspace';
+import { programarSesion } from '../../services/sessionWorkspace';
 import { TriangleAlert } from '../../components/ui/icons';
 import { PageHeading } from '../../components/ui/PageHeading';
 
@@ -14,8 +17,8 @@ import { SessionDetails } from '../../components/panels/SessionDetails';
 import { semestreActual } from '../../data/catalogos';
 import { estudiantePorId, nombreCompleto } from '../../data/personas';
 import { hayCruce } from '../../data/academico';
-import type { ModalidadSesion } from '../../types/domain';
-import { HOY_ISO, formatFechaLarga, formatHora, formatRangoHora } from '../../utils/fechas';
+import type { ModalidadSesion, Sesion } from '../../types/domain';
+import { fechaActualLima, formatFechaLarga, formatHora, formatRangoHora } from '../../utils/fechas';
 
 /** Sesiones del docente: un solo calendario con detalle y programación. */
 
@@ -28,6 +31,8 @@ function diaDeFecha(fecha: string): number {
 
 export function TutorSessions() {
   const portal = usePortal();
+  const { user } = useAuth();
+  const workspace = useInstrumentWorkspace();
   const { docente, tutorados, sesiones } = portal;
   const [parametros] = useSearchParams();
 
@@ -36,10 +41,50 @@ export function TutorSessions() {
   );
 
   const [nuevoTipo, setNuevoTipo] = useState<ModalidadSesion>('individual');
-  const [nuevaFecha, setNuevaFecha] = useState(HOY_ISO);
+  const [nuevaFecha, setNuevaFecha] = useState(fechaActualLima);
   const [nuevaInicio, setNuevaInicio] = useState('16:00');
   const [nuevaFin, setNuevaFin] = useState('17:00');
   const [nuevoEstudiante, setNuevoEstudiante] = useState(tutorados[0]?.estudianteId ?? '');
+  const [nuevoGrupo, setNuevoGrupo] = useState(tutorados[0]?.grupo ?? '');
+  const [modalidad, setModalidad] = useState<Sesion['modalidad']>('presencial');
+  const [lugar, setLugar] = useState('Cubículo de tutoría · Pabellón B');
+  const [tema, setTema] = useState('Seguimiento del avance académico del semestre');
+  const [objetivo, setObjetivo] = useState(
+    'Acompañar al tutorado en la organización de su tiempo y en la preparación de las evaluaciones.',
+  );
+  const [error, setError] = useState('');
+  const [aviso, setAviso] = useState('');
+  const convocados =
+    nuevoTipo === 'individual'
+      ? [nuevoEstudiante].filter(Boolean)
+      : tutorados.filter((a) => a.grupo === nuevoGrupo).map((a) => a.estudianteId);
+  function programar() {
+    if (!user) return;
+    try {
+      const sesion = programarSesion(
+        user,
+        {
+          tipo: nuevoTipo,
+          fecha: nuevaFecha,
+          horaInicio: nuevaInicio,
+          horaFin: nuevaFin,
+          modalidad,
+          lugar,
+          tema,
+          objetivo,
+          estudiantes: convocados,
+        },
+        workspace.registros,
+      );
+      setError('');
+      setAviso(
+        'Sesión programada. Ya está disponible en el calendario de los estudiantes convocados.',
+      );
+      setVentana({ tipo: 'detalle', sesionId: sesion.id });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'No se pudo programar la sesión.');
+    }
+  }
 
   const tutoradosResueltos = tutorados.flatMap((asignacion) => {
     const estudiante = estudiantePorId(asignacion.estudianteId);
@@ -79,7 +124,10 @@ export function TutorSessions() {
             <button
               type="button"
               className="btn btn-primary"
-              onClick={() => setVentana({ tipo: 'programar' })}
+              onClick={() => {
+                setError('');
+                setVentana({ tipo: 'programar' });
+              }}
             >
               Programar sesión
             </button>
@@ -87,6 +135,13 @@ export function TutorSessions() {
         }
         description="Programa sesiones y consulta sus acuerdos."
       />
+      {aviso && (
+        <div role="status">
+          <Alert tone="ok" title="Sesión programada">
+            {aviso}
+          </Alert>
+        </div>
+      )}
       <SessionCalendar
         sesiones={sesiones}
         onAbrir={(sesion) => setVentana({ tipo: 'detalle', sesionId: sesion.id })}
@@ -103,6 +158,14 @@ export function TutorSessions() {
           wide
           footer={
             <>
+              {!['cancelada', 'reprogramada'].includes(sesionDetalle.estado) && (
+                <Link
+                  className="btn btn-primary"
+                  to={`/tutor/asistencias?sesion=${encodeURIComponent(sesionDetalle.id)}`}
+                >
+                  Registrar asistencia
+                </Link>
+              )}
               <button
                 type="button"
                 className="btn btn-falcon-default"
@@ -132,13 +195,18 @@ export function TutorSessions() {
               >
                 Cancelar
               </button>
-              <button type="button" className="btn btn-primary" onClick={() => setVentana(null)}>
-                Programar (demostración)
+              <button type="button" className="btn btn-primary" onClick={programar}>
+                Guardar programación
               </button>
             </>
           }
         >
           <div className="stack">
+            {error && (
+              <Alert tone="riesgo" title="Revisa la programación">
+                {error}
+              </Alert>
+            )}
             <div className="field-grid">
               <div className="field">
                 <label htmlFor="programar-fecha">Fecha</label>
@@ -186,7 +254,12 @@ export function TutorSessions() {
               </div>
               <div className="field">
                 <label htmlFor="programar-modalidad">Modalidad</label>
-                <select id="programar-modalidad" className="select" defaultValue="presencial">
+                <select
+                  id="programar-modalidad"
+                  className="select"
+                  value={modalidad}
+                  onChange={(e) => setModalidad(e.target.value as Sesion['modalidad'])}
+                >
                   <option value="presencial">Presencial</option>
                   <option value="virtual">Virtual</option>
                   <option value="mixta">Mixta</option>
@@ -198,7 +271,9 @@ export function TutorSessions() {
                   id="programar-lugar"
                   className="input"
                   type="text"
-                  defaultValue="Cubículo de tutoría · Pabellón B"
+                  value={lugar}
+                  onChange={(e) => setLugar(e.target.value)}
+                  maxLength={300}
                 />
               </div>
             </div>
@@ -224,6 +299,33 @@ export function TutorSessions() {
                 </span>
               </div>
             )}
+            {nuevoTipo === 'grupal' && (
+              <label className="field" htmlFor="programar-grupo">
+                <span>Grupo convocado</span>
+                <select
+                  id="programar-grupo"
+                  className="select"
+                  value={nuevoGrupo}
+                  onChange={(e) => setNuevoGrupo(e.target.value)}
+                >
+                  {[
+                    ...new Set(
+                      tutorados
+                        .map((a) => a.grupo)
+                        .filter((grupo): grupo is string => Boolean(grupo)),
+                    ),
+                  ].map((grupo) => (
+                    <option key={grupo} value={grupo}>
+                      {grupo}
+                    </option>
+                  ))}
+                </select>
+                <span className="field__hint">
+                  {convocados.length} estudiantes de tus asignaciones activas recibirán la sesión en
+                  su calendario.
+                </span>
+              </label>
+            )}
 
             {cruceProgramacion ? (
               <Alert tone="alerta" title="Posible cruce con el horario académico">
@@ -233,8 +335,8 @@ export function TutorSessions() {
               </Alert>
             ) : nuevoTipo === 'individual' && nuevoEstudiante !== '' && nuevaInicio < nuevaFin ? (
               <Alert tone="ok" title="Horario sin cruces">
-                El horario propuesto no coincide con clases del estudiante ni con el horario
-                académico del docente.
+                El horario propuesto no coincide con clases del estudiante. Al guardar se verifican
+                también las sesiones del tutor y de los convocados.
               </Alert>
             ) : null}
 
@@ -244,7 +346,9 @@ export function TutorSessions() {
                 id="programar-tema"
                 className="input"
                 type="text"
-                defaultValue="Seguimiento del avance académico del semestre"
+                value={tema}
+                onChange={(e) => setTema(e.target.value)}
+                maxLength={200}
                 aria-describedby="programar-tema-ayuda"
               />
               <span className="field__hint" id="programar-tema-ayuda">
@@ -256,7 +360,9 @@ export function TutorSessions() {
               <textarea
                 id="programar-objetivo"
                 className="textarea"
-                defaultValue="Acompañar al tutorado en la organización de su tiempo y en la preparación de las evaluaciones."
+                value={objetivo}
+                onChange={(e) => setObjetivo(e.target.value)}
+                maxLength={2000}
               />
             </div>
             <dl className="meta-list">

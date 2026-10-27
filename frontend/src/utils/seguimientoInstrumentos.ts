@@ -50,6 +50,7 @@ export function sesionesDesdeInstrumentos(registros: Instrumento[]): Sesion[] {
             ? 'Revisar el avance del caso identificado'
             : 'Acompañamiento tutorial',
           estado: seguimiento ? 'programada' : 'realizada',
+          asistenciaConfirmada: !seguimiento,
           asistentes: [...new Set(ids)].map((estudianteId) => ({
             estudianteId,
             estado: seguimiento ? 'justificado' : 'asistio',

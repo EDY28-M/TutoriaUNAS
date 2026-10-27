@@ -14,7 +14,7 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { usePortal } from '../../hooks/usePortal';
 import type { ActividadPlan } from '../../types/domain';
 import { abreviaturaEscuela, escuelaDe } from '../../data/personas';
-import { escuelas, semestreActual } from '../../data/catalogos';
+import { escuelas, semestreActual, etapaAcademica } from '../../data/catalogos';
 import { actividadesPlan } from '../../data/tutoria';
 import { formatFecha, formatFechaLarga } from '../../utils/fechas';
 
@@ -403,8 +403,10 @@ export function CoordPlan() {
                   <div>
                     <dt>Formato por etapa</dt>
                     <dd>
-                      La entrevista inicial se rinde según la etapa: formato 03 (ciclos I–II), 04
-                      (III–VII) y 05 (VIII–X).
+                      {Object.values(etapaAcademica)
+                        .map((etapa) => `${etapa.ciclos}: formato ${etapa.formato.slice(1)}`)
+                        .join(' · ')}
+                      .
                     </dd>
                   </div>
                   <div>

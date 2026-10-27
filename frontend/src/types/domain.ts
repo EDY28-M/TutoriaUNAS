@@ -192,6 +192,8 @@ export interface Sesion {
   acuerdos: Acuerdo[];
   instrumentoId: string | null;
   observacion: string | null;
+  /** Confirmación del tutor; no equivale a la convocatoria de una sesión programada. */
+  asistenciaConfirmada?: boolean;
 }
 
 export interface AsistenciaSesion {

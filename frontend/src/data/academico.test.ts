@@ -33,9 +33,12 @@ describe('catÃ¡logos acadÃ©micos', () => {
 
   it('deriva la etapa acadÃ©mica del ciclo', () => {
     expect(etapaDeCiclo(1)).toBe('ingresante');
-    expect(etapaDeCiclo(2)).toBe('intermedio');
+    expect(etapaDeCiclo(2)).toBe('ingresante');
+    expect(etapaDeCiclo(3)).toBe('ingresante');
     expect(etapaDeCiclo(4)).toBe('intermedio');
+    expect(etapaDeCiclo(7)).toBe('intermedio');
     expect(etapaDeCiclo(8)).toBe('final');
+    expect(etapaDeCiclo(9)).toBe('final');
   });
 
   it('devuelve los cursos de una escuela', () => {

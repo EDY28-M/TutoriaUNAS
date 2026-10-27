@@ -49,6 +49,11 @@ export const DIAS_SEMANA = [
 /** Fecha de referencia de la demostración. */
 export const HOY_ISO = '2026-10-14';
 
+/** Fecha operativa; el corte fijo de los datos ficticios no determina el día de hoy. */
+export function fechaActualLima(): string {
+  return new Intl.DateTimeFormat('sv-SE', { timeZone: 'America/Lima' }).format(new Date());
+}
+
 function aFecha(valor: string): Date {
   const [fecha, hora] = valor.split('T');
   const [anio, mes, dia] = (fecha ?? '').split('-').map(Number);
@@ -122,7 +127,11 @@ export interface CeldaCalendario {
 }
 
 /** Matriz de seis semanas (42 celdas) que comienza en lunes. */
-export function matrizMensual(anio: number, mes: number): CeldaCalendario[] {
+export function matrizMensual(
+  anio: number,
+  mes: number,
+  hoy = fechaActualLima(),
+): CeldaCalendario[] {
   const primero = new Date(anio, mes, 1);
   const desplazamiento = (primero.getDay() + 6) % 7;
   const inicio = new Date(anio, mes, 1 - desplazamiento);
@@ -134,7 +143,7 @@ export function matrizMensual(anio: number, mes: number): CeldaCalendario[] {
       iso: aIso(fecha),
       dia: fecha.getDate(),
       fueraDeMes: fecha.getMonth() !== mes,
-      esHoy: aIso(fecha) === HOY_ISO,
+      esHoy: aIso(fecha) === hoy,
     });
   }
   return celdas;

@@ -10,11 +10,11 @@ using TutoriaUNAS.Api.Services;
 
 namespace TutoriaUNAS.Api.Tests;
 
-public sealed class ApiIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
+public sealed class ApiIntegrationTests : IClassFixture<ApiTestFactory>
 {
     private readonly WebApplicationFactory<Program> factory;
 
-    public ApiIntegrationTests(WebApplicationFactory<Program> factory) => this.factory = factory;
+    public ApiIntegrationTests(ApiTestFactory factory) => this.factory = factory;
 
     private HttpClient CreateClient(string environment = "Development") => factory.WithWebHostBuilder(builder => builder.UseEnvironment(environment)).CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost") });
 
@@ -124,6 +124,37 @@ public sealed class ApiIntegrationTests : IClassFixture<WebApplicationFactory<Pr
         var body = await response.Content.ReadAsStringAsync();
         Assert.DoesNotContain("internal-test-information", body, StringComparison.Ordinal);
         Assert.Contains("traceId", body, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(1, "F03")]
+    [InlineData(2, "F03")]
+    [InlineData(3, "F03")]
+    [InlineData(4, "F04")]
+    [InlineData(5, "F04")]
+    [InlineData(6, "F04")]
+    [InlineData(7, "F04")]
+    [InlineData(8, "F05")]
+    [InlineData(9, "F05")]
+    [InlineData(10, "F05")]
+    public async Task EntrevistaInicialFollowsCycleStages(int ciclo, string formato)
+    {
+        using var client = CreateClient();
+        var entrevista = await client.GetFromJsonAsync<EntrevistaInicialDto>($"/api/instrumentos/entrevista-inicial/{ciclo}");
+        Assert.NotNull(entrevista);
+        Assert.Equal(ciclo, entrevista.Ciclo);
+        Assert.Equal(formato, entrevista.Formato);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    [InlineData(11)]
+    public async Task EntrevistaInicialRejectsInvalidCycle(int ciclo)
+    {
+        using var client = CreateClient();
+        using var response = await client.GetAsync($"/api/instrumentos/entrevista-inicial/{ciclo}");
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     private sealed class FailingStatusService : ISystemStatusService

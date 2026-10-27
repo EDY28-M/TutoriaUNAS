@@ -55,7 +55,14 @@ describe('alcance de datos por rol', () => {
     expect(result.current.derivaciones.length).toBeGreaterThan(0);
     expect(result.current.sesiones).toHaveLength(sesiones.length);
     expect(new Set(result.current.sesiones.map((sesion) => sesion.id)).size).toBe(sesiones.length);
-    expect(result.current.instrumentos).toHaveLength(instrumentos.length);
+    const evaluaciones = result.current.instrumentos.filter((r) =>
+      ['F10', 'F11'].includes(r.formato),
+    );
+    expect(evaluaciones).toHaveLength(
+      sesiones.reduce((total, s) => total + s.asistentes.length, 0),
+    );
+    expect(evaluaciones.every((r) => r.sesionId && r.estudianteId)).toBe(true);
+    expect(result.current.instrumentos).toHaveLength(instrumentos.length + evaluaciones.length);
     expect(result.current.instrumentos.filter((item) => item.formato === 'F12')).toHaveLength(
       derivaciones.length,
     );
@@ -66,7 +73,9 @@ describe('alcance de datos por rol', () => {
 
   it('no rompe cuando no hay sesión activa', () => {
     const { result } = renderHook(() => usePortal(), { wrapper: envolver(null) });
-    expect(result.current.estudiante).not.toBeNull();
+    expect(result.current.estudiante).toBeNull();
+    expect(result.current.instrumentos).toHaveLength(0);
+    expect(result.current.sesiones).toHaveLength(0);
     expect(result.current.contadores.sesiones).toBeGreaterThanOrEqual(0);
   });
 
@@ -89,10 +98,12 @@ describe('alcance de datos por rol', () => {
     expect(result.current.escuelaId).toBe('E-IIS');
   });
 
-  it('cae en el primer estudiante del padrón si el identificador no existe', () => {
+  it('no revela el expediente de otro estudiante si el identificador no existe', () => {
     const desconocido = { ...cuentaEstudiante, id: 'EST-0000000000' };
     const { result } = renderHook(() => usePortal(), { wrapper: envolver(desconocido) });
-    expect(result.current.estudiante).not.toBeNull();
-    expect(result.current.escuelaId).toBe(result.current.estudiante?.escuelaId);
+    expect(result.current.estudiante).toBeNull();
+    expect(result.current.instrumentos).toHaveLength(0);
+    expect(result.current.sesiones).toHaveLength(0);
+    expect(result.current.derivaciones).toHaveLength(0);
   });
 });

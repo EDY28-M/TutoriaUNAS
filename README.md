@@ -23,8 +23,25 @@ ni `bin/obj` del backend. Las dependencias se recuperan desde `frontend` con
 
 ## Formularios de tutoría · 16 de octubre de 2026
 
-- Estudiante: **Mi tutoría → Mis formularios**. Entrevista 03 (ciclo I), 04 (II–VII) o 05
-  (VIII en adelante) al iniciar el semestre. Evaluaciones 10 y 11 al finalizarlo.
+Revisión documental del **27 de octubre de 2026**: `docs/MIGRACION.md` contiene el contraste de
+las cartas 000151-ATCD y 001026-DIBU, la matriz de datos de las nueve áreas y la automatización
+anexo por anexo. La respuesta de DBU solicita un plan; no concede todavía acceso. El plan
+editable se rehízo con el Word de referencia y está en
+`artifacts/analisis-tutoria/Requerimientos_Bienestar_Universitario_Tutoria.docx`.
+
+La precarga distingue semestre y significado de la pregunta; conserva el texto de «Otro» y los
+contactos declarados. Solo la trayectoria escolar se reutiliza entre semestres. Los envíos
+rechazados no cambian esa fuente y los enviados conservan su contenido. La versión anterior
+de la caché deja de usarse por no registrar semestre; los borradores del workspace permanecen.
+La ficha del tutor restringe el acceso a sus asignaciones activas y recibe estados de salud sin
+motivo médico. Una identidad estudiantil desconocida ya no muestra otro expediente.
+Estos controles de demostración requieren sus equivalentes en servidor antes del uso real.
+
+- Estudiante: **Mi tutoría → Mis formularios**. Entrevista 03 (ciclos 1 a 3), 04 (ciclos 4 a 7)
+  o 05 (ciclos 8 a 10) al iniciar el semestre. Evaluaciones 10 y 11 por cada sesión
+  individual o grupal finalizada, con asistencia confirmada por el docente; no dependen del ciclo.
+  Esta distribución sigue la indicación del usuario del 27 de octubre de 2026 y es la misma
+  en frontend y backend. Los ciclos inválidos se rechazan; no se asignan a una etapa por defecto.
 - Docente: **Mi tutoría → Mis formularios / Respuestas de estudiantes**, al principio del menú.
   Registros 06, 07, 08 y 12 durante el semestre; preparación de 09 durante el semestre y envío
   de 02 y 09 al cierre. El 01 corresponde a la comisión.
@@ -33,6 +50,10 @@ ni `bin/obj` del backend. Las dependencias se recuperan desde `frontend` con
 - El mismo registro recorre borrador, envío, observación, subsanación y revisión. Los borradores
   del estudiante no se abren desde el portal docente. El tutor consulta las evaluaciones
   enviadas, pero no puede cambiarlas ni aprobarlas en nombre del estudiante.
+- Los formularios reutilizan los datos estables que ya registraste (colegio, hábitos de
+  estudio, situación socioemocional, rasgos, expectativas) y los del padrón; solo se completa lo
+  que falta o cambió. El formato 01 se precarga con el plan de la escuela y el 12 se prepara desde
+  la atención 08. Detalle anexo por anexo en `docs/ANEXOS-COBERTURA.md`.
 - Una atención 08 con seguimiento incorpora la cita a Sesiones de ambos roles.
   Si requiere derivación, prepara un borrador 12; después de su envío aparece en solicitudes
   de apoyo. Los informes precargan las cifras de las atenciones registradas.
@@ -42,6 +63,14 @@ pestaña**, al recargar y cambiar de rol. El selector de momento permite probar 
 desarrollo y cierre; no representa una apertura institucional. Cerrar la pestaña elimina esa
 persistencia. No hay sincronización entre dispositivos, firma electrónica ni envío a servicios
 externos. La API y la autorización institucional quedan para la integración posterior.
+
+La programación y asistencia se guardan en `localStorage`. El tutor programa una sesión
+individual o convoca a un grupo; ambos portales comparten el mismo calendario. Al terminar,
+el botón **Registrar asistencia** del detalle abre la lista de convocados. Confirmar presentes
+habilita **Evaluar tutoría** en el detalle del estudiante, que abre el formulario de esa sesión.
+Una falta permite únicamente ver las preguntas y explica el requisito de asistencia.
+Cada evaluación tiene una clave por sesión y estudiante; reutiliza grupo, turno, tutor y fecha,
+sin copiar calificaciones. El guardado comprueba las mismas condiciones que la interfaz.
 
 ## Navegación del portal · 19 de octubre de 2026
 
@@ -281,11 +310,35 @@ dotnet format backend/TutoriaUNAS.slnx --verify-no-changes
 dotnet list backend/TutoriaUNAS.slnx package --vulnerable --include-transitive
 ```
 
+En Windows, el proyecto de pruebas configura `MSTest.EnableParentProcessQuery=false`
+mediante la opción de MSBuild del TestHost instalado. Evita el `Acceso denegado` que
+aborta VSTest al intentar vigilar el proceso padre; no omite pruebas ni cambia la API.
+`ApiTestFactory` excluye únicamente el proveedor EventLog durante las pruebas de Windows,
+para que comprobar un error HTTP 500 no dependa de permisos sobre el registro de eventos.
+Los otros proveedores de logging siguen activos. No requiere paquetes adicionales.
+Referencia de la opción: [código de VSTest](https://source.dot.net/testhost.x86/DefaultEngineInvoker.cs.html).
+
+Si Coverlet genera un reporte sin hits por permisos en el temporal de Windows, ejecuta
+`powershell -ExecutionPolicy Bypass -File scripts/medir-cobertura-backend.ps1`. Usa temporales
+locales del proyecto solo durante la ejecución y comprueba que la cobertura sea válida.
+El resumen diferencia código fuente propio de código generado en `obj/`.
+
 `pnpm check` comprueba formato, ESLint sin advertencias, pruebas unitarias con umbrales,
 TypeScript estricto y build. La cobertura unitaria local se concentra en autenticación,
 selección de rol, control de rutas, alcance de datos y utilidades; no representa toda la
 aplicación. Los flujos visuales se verifican con Playwright y axe en Chromium.
 Los anchos comprobados son 320, 375, 390, 768, 1024 y 1440 px.
+
+La auditoría integral del 27 de octubre de 2026 obtuvo gate PASS 7/7, 131 pruebas unitarias
+frontend y 36 backend aprobadas. La batería completa de navegador obtuvo **82 PASS y 41 FAIL**;
+incluye expectativas antiguas y defectos reproducidos. El sistema sigue siendo una demostración:
+faltan persistencia/API de negocio, autoría de F01, documentos oficiales e integraciones.
+Consulta la matriz de formatos y evidencias actuales en [el registro de validación](docs/VALIDACION.md).
+
+La migración posterior del motor de instrumentos a React Hook Form + Zod conserva el diseño
+y los borradores existentes. Usa precarga que respeta los cambios pendientes y `useFieldArray`
+para las tablas de participantes. Pasa **157 pruebas unitarias y 24 E2E del flujo afectado**;
+el plan y los límites de la integración están en [MIGRACION.md](docs/MIGRACION.md).
 
 Consulta [la preparación para SonarQube](docs/SONARQUBE.md) y
 [el registro de validación](docs/VALIDACION.md). SonarQube no se ha ejecutado contra un
@@ -293,7 +346,7 @@ servidor; su Quality Gate depende del perfil y la configuración que utilices.
 
 ## Pendiente para la integración institucional
 
-1. Recibir instrumentos oficiales y requisitos de asignación, seguimiento y reportes.
+1. Validar la vigencia de los anexos recibidos y las reglas institucionales de asignación, seguimiento y reportes.
 2. Definir entidades, constraints, retención y permisos por recurso con la universidad.
 3. Crear y revisar migraciones EF Core sobre PostgreSQL de desarrollo.
 4. Integrar el proveedor de identidad, mapeo de claims, renovación y cierre de sesión real.

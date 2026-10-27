@@ -203,12 +203,33 @@ export function atencionesDe(estudianteId: string): AtencionSalud[] {
   return atencionesSalud.filter((atencion) => atencion.estudianteId === estudianteId);
 }
 
+/** Proyección tutorial explícita: no transporta el motivo ni el expediente profesional. */
+export function atencionesTutorialesDe(estudianteId: string) {
+  return atencionesDe(estudianteId).map((atencion) => ({
+    id: atencion.id,
+    estudianteId: atencion.estudianteId,
+    servicio: atencion.servicio,
+    fecha: atencion.fecha,
+    hora: atencion.hora,
+    estado: atencion.estado,
+    recomendacionAcademica: atencion.recomendacionAcademica,
+    vigenciaRecomendacion: atencion.vigenciaRecomendacion,
+    fuente: 'DBU · datos ficticios de demostración',
+    fechaCorte: FECHA_CORTE_ACADEMICA,
+  }));
+}
+
 export function beneficiosDe(estudianteId: string): BeneficioSocial[] {
   return beneficiosSociales.filter((beneficio) => beneficio.estudianteId === estudianteId);
 }
 
 export function apoyosDe(estudianteId: string): ApoyoComunicable[] {
-  return apoyosComunicables.filter((apoyo) => apoyo.estudianteId === estudianteId);
+  return apoyosComunicables
+    .filter((apoyo) => apoyo.estudianteId === estudianteId)
+    .map((apoyo) => ({
+      ...apoyo,
+      necesidad: 'Acompañamiento académico autorizado',
+    }));
 }
 
 export function afiliacionSisDe(estudianteId: string): AfiliacionSis | undefined {

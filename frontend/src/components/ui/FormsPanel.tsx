@@ -11,10 +11,19 @@ interface FormsPanelProps {
   momento: MomentoTutoria;
   children: ReactNode;
   className?: string;
+  /** Mueve el selector de etapa a la fila de filtros (portal del estudiante). */
+  etapaEnFiltros?: boolean;
 }
 
 /** Cabecera y etapa compartidas por las bandejas de estudiante y docente. */
-export function FormsPanel({ title, status, momento, children, className = '' }: FormsPanelProps) {
+export function FormsPanel({
+  title,
+  status,
+  momento,
+  children,
+  className = '',
+  etapaEnFiltros = false,
+}: FormsPanelProps) {
   const id = useId();
   return (
     <section className={`forms-panel ${className}`} aria-labelledby={`${id}-title`}>
@@ -27,22 +36,30 @@ export function FormsPanel({ title, status, momento, children, className = '' }:
         <span>
           <Info aria-hidden="true" /> Modo demostración
         </span>
-        <label htmlFor={`${id}-moment`}>
-          Etapa
-          <select
-            className="select"
-            id={`${id}-moment`}
-            aria-label="Momento del semestre"
-            value={momento}
-            onChange={(e) => cambiarMomento(e.target.value as MomentoTutoria)}
-          >
-            <option value="inicio">Inicio</option>
-            <option value="durante">Durante el semestre</option>
-            <option value="cierre">Cierre</option>
-          </select>
-        </label>
+        {!etapaEnFiltros && <EtapaSelector momento={momento} />}
       </footer>
     </section>
+  );
+}
+
+/** Selector de la etapa del semestre que gobierna qué formularios se pueden enviar. */
+export function EtapaSelector({ momento }: { momento: MomentoTutoria }) {
+  const id = useId();
+  return (
+    <label className="forms-panel__etapa" htmlFor={`${id}-moment`}>
+      Etapa
+      <select
+        className="select"
+        id={`${id}-moment`}
+        aria-label="Momento del semestre"
+        value={momento}
+        onChange={(e) => cambiarMomento(e.target.value as MomentoTutoria)}
+      >
+        <option value="inicio">Inicio</option>
+        <option value="durante">Durante el semestre</option>
+        <option value="cierre">Cierre</option>
+      </select>
+    </label>
   );
 }
 
@@ -51,9 +68,11 @@ interface FormsFiltersProps {
   options: { id: string; nombre: string; cantidad: number }[];
   value: string;
   onChange(value: string): void;
+  /** Controles que se alinean a la derecha de los filtros (por ejemplo, la etapa). */
+  acciones?: ReactNode;
 }
 
-export function FormsFilters({ label, options, value, onChange }: FormsFiltersProps) {
+export function FormsFilters({ label, options, value, onChange, acciones }: FormsFiltersProps) {
   return (
     <div className="forms-panel__filters" role="group" aria-label={label}>
       {options.map(({ id, nombre, cantidad }) => (
@@ -62,6 +81,7 @@ export function FormsFilters({ label, options, value, onChange }: FormsFiltersPr
           <span>{cantidad}</span>
         </button>
       ))}
+      {acciones && <div className="forms-panel__filters-actions">{acciones}</div>}
     </div>
   );
 }

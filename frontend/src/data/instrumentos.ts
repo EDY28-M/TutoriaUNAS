@@ -86,33 +86,7 @@ estudiantes.forEach((estudiante, indice) => {
     respuestas: RESPUESTAS_EJEMPLO,
   });
 
-  // Evaluaciones de cierre (10 y 11): se habilitan al final del semestre.
-  (
-    [
-      ['F10', 'individual'],
-      ['F11', 'grupal'],
-    ] as Array<[CodigoFormato, string]>
-  ).forEach(([codigo, tipo], posicion) => {
-    const abierto = (seed + posicion) % 4 !== 0;
-    instrumentos.push({
-      id: `INST-${codigo}-${estudiante.codigo}`,
-      formato: codigo,
-      semestreId: semestreActual,
-      tutorId: asignacion.tutorId,
-      estudianteId: estudiante.id,
-      sesionId: null,
-      estado: abierto ? 'no-iniciado' : 'borrador',
-      avance: abierto ? 0 : 25,
-      version: 1,
-      creado: '2026-09-10',
-      actualizado: '2026-09-10',
-      enviado: null,
-      revisadoPor: null,
-      observaciones: [],
-      descargaDisponible: false,
-      respuestas: { tipo },
-    });
-  });
+  // Las evaluaciones 10 y 11 se crean desde cada sesión, no desde el ciclo del estudiante.
 });
 
 /* —— Instrumentos del tutor: asistencias 06 y 07 —— */

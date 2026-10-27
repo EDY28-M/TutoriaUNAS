@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { bloqueoEvaluacion } from '../../utils/evaluacionesSesion';
 import { PageHeading } from '../ui/PageHeading';
 import { SessionCalendar } from './SessionCalendar';
 import { SessionDetails } from './SessionDetails';
@@ -16,10 +18,14 @@ import { formatFechaLarga, formatHora } from '../../utils/fechas';
 export function SessionOverview() {
   const { user } = useAuth();
   const coordinacion = user?.role === 'coordinacion';
-  const { estudiante, sesiones: todasSesiones } = usePortal();
+  const { estudiante, sesiones: todasSesiones, instrumentos } = usePortal();
   const [tutorId, setTutorId] = useState('todos');
   const [detalleId, setDetalleId] = useState<string | null>(null);
   const detalle = todasSesiones.find((s) => s.id === detalleId);
+  const evaluacion = instrumentos.find(
+    (r) => r.sesionId === detalleId && ['F10', 'F11'].includes(r.formato),
+  );
+  const bloqueo = estudiante ? bloqueoEvaluacion(detalle, estudiante.id) : null;
   const sesiones =
     coordinacion && tutorId !== 'todos'
       ? todasSesiones.filter((sesion) => sesion.tutorId === tutorId)
@@ -92,13 +98,27 @@ export function SessionOverview() {
           description={`${formatFechaLarga(detalle.fecha)} · ${formatHora(detalle.horaInicio)} a ${formatHora(detalle.horaFin)}`}
           onClose={() => setDetalleId(null)}
           footer={
-            <button
-              type="button"
-              className="btn btn-falcon-default"
-              onClick={() => setDetalleId(null)}
-            >
-              Cerrar
-            </button>
+            <>
+              {!coordinacion && evaluacion && (
+                <Link
+                  className="btn btn-primary"
+                  to={`/estudiante/instrumentos?sesion=${encodeURIComponent(detalle.id)}`}
+                >
+                  {['enviado', 'aprobado'].includes(evaluacion.estado)
+                    ? 'Ver evaluación'
+                    : bloqueo
+                      ? 'Ver preguntas de evaluación'
+                      : 'Evaluar tutoría'}
+                </Link>
+              )}
+              <button
+                type="button"
+                className="btn btn-falcon-default"
+                onClick={() => setDetalleId(null)}
+              >
+                Cerrar
+              </button>
+            </>
           }
         >
           <div className="stack">
@@ -108,6 +128,11 @@ export function SessionOverview() {
               </Alert>
             )}
             <SessionDetails sesion={detalle} />
+            {!coordinacion && bloqueo && (
+              <Alert tone="alerta" title="Evaluación de la sesión">
+                {bloqueo}
+              </Alert>
+            )}
           </div>
         </Sheet>
       )}

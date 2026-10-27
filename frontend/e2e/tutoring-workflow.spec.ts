@@ -19,24 +19,35 @@ async function login(page: Page, rol: 'Estudiante' | 'Tutor') {
     })
     .waitFor();
   await page.evaluate(() => document.fonts.ready);
+  if (rol === 'Estudiante') await page.getByLabel('Momento del semestre').selectOption('inicio');
 }
 async function llenarEntrevista(page: Page) {
   const dialogo = page.getByRole('dialog');
   await dialogo.getByLabel('Sección del formulario').selectOption('0');
   await dialogo.getByRole('button', { name: 'Continuar', exact: true }).click();
+  await dialogo.getByLabel('Colegio de procedencia').fill('I.E. de demostración');
   await dialogo.getByRole('button', { name: 'Continuar', exact: true }).click();
-  await dialogo.locator('[data-field="expectativas"]').getByLabel('Sí', { exact: true }).check();
-  await dialogo.getByRole('button', { name: 'Continuar', exact: true }).click();
-  await dialogo.getByLabel('Alta', { exact: true }).check();
-  await dialogo.getByRole('button', { name: 'Continuar', exact: true }).click();
-  await dialogo.getByRole('button', { name: 'Continuar', exact: true }).click();
-  await dialogo.getByLabel('Biblioteca', { exact: true }).check();
+  await dialogo.locator('[data-field="conoceTutoria"]').getByLabel('Sí', { exact: true }).check();
   await dialogo
-    .locator('[data-field="cursosDificiles"]')
-    .getByLabel('Ninguno', { exact: true })
+    .locator('[data-field="expectativas"]')
+    .getByLabel('Organizar mi tiempo', { exact: true })
     .check();
   await dialogo.getByRole('button', { name: 'Continuar', exact: true }).click();
+  await dialogo.getByLabel('Interés personal', { exact: true }).check();
+  await dialogo.getByLabel('Desarrollar mi vocación', { exact: true }).check();
+  await dialogo.getByLabel('Buena formación', { exact: true }).check();
   await dialogo.getByRole('button', { name: 'Continuar', exact: true }).click();
+  await dialogo.getByRole('button', { name: 'Continuar', exact: true }).click();
+  await dialogo.getByLabel('¿Cuántas horas al día dedicas al estudio?').fill('2');
+  await dialogo
+    .locator('[data-field="tiempoSuficiente"]')
+    .getByLabel('Sí', { exact: true })
+    .check();
+  await dialogo
+    .locator('[data-field="formaEstudio"]')
+    .getByLabel('Individual', { exact: true })
+    .check();
+  await dialogo.locator('[data-field="estudioEfectivo"]').getByLabel('Sí', { exact: true }).check();
   await dialogo.getByRole('button', { name: 'Revisar respuestas', exact: true }).click();
   await dialogo
     .getByRole('checkbox', { name: 'He revisado mis respuestas y deseo enviarlas.' })
@@ -49,7 +60,7 @@ test('entrevista: guardar, recargar, enviar, pedir corrección, reenviar y revis
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await login(page, 'Estudiante');
-  await page.getByRole('button', { name: 'Comenzar · Formato 04', exact: true }).click();
+  await page.getByRole('button', { name: 'Comenzar · Formato 03', exact: true }).click();
   await expect(page.getByRole('dialog').getByLabel('Nombre del estudiante')).toHaveValue(/Ana/);
   await page
     .getByRole('dialog')
@@ -57,32 +68,32 @@ test('entrevista: guardar, recargar, enviar, pedir corrección, reenviar y revis
     .click();
   await expect(page.getByRole('status').filter({ hasText: 'Borrador guardado' })).toBeVisible();
   await page.reload();
-  await page.getByRole('button', { name: 'Continuar · Formato 04', exact: true }).click();
+  await page.getByRole('button', { name: 'Continuar · Formato 03', exact: true }).click();
   await llenarEntrevista(page);
   await page.getByRole('button', { name: 'Cerrar sesión', exact: true }).click();
   await login(page, 'Tutor');
   const fila = page
-    .locator('.tutoring-record[data-instrument="F04"]')
+    .locator('.tutoring-record[data-instrument="F03"]')
     .filter({ hasText: 'Quispe Rojas' });
-  await fila.getByRole('button', { name: /Abrir formato 04/ }).click();
-  await expect(page.getByRole('dialog')).toContainText('Biblioteca');
+  await fila.getByRole('button', { name: /Abrir formato 03/ }).click();
+  await expect(page.getByRole('dialog')).toContainText('Individual');
   await page
     .getByLabel('¿Qué debe corregir el estudiante?')
-    .fill('Indica si tu lugar de estudio sigue siendo la biblioteca.');
+    .fill('Confirma si dedicas dos horas al estudio cada día.');
   await page.getByRole('button', { name: 'Pedir corrección', exact: true }).click();
   await page.getByRole('button', { name: 'Cerrar sesión', exact: true }).click();
   await login(page, 'Estudiante');
-  await page.getByRole('button', { name: 'Corregir entrevista · Formato 04', exact: true }).click();
-  await expect(page.getByRole('dialog')).toContainText('Indica si tu lugar');
+  await page.getByRole('button', { name: 'Corregir entrevista · Formato 03', exact: true }).click();
+  await expect(page.getByRole('dialog')).toContainText('Confirma si dedicas');
   await llenarEntrevista(page);
   await page.getByRole('button', { name: 'Cerrar sesión', exact: true }).click();
   await login(page, 'Tutor');
-  await fila.getByRole('button', { name: /Abrir formato 04/ }).click();
+  await fila.getByRole('button', { name: /Abrir formato 03/ }).click();
   await page.getByRole('button', { name: 'Marcar como revisada', exact: true }).click();
   await expect(fila).toContainText(/Aprobado|Revisado/);
 });
 
-test('fases: evaluaciones bloqueadas hasta el cierre y escalas oficiales del formato 11', async ({
+test('fases: cambiar al cierre no habilita evaluaciones sin asistencia confirmada', async ({
   page,
 }) => {
   await login(page, 'Estudiante');
@@ -93,23 +104,26 @@ test('fases: evaluaciones bloqueadas hasta el cierre y escalas oficiales del for
   await filtros.getByRole('button', { name: 'Por corregir 0', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('Sin correcciones pendientes');
   await page.getByRole('button', { name: 'Ver todos', exact: true }).click();
-  await expect(page.locator('[data-instrument]')).toHaveCount(3);
+  await expect(page.locator('[data-instrument="F11"]').first()).toBeVisible();
   await expect(page.getByText('Tu tutor te acompaña', { exact: true })).toHaveCount(0);
   const accesibilidad = await new AxeBuilder({ page })
     .include('.student-forms')
     .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
     .analyze();
   expect(accesibilidad.violations).toEqual([]);
-  await page.getByRole('button', { name: 'Ver preguntas · Formato 11', exact: true }).click();
+  await page
+    .getByRole('button', { name: /^Ver preguntas · Formato 11/ })
+    .first()
+    .click();
   await expect(page.getByRole('dialog').locator('input[type="radio"]')).toHaveCount(0);
   await page.keyboard.press('Escape');
   await page.getByLabel('Momento del semestre').selectOption('cierre');
-  await page.getByRole('button', { name: 'Comenzar · Formato 11', exact: true }).click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Continuar', exact: true }).click();
-  const pregunta = page.getByRole('dialog').locator('[data-field="p01"]');
-  await expect(pregunta.getByRole('radio')).toHaveCount(3);
-  await expect(pregunta.getByLabel('A veces', { exact: true })).toBeVisible();
-  await expect(pregunta).not.toContainText('Totalmente de acuerdo');
+  await page
+    .getByRole('button', { name: /^Ver preguntas · Formato 11/ })
+    .first()
+    .click();
+  await expect(page.getByRole('dialog').locator('input[type="radio"]')).toHaveCount(0);
+  await expect(page.getByRole('dialog')).toContainText('confirma tu asistencia');
 });
 
 test('atención personalizada: prepara una ficha 12 y su envío aparece en el apoyo del estudiante', async ({
@@ -186,7 +200,13 @@ test('atención personalizada: programa una cita visible en las sesiones de ambo
   await d.getByLabel('Organización del tiempo', { exact: true }).check();
   await d.getByRole('button', { name: 'Continuar', exact: true }).click();
   await d.getByLabel('Se programa nueva cita para seguimiento', { exact: true }).check();
-  await d.getByLabel('Fecha de la nueva cita').fill('2026-10-23');
+  await d
+    .getByLabel('Fecha de la nueva cita')
+    .fill(
+      new Intl.DateTimeFormat('sv-SE', { timeZone: 'America/Lima' }).format(
+        new Date(Date.now() + 86_400_000),
+      ),
+    );
   await d.getByLabel('Hora de inicio de la nueva cita').fill('10:00');
   await d.getByLabel('Hora de fin de la nueva cita').fill('10:45');
   await d.getByRole('button', { name: 'Revisar respuestas', exact: true }).click();
@@ -194,13 +214,13 @@ test('atención personalizada: programa una cita visible en las sesiones de ambo
   await d.getByRole('button', { name: 'Enviar formulario', exact: true }).click();
   await page.goto('/tutor/sesiones');
   await expect(
-    page.getByText('Seguimiento de atención personalizada', { exact: true }).first(),
+    page.getByRole('button').filter({ hasText: 'Seguimiento de atención personalizada' }).first(),
   ).toBeVisible();
   await page.getByRole('button', { name: 'Cerrar sesión', exact: true }).click();
   await login(page, 'Estudiante');
   await page.goto('/estudiante/sesiones');
   await expect(
-    page.getByText('Seguimiento de atención personalizada', { exact: true }).first(),
+    page.getByRole('button').filter({ hasText: 'Seguimiento de atención personalizada' }).first(),
   ).toBeVisible();
   await page.goto('/estudiante/calendario');
   await expect(
@@ -221,14 +241,14 @@ for (const ancho of [320, 375, 390, 768, 1024, 1440]) {
       path: `../artifacts/tutoria-workflow/estudiante-${ancho}.png`,
       fullPage: true,
     });
-    await page.getByRole('button', { name: 'Comenzar · Formato 04', exact: true }).click();
+    await page.getByRole('button', { name: 'Comenzar · Formato 03', exact: true }).click();
     await page.getByRole('dialog').getByLabel('Sección del formulario').selectOption('2');
     await page
       .getByRole('dialog')
       .locator('[data-field="expectativas"]')
-      .getByLabel('No', { exact: true })
+      .getByLabel('Otro', { exact: true })
       .check();
-    await expect(page.getByRole('dialog').getByLabel('¿Qué te faltó recibir?')).toBeVisible();
+    await expect(page.getByRole('dialog').getByLabel('¿Cuál?')).toBeVisible();
     if (ancho === 1440) {
       const formularioAxe = await new AxeBuilder({ page })
         .include('dialog')
@@ -330,7 +350,7 @@ test('asistencia individual: filas editables y registro visible para el estudian
   await d.getByRole('button', { name: 'Enviar formulario', exact: true }).click();
   await page.getByRole('button', { name: 'Cerrar sesión', exact: true }).click();
   await login(page, 'Estudiante');
-  await page.goto('/estudiante/sesiones');
+  await page.goto('/estudiante/sesiones?vista=historial');
   await expect(
     page.getByRole('button').filter({ hasText: 'Atención registrada' }).first(),
   ).toBeVisible();
@@ -342,6 +362,7 @@ test('autoevaluación del docente: diez actividades, borrador y envío al cierre
   await page.setViewportSize({ width: 1440, height: 950 });
   await login(page, 'Tutor');
   await page.goto('/tutor/instrumentos');
+  await page.getByLabel('Momento del semestre').selectOption('cierre');
   await page.getByRole('button', { name: 'Completar formato 09', exact: true }).click();
   const d = page.getByRole('dialog');
   await d.getByRole('button', { name: 'Continuar', exact: true }).click();
@@ -351,8 +372,11 @@ test('autoevaluación del docente: diez actividades, borrador y envío al cierre
     await actividad.getByLabel('Realizada', { exact: true }).check();
   await d.getByRole('button', { name: 'Continuar', exact: true }).click();
   await d.getByRole('button', { name: 'Revisar respuestas', exact: true }).click();
-  await expect(d.getByRole('button', { name: 'Enviar formulario', exact: true })).toBeDisabled();
   await d.getByRole('button', { name: 'Guardar borrador', exact: true }).click();
+  await page.keyboard.press('Escape');
+  await page.getByLabel('Momento del semestre').selectOption('durante');
+  await page.getByRole('button', { name: 'Completar formato 09', exact: true }).click();
+  await expect(d.getByRole('button', { name: 'Enviar formulario', exact: true })).toHaveCount(0);
   await page.keyboard.press('Escape');
   await page.getByLabel('Momento del semestre').selectOption('cierre');
   await page.getByRole('button', { name: 'Completar formato 09', exact: true }).click();
@@ -390,11 +414,11 @@ test('bandejas del docente: filtros, paginación y borradores protegidos', async
   expect(await filas.allTextContents()).not.toEqual(primeraPagina);
   await bandejas.getByRole('button', { name: /^Respuestas de estudiantes/ }).click();
   await page.getByLabel('Estudiante', { exact: true }).selectOption('EST-2023010456');
-  await expect(filas).toHaveCount(3);
+  await expect(filas).toHaveCount(1);
   for (const fila of await filas.all()) await expect(fila.getByRole('button')).toBeDisabled();
   await page.reload();
   await expect(page.getByLabel('Estudiante', { exact: true })).toHaveValue('EST-2023010456');
-  await expect(filas).toHaveCount(3);
+  await expect(filas).toHaveCount(1);
   await page
     .getByRole('group', { name: 'Filtrar respuestas de estudiantes' })
     .getByRole('button', { name: /^Por revisar / })

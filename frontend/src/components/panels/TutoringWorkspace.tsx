@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { bloqueoEvaluacion } from '../../utils/evaluacionesSesion';
+import { formatFecha } from '../../utils/fechas';
 import { useAuth } from '../../hooks/useAuth';
 import { usePortal } from '../../hooks/usePortal';
 import { useInstrumentWorkspace } from '../../hooks/useInstrumentWorkspace';
@@ -7,7 +10,7 @@ import { definicionPorCodigo } from '../../data/formatos';
 import { estudiantePorId, nombreCompleto } from '../../data/personas';
 import { semestreActual } from '../../data/catalogos';
 import type { CodigoFormato, Instrumento } from '../../types/domain';
-import { fechaTutoria, puedeEnviarFormato } from '../../utils/instrumentos';
+import { etapaDeFormato, fechaTutoria, puedeEnviarFormato } from '../../utils/instrumentos';
 import { StatusBadge } from '../ui/StatusBadge';
 import { EmptyState } from '../ui/EmptyState';
 import { Alert } from '../ui/Alert';
@@ -25,6 +28,7 @@ export function TutoringWorkspace() {
   const { user } = useAuth();
   const portal = usePortal();
   const workspace = useInstrumentWorkspace();
+  const [parametros, setParametros] = useSearchParams();
   const docente = user?.role === 'tutor';
   const [abierto, setAbierto] = useState<Instrumento | null>(null);
   const [nuevo, setNuevo] = useState<CodigoFormato | null>(null);
@@ -36,7 +40,20 @@ export function TutoringWorkspace() {
   const propios = registros.filter((r) =>
     docente ? definicionPorCodigo(r.formato)?.actor === 'tutor' : true,
   );
-  const actual = abierto ? (workspace.registros.find((r) => r.id === abierto.id) ?? abierto) : null;
+  const solicitado = parametros.get('sesion');
+  const actual = abierto
+    ? (registros.find((r) => r.id === abierto.id) ?? abierto)
+    : solicitado
+      ? (registros.find((r) => r.sesionId === solicitado && ['F10', 'F11'].includes(r.formato)) ??
+        null)
+      : null;
+  const sesionActual = portal.sesiones.find((s) => s.id === actual?.sesionId);
+  function cerrarFormulario() {
+    setAbierto(null);
+    const nuevos = new URLSearchParams(parametros);
+    nuevos.delete('sesion');
+    setParametros(nuevos, { replace: true });
+  }
   const definicion = actual ? definicionPorCodigo(actual.formato) : null;
   const esPropio = Boolean(
     actual &&
@@ -46,11 +63,13 @@ export function TutoringWorkspace() {
       : actual.tutorId === user.id && definicion?.actor === 'tutor'),
   );
   const esEvaluacion = Boolean(actual && ['F10', 'F11'].includes(actual.formato));
+  const bloqueo = esEvaluacion ? bloqueoEvaluacion(sesionActual, user?.id ?? '') : null;
   const editar = Boolean(
     actual &&
     esPropio &&
     !['enviado', 'aprobado'].includes(actual.estado) &&
-    (!esEvaluacion || workspace.momento === 'cierre'),
+    !bloqueo &&
+    puedeEnviarFormato(actual.formato, workspace.momento),
   );
   const puedeRevisar = Boolean(
     actual &&
@@ -135,7 +154,7 @@ export function TutoringWorkspace() {
     if (!actual || !user) return;
     const guardado = guardarInstrumento(actual, respuestas, user, enviar);
     if (enviar) {
-      setAbierto(null);
+      cerrarFormulario();
       setAviso(
         definicion?.actor === 'tutorado'
           ? esEvaluacion
@@ -154,7 +173,7 @@ export function TutoringWorkspace() {
     if (!actual || !user) return;
     try {
       revisarInstrumento(actual.id, user, decision, comentario);
-      setAbierto(null);
+      cerrarFormulario();
       setAviso(
         decision === 'aprobado'
           ? 'Entrevista revisada. El estudiante verá el estado actualizado.'
@@ -166,6 +185,11 @@ export function TutoringWorkspace() {
   }
   return (
     <div className="tutoring-workspace tutoring-workspace--compact">
+      {solicitado && !actual && (
+        <Alert tone="alerta" title="Evaluación no disponible">
+          La sesión no existe o no estás convocado a ella. Revisa tu calendario de sesiones.
+        </Alert>
+      )}
       {workspace.aviso && (
         <Alert tone="alerta" title="Guardado en el navegador">
           {workspace.aviso}
@@ -190,6 +214,7 @@ export function TutoringWorkspace() {
           registros={registros}
           tutorados={tutorados}
           momento={workspace.momento}
+          sesiones={portal.sesiones}
           onAbrir={abrir}
           onPreparar={preparar}
         />
@@ -198,6 +223,7 @@ export function TutoringWorkspace() {
           registros={propios}
           ciclo={portal.estudiante!.ciclo}
           momento={workspace.momento}
+          sesiones={portal.sesiones}
           onAbrir={abrir}
         />
       )}
@@ -293,7 +319,7 @@ export function TutoringWorkspace() {
         <Sheet
           title={`Formato ${definicion.numero} · ${docente ? tituloFormulario(actual.formato) : esEvaluacion ? (actual.formato === 'F10' ? 'Tutoría individual' : 'Tutoría grupal') : 'Entrevista inicial'}`}
           wide
-          onClose={() => setAbierto(null)}
+          onClose={cerrarFormulario}
         >
           <div className="tutoring-dialog-meta">
             <StatusBadge estado={actual.estado} contexto="formulario" />
@@ -301,6 +327,13 @@ export function TutoringWorkspace() {
               {definicion.actorEtiqueta} · {actual.semestreId}
             </span>
           </div>
+          {esEvaluacion && sesionActual && (
+            <p className="forms-panel__context">
+              {sesionActual.tema} · {formatFecha(sesionActual.fecha)} · {sesionActual.horaInicio}–
+              {sesionActual.horaFin} · {sesionActual.codigo}. Los datos de la sesión ya están
+              completados.
+            </p>
+          )}
           {actual.observaciones.some((o) => o.estado === 'abierta') && (
             <Alert tone="alerta" title="Correcciones solicitadas">
               {actual.observaciones
@@ -310,9 +343,12 @@ export function TutoringWorkspace() {
                 ))}
             </Alert>
           )}
-          {esEvaluacion && workspace.momento !== 'cierre' && (
-            <Alert tone="info" title="Vista previa">
-              Podrás responder al cierre del semestre.
+          {esPropio && !editar && !['enviado', 'aprobado'].includes(actual.estado) && (
+            <Alert tone={esEvaluacion ? 'alerta' : 'info'} title="Vista previa">
+              {bloqueo ??
+                (etapaDeFormato(actual.formato) === 'inicio'
+                  ? 'La entrevista inicial se responde al inicio del semestre. Puedes revisar las preguntas.'
+                  : 'Podrás responder al cierre del semestre. Puedes revisar las preguntas.')}
             </Alert>
           )}
           <GuidedInstrumentForm
@@ -321,7 +357,7 @@ export function TutoringWorkspace() {
             instrumento={actual}
             compacto
             editable={editar}
-            puedeEnviar={puedeEnviarFormato(actual.formato, workspace.momento)}
+            puedeEnviar={!bloqueo && puedeEnviarFormato(actual.formato, workspace.momento)}
             onGuardar={editar ? guardar : undefined}
           />
           {puedeRevisar && (

@@ -1,19 +1,29 @@
 import { useId, useRef, useState } from 'react';
+import {
+  FormProvider,
+  useController,
+  useFieldArray,
+  useFormContext,
+  useWatch,
+} from 'react-hook-form';
+import type { ControllerRenderProps, FieldPath } from 'react-hook-form';
+import { useFormularioInstrumento } from '../../hooks/useFormularioInstrumento';
+import { OPCIONES_EXCLUSIVAS, serializarFormulario } from '../../utils/validacionInstrumentos';
+import type { ValoresFormularioInstrumento } from '../../utils/validacionInstrumentos';
 import type { CampoFormato, DefinicionFormato, Instrumento } from '../../types/domain';
 import { Alert } from '../ui/Alert';
 import { Progress } from '../ui/Progress';
 import { ArrowLeft, ArrowRight, Check, CircleCheck, Plus, Send, Trash } from '../ui/icons';
-import { matriculaDe, nombreCurso } from '../../data/academico';
 import { asignaciones } from '../../data/tutoria';
 import { estudiantePorId, nombreCompleto } from '../../data/personas';
 import { usePortal } from '../../hooks/usePortal';
 import {
   avanceInstrumento,
   campoVisible,
-  erroresInstrumento,
   filasRespuesta,
   listaRespuesta,
-  precargarInstrumento,
+  etapaDeFormato,
+  respuestasVisibles,
 } from '../../utils/instrumentos';
 
 interface Props {
@@ -35,56 +45,52 @@ export function GuidedInstrumentForm({
   onGuardar,
 }: Props) {
   const portal = usePortal();
-  const [valores, setValores] = useState(() => precargarInstrumento(instrumento, portal.sesiones));
-  const [paso, setPaso] = useState(0);
-  const [errores, setErrores] = useState<Record<string, string>>({});
+  const { formulario, contexto, valores, reutilizados, errores } = useFormularioInstrumento(
+    definicion,
+    instrumento,
+    portal,
+    editable,
+  );
+  const esEvaluacion = ['F10', 'F11'].includes(instrumento.formato);
+  const [paso, setPaso] = useState(esEvaluacion ? 1 : 0);
   const [mensaje, setMensaje] = useState('');
   const [fallo, setFallo] = useState('');
-  const [confirmado, setConfirmado] = useState(false);
+  const [confirmacion, setConfirmacion] = useState<string | null>(null);
+  const confirmado = confirmacion === JSON.stringify(valores);
   const cabecera = useRef<HTMLHeadingElement>(null);
   const resumenError = useRef<HTMLDivElement>(null);
-  const secciones = definicion.secciones;
+  const secciones = contexto.secciones;
   const resumen = paso === secciones.length;
   const seccion = secciones[paso];
-  const cursos = instrumento.estudianteId
-    ? (matriculaDe(instrumento.estudianteId)?.cursos ?? []).map((curso) =>
-        nombreCurso(curso.cursoId),
+  function alEditar(codigo: string, tabla = false) {
+    const limpiar: FieldPath<ValoresFormularioInstrumento>[] = [
+      (tabla
+        ? `tablas.${codigo}`
+        : `respuestas.${codigo}`) as FieldPath<ValoresFormularioInstrumento>,
+    ];
+    const actuales = serializarFormulario(formulario.getValues());
+    for (const campo of secciones.flatMap((s) => s.campos)) {
+      if (!campoVisible(campo, actuales))
+        limpiar.push(
+          (campo.tipo === 'tabla'
+            ? `tablas.${campo.codigo}`
+            : `respuestas.${campo.codigo}`) as FieldPath<ValoresFormularioInstrumento>,
+        );
+      if (
+        !campoVisible(campo, actuales) ||
+        (actuales[campo.codigo] !== 'Otro' &&
+          !listaRespuesta(actuales[campo.codigo] ?? '').includes('Otro'))
       )
-    : [];
-  const nombres = asignaciones
-    .filter((a) => a.tutorId === instrumento.tutorId && a.estado === 'activa')
-    .map((a) => estudiantePorId(a.estudianteId))
-    .filter((e) => !!e)
-    .map(nombreCompleto);
-  const adaptar = (campo: CampoFormato): CampoFormato => {
-    if (['cursosDificiles', 'materiasFaciles'].includes(campo.codigo))
-      return { ...campo, opciones: [...cursos, 'Ninguno', 'Otro'] };
-    if (campo.codigo === 'asistentes')
-      return {
-        ...campo,
-        columnas: campo.columnas?.map((columna) =>
-          columna.codigo === 'nombre'
-            ? { ...columna, tipo: 'seleccion', opciones: nombres }
-            : columna,
-        ),
-      };
-    return campo;
-  };
-  const calcularErrores = () =>
-    erroresInstrumento(
-      { ...definicion, secciones: secciones.map((s) => ({ ...s, campos: s.campos.map(adaptar) })) },
-      valores,
-    );
-  function actualizar(codigo: string, valor: string) {
-    setValores((actual) => ({ ...actual, [codigo]: valor }));
-    setErrores((actual) => {
-      const nuevos = { ...actual };
-      delete nuevos[codigo];
-      return nuevos;
-    });
+        limpiar.push(`respuestas.${campo.codigo}__otro`);
+    }
+    formulario.clearErrors(limpiar);
     setMensaje('');
     setFallo('');
-    setConfirmado(false);
+    setConfirmacion(null);
+  }
+  function actualizar(codigo: string, valor: string) {
+    formulario.setValue(`respuestas.${codigo}`, valor, { shouldDirty: true, shouldTouch: true });
+    alEditar(codigo);
   }
   function ir(destino: number) {
     setPaso(destino);
@@ -96,7 +102,10 @@ export function GuidedInstrumentForm({
   function guardar(enviar: boolean) {
     setFallo('');
     try {
-      onGuardar?.(valores, enviar);
+      onGuardar?.(
+        respuestasVisibles(contexto, serializarFormulario(formulario.getValues())),
+        enviar,
+      );
       setMensaje(enviar ? 'Formulario enviado.' : 'Borrador guardado. Puedes continuar después.');
       return true;
     } catch (error) {
@@ -104,26 +113,25 @@ export function GuidedInstrumentForm({
       return false;
     }
   }
-  function continuar() {
-    const todos = calcularErrores();
-    const campos =
+  async function continuar() {
+    const campos: FieldPath<ValoresFormularioInstrumento>[] =
       seccion?.campos
         .filter((campo) => campoVisible(campo, valores))
-        .flatMap((campo) => [campo.codigo, `${campo.codigo}__otro`]) ?? [];
-    const actuales = Object.fromEntries(
-      Object.entries(todos).filter(([codigo]) => campos.includes(codigo)),
-    );
-    setErrores(actuales);
-    if (Object.keys(actuales).length) {
+        .flatMap(
+          (campo) =>
+            [
+              campo.tipo === 'tabla' ? `tablas.${campo.codigo}` : `respuestas.${campo.codigo}`,
+              `respuestas.${campo.codigo}__otro`,
+            ] as FieldPath<ValoresFormularioInstrumento>[],
+        ) ?? [];
+    if (!(await formulario.trigger(campos))) {
       requestAnimationFrame(() => resumenError.current?.focus());
       return;
     }
     if (!onGuardar || guardar(false)) ir(paso + 1);
   }
-  function enviar() {
-    const actuales = calcularErrores();
-    setErrores(actuales);
-    if (Object.keys(actuales).length) {
+  async function enviar() {
+    if (!(await formulario.trigger())) {
       setFallo('Revisa las preguntas pendientes antes de enviar.');
       requestAnimationFrame(() => resumenError.current?.focus());
       return;
@@ -139,173 +147,220 @@ export function GuidedInstrumentForm({
       <div className="tutoring-fields">
         {seccionActual.campos
           .filter((campo) => campoVisible(campo, valores))
-          .map((campo) => (
-            <RespuestaCampo
-              key={campo.codigo}
-              campo={adaptar(campo)}
-              valores={valores}
-              editable={!lectura}
-              error={errores[campo.codigo]}
-              otroError={errores[`${campo.codigo}__otro`]}
-              onChange={actualizar}
-            />
-          ))}
+          .map((campo) => {
+            const Campo = campo.tipo === 'tabla' ? RespuestaCampo : RespuestaRegistrada;
+            return (
+              <Campo
+                key={campo.codigo}
+                campo={campo}
+                valores={valores}
+                editable={
+                  !lectura &&
+                  !(
+                    esEvaluacion &&
+                    ['grupo', 'fecha', 'turno', 'nombreTutor'].includes(campo.codigo)
+                  )
+                }
+                reutilizado={reutilizados.includes(campo.codigo)}
+                error={errores[campo.codigo]}
+                otroError={errores[`${campo.codigo}__otro`]}
+                onChange={actualizar}
+                onTablaEditada={() => alEditar(campo.codigo, true)}
+              />
+            );
+          })}
       </div>
     );
   }
   if (!editable)
     return (
-      <div className="tutoring-form tutoring-form--read">
-        {secciones.map((s) => (
-          <section key={s.titulo} className="tutoring-review-section">
-            <h3>{s.titulo}</h3>
-            {bloque(s, true)}
-          </section>
-        ))}
-      </div>
+      <FormProvider {...formulario}>
+        <div className="tutoring-form tutoring-form--read">
+          {secciones.map((s) => (
+            <section key={s.titulo} className="tutoring-review-section">
+              <h3>{s.titulo}</h3>
+              {bloque(s, true)}
+            </section>
+          ))}
+        </div>
+      </FormProvider>
     );
   return (
-    <div className="tutoring-form">
-      <div className="tutoring-form__progress">
-        <span className="small">
-          {resumen ? 'Revisión final' : `Paso ${paso + 1} de ${secciones.length}`}
-          {!compacto && ` · Formato ${definicion.numero}`}
-        </span>
-        <Progress valor={avanceInstrumento(definicion, valores)} etiqueta="Respuestas completas" />
-      </div>
-      {compacto ? (
-        <label className="tutoring-section-picker">
-          Sección
-          <select
-            className="select"
-            aria-label="Sección del formulario"
-            value={paso}
-            onChange={(e) => ir(Number(e.target.value))}
-          >
-            {[...secciones.map((s) => s.titulo), 'Revisar y enviar'].map((titulo, i) => (
-              <option key={titulo} value={i}>
-                {i + 1}. {titulo}
-              </option>
-            ))}
-          </select>
-        </label>
-      ) : (
-        <nav className="tutoring-steps" aria-label="Pasos del formulario">
-          {[...secciones.map((s) => s.titulo), 'Revisar y enviar'].map((titulo, i) => (
-            <button
-              key={titulo}
-              type="button"
-              aria-current={paso === i ? 'step' : undefined}
-              aria-label={`${i + 1}. ${titulo}`}
-              title={titulo}
-              onClick={() => ir(i)}
-            >
-              <span>{i < paso ? <Check aria-hidden="true" /> : i + 1}</span>
-              <span>{titulo}</span>
-            </button>
-          ))}
-        </nav>
-      )}
-      <div className="tutoring-form__heading">
-        <h3 ref={cabecera} tabIndex={-1}>
-          {resumen ? 'Revisa tus respuestas' : seccion?.titulo}
-        </h3>
-        <p>
-          {resumen
-            ? 'Comprueba los datos antes de compartirlos.'
-            : compacto
-              ? '* Obligatorio'
-              : 'Marca tus opciones. Los campos con * son necesarios para enviar.'}
-        </p>
-      </div>
-      {Object.keys(errores).length > 0 && (
-        <div className="tutoring-errors" role="alert" tabIndex={-1} ref={resumenError}>
-          <strong>Revisa las respuestas señaladas.</strong>
-          <ul>
-            {Object.entries(errores).map(([codigo, error]) => {
-              const indice = secciones.findIndex((s) =>
-                s.campos.some((c) => c.codigo === codigo.replace('__otro', '')),
-              );
-              const campo = secciones[indice]?.campos.find(
-                (c) => c.codigo === codigo.replace('__otro', ''),
-              );
-              return (
-                <li key={codigo}>
-                  <button type="button" onClick={() => ir(Math.max(indice, 0))}>
-                    {campo?.etiqueta}: {error}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+    <FormProvider {...formulario}>
+      <div className="tutoring-form">
+        <div className="tutoring-form__progress">
+          <span className="small">
+            {resumen ? 'Revisión final' : `Paso ${paso + 1} de ${secciones.length}`}
+            {!compacto && ` · Formato ${definicion.numero}`}
+          </span>
+          <Progress valor={avanceInstrumento(contexto, valores)} etiqueta="Respuestas completas" />
         </div>
-      )}
-      {mensaje && (
-        <p className="tutoring-saved" role="status">
-          <CircleCheck aria-hidden="true" /> {mensaje}
-        </p>
-      )}
-      {fallo && (
-        <Alert tone="riesgo" title="Revisa el formulario">
-          {fallo}
-        </Alert>
-      )}
-      {resumen ? (
-        <>
-          {secciones.map((s, i) => (
-            <details className="tutoring-review-section" key={s.titulo}>
-              <summary>{s.titulo}</summary>
-              {bloque(s, true)}
-              <button type="button" className="btn btn-link" onClick={() => ir(i)}>
-                Editar esta sección
-              </button>
-            </details>
-          ))}
-          <label className="tutoring-confirm">
-            <input
-              type="checkbox"
-              checked={confirmado}
-              onChange={(event) => setConfirmado(event.target.checked)}
-            />
-            <span>He revisado mis respuestas y deseo enviarlas.</span>
+        {compacto ? (
+          <label className="tutoring-section-picker">
+            Sección
+            <select
+              className="select"
+              aria-label="Sección del formulario"
+              value={paso}
+              onChange={(e) => ir(Number(e.target.value))}
+            >
+              {[...secciones.map((s) => s.titulo), 'Revisar y enviar'].map((titulo, i) => (
+                <option key={titulo} value={i}>
+                  {i + 1}. {titulo}
+                </option>
+              ))}
+            </select>
           </label>
-          {!puedeEnviar && (
-            <Alert tone="info" title="Envío al cierre del semestre">
-              Puedes preparar y guardar el borrador. El envío se habilita al finalizar el semestre.
-            </Alert>
-          )}
-        </>
-      ) : (
-        seccion && bloque(seccion, false)
-      )}
-      <div className="tutoring-form__actions">
-        {paso > 0 && (
-          <button type="button" className="btn btn-falcon-default" onClick={() => ir(paso - 1)}>
-            <ArrowLeft aria-hidden="true" /> Atrás
-          </button>
+        ) : (
+          <nav className="tutoring-steps" aria-label="Pasos del formulario">
+            {[...secciones.map((s) => s.titulo), 'Revisar y enviar'].map((titulo, i) => (
+              <button
+                key={titulo}
+                type="button"
+                aria-current={paso === i ? 'step' : undefined}
+                aria-label={`${i + 1}. ${titulo}`}
+                title={titulo}
+                onClick={() => ir(i)}
+              >
+                <span>{i < paso ? <Check aria-hidden="true" /> : i + 1}</span>
+                <span>{titulo}</span>
+              </button>
+            ))}
+          </nav>
         )}
-        {onGuardar && (
-          <button type="button" className="btn btn-falcon-default" onClick={() => guardar(false)}>
-            Guardar borrador
-          </button>
+        <div className="tutoring-form__heading">
+          <h3 ref={cabecera} tabIndex={-1}>
+            {resumen ? 'Revisa tus respuestas' : seccion?.titulo}
+          </h3>
+          <p>
+            {resumen
+              ? 'Comprueba los datos antes de compartirlos.'
+              : reutilizados.length
+                ? `Reutilizamos ${reutilizados.length} respuestas anteriores. Confirma que siguen vigentes y cambia solo lo necesario.`
+                : compacto
+                  ? '* Obligatorio'
+                  : 'Marca tus opciones. Los campos con * son necesarios para enviar.'}
+          </p>
+        </div>
+        {Object.keys(errores).length > 0 && (
+          <div className="tutoring-errors" role="alert" tabIndex={-1} ref={resumenError}>
+            <strong>Revisa las respuestas señaladas.</strong>
+            <ul>
+              {Object.entries(errores).map(([codigo, error]) => {
+                const indice = secciones.findIndex((s) =>
+                  s.campos.some((c) => c.codigo === codigo.replace('__otro', '')),
+                );
+                const campo = secciones[indice]?.campos.find(
+                  (c) => c.codigo === codigo.replace('__otro', ''),
+                );
+                return (
+                  <li key={codigo}>
+                    <button type="button" onClick={() => ir(Math.max(indice, 0))}>
+                      {campo?.etiqueta}: {error}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
+        {mensaje && (
+          <p className="tutoring-saved" role="status">
+            <CircleCheck aria-hidden="true" /> {mensaje}
+          </p>
+        )}
+        {fallo && (
+          <Alert tone="riesgo" title="Revisa el formulario">
+            {fallo}
+          </Alert>
         )}
         {resumen ? (
-          <button
-            type="button"
-            className="btn btn-primary"
-            disabled={!puedeEnviar || !onGuardar}
-            onClick={enviar}
-          >
-            <Send aria-hidden="true" /> Enviar formulario
-          </button>
+          <>
+            {secciones.map((s, i) => (
+              <details className="tutoring-review-section" key={s.titulo}>
+                <summary>{s.titulo}</summary>
+                {bloque(s, true)}
+                <button type="button" className="btn btn-link" onClick={() => ir(i)}>
+                  Editar esta sección
+                </button>
+              </details>
+            ))}
+            <label className="tutoring-confirm">
+              <input
+                type="checkbox"
+                checked={confirmado}
+                onChange={(event) =>
+                  setConfirmacion(event.target.checked ? JSON.stringify(valores) : null)
+                }
+              />
+              <span>He revisado mis respuestas y deseo enviarlas.</span>
+            </label>
+            {!puedeEnviar && (
+              <Alert
+                tone="info"
+                title={
+                  etapaDeFormato(definicion.codigo) === 'inicio'
+                    ? 'Envío al inicio del semestre'
+                    : 'Envío al cierre del semestre'
+                }
+              >
+                {etapaDeFormato(definicion.codigo) === 'inicio'
+                  ? 'La entrevista inicial se completa al inicio del semestre. Puedes guardar el borrador.'
+                  : 'Puedes preparar y guardar el borrador. El envío se habilita al finalizar el semestre.'}
+              </Alert>
+            )}
+          </>
         ) : (
-          <button type="button" className="btn btn-primary" onClick={continuar}>
-            {paso === secciones.length - 1 ? 'Revisar respuestas' : 'Continuar'}{' '}
-            <ArrowRight aria-hidden="true" />
-          </button>
+          seccion && bloque(seccion, false)
         )}
+        <div className="tutoring-form__actions">
+          {paso > 0 && (
+            <button type="button" className="btn btn-falcon-default" onClick={() => ir(paso - 1)}>
+              <ArrowLeft aria-hidden="true" /> Atrás
+            </button>
+          )}
+          {onGuardar && (
+            <button type="button" className="btn btn-falcon-default" onClick={() => guardar(false)}>
+              Guardar borrador
+            </button>
+          )}
+          {resumen ? (
+            <button
+              type="button"
+              className="btn btn-primary"
+              disabled={!puedeEnviar || !onGuardar}
+              onClick={enviar}
+            >
+              <Send aria-hidden="true" /> Enviar formulario
+            </button>
+          ) : (
+            <button type="button" className="btn btn-primary" onClick={continuar}>
+              {paso === secciones.length - 1 ? 'Revisar respuestas' : 'Continuar'}{' '}
+              <ArrowRight aria-hidden="true" />
+            </button>
+          )}
+        </div>
       </div>
-    </div>
+    </FormProvider>
+  );
+}
+
+function RespuestaRegistrada(props: Parameters<typeof RespuestaCampo>[0]) {
+  const { control } = useFormContext<ValoresFormularioInstrumento>();
+  const { field } = useController({
+    control,
+    name: `respuestas.${props.campo.codigo}`,
+    defaultValue: props.valores[props.campo.codigo] ?? '',
+  });
+  return (
+    <RespuestaCampo
+      {...props}
+      registro={{ name: field.name, ref: field.ref, onBlur: field.onBlur }}
+      onChange={(codigo, valor) => {
+        if (codigo === props.campo.codigo) field.onChange(valor);
+        props.onChange(codigo, valor);
+      }}
+    />
   );
 }
 
@@ -313,16 +368,25 @@ function RespuestaCampo({
   campo,
   valores,
   editable,
+  reutilizado,
   error,
   otroError,
   onChange,
+  onTablaEditada,
+  registro,
 }: {
   campo: CampoFormato;
   valores: Record<string, string>;
   editable: boolean;
+  reutilizado?: boolean;
   error?: string;
   otroError?: string;
   onChange(codigo: string, valor: string): void;
+  onTablaEditada(): void;
+  registro?: Pick<
+    ControllerRenderProps<ValoresFormularioInstrumento, `respuestas.${string}`>,
+    'name' | 'ref' | 'onBlur'
+  >;
 }) {
   const id = useId();
   const valor = valores[campo.codigo] ?? '';
@@ -348,15 +412,7 @@ function RespuestaCampo({
     `${campo.ayuda ? `${id}-ayuda ` : ''}${error ? `${id}-error` : ''}`.trim() || undefined;
   const opciones = campo.tipo === 'booleano' ? ['Sí', 'No'] : (campo.opciones ?? []);
   const escoger = (opcion: string) => {
-    const exclusivas = [
-      'Ninguna',
-      'Ninguno',
-      'Solo estudio',
-      'Aún ninguno',
-      'No he tenido',
-      'No',
-      'Prefiero conversarlo con mi tutor',
-    ];
+    const exclusivas = OPCIONES_EXCLUSIVAS;
     const nuevos = seleccionados.includes(opcion)
       ? seleccionados.filter((v) => v !== opcion)
       : exclusivas.includes(opcion)
@@ -404,6 +460,7 @@ function RespuestaCampo({
         {opciones.map((opcion) => (
           <label className="tutoring-option" key={opcion}>
             <input
+              {...registro}
               type={campo.tipo === 'multiple' ? 'checkbox' : 'radio'}
               name={id}
               value={opcion}
@@ -418,10 +475,11 @@ function RespuestaCampo({
       </div>
     );
   } else if (campo.tipo === 'tabla') {
-    control = <TablaRespuestas campo={campo} valor={valor} onChange={cambiar} />;
+    control = <TablaRespuestas campo={campo} onEditar={onTablaEditada} />;
   } else if (campo.tipo === 'seleccion') {
     control = (
       <select
+        {...registro}
         id={id}
         className="select"
         value={valor}
@@ -440,6 +498,7 @@ function RespuestaCampo({
   } else if (campo.tipo === 'texto-largo') {
     control = (
       <textarea
+        {...registro}
         id={id}
         className="textarea"
         rows={3}
@@ -467,6 +526,7 @@ function RespuestaCampo({
                 : 'text';
     control = (
       <input
+        {...registro}
         id={id}
         type={tipo}
         min={tipo === 'number' ? 0 : undefined}
@@ -500,6 +560,9 @@ function RespuestaCampo({
         </label>
       )}
       {control}
+      {editable && reutilizado && !identidad && (
+        <span className="field__hint">Reutilizado de tu expediente: ya lo registraste antes.</span>
+      )}
       {editable && identidad && (
         <span className="field__hint">Dato precargado de tu expediente.</span>
       )}
@@ -537,16 +600,11 @@ function RespuestaCampo({
   );
 }
 
-function TablaRespuestas({
-  campo,
-  valor,
-  onChange,
-}: {
-  campo: CampoFormato;
-  valor: string;
-  onChange(valor: string): void;
-}) {
-  const filas = filasRespuesta(valor);
+function TablaRespuestas({ campo, onEditar }: { campo: CampoFormato; onEditar(): void }) {
+  const { control, setValue } = useFormContext<ValoresFormularioInstrumento>();
+  const name = `tablas.${campo.codigo}` as const;
+  const { fields, append, remove } = useFieldArray({ control, name });
+  const filas = useWatch({ control, name }) ?? [];
   const id = useId();
   function actualizar(indice: number, codigo: string, nuevo: string) {
     const estudiante =
@@ -564,79 +622,83 @@ function TablaRespuestas({
           ciclo: String(estudiante.ciclo),
           grupo: asignaciones.find((a) => a.estudianteId === estudiante.id)?.grupo ?? '',
         }
-      : {};
-    onChange(
-      JSON.stringify(
-        filas.map((fila, i) => (i === indice ? { ...fila, ...datos, [codigo]: nuevo } : fila)),
-      ),
-    );
+      : codigo === 'nombre'
+        ? { estudianteId: '', ciclo: '', grupo: '' }
+        : {};
+    // setValue conserva el montaje y el foco de la fila; la clave de RHF es estable.
+    for (const [clave, contenido] of Object.entries({ ...datos, [codigo]: nuevo })) {
+      setValue(`${name}.${indice}.${clave}`, contenido, { shouldDirty: true, shouldTouch: true });
+    }
+    onEditar();
   }
   return (
     <div className="tutoring-rows">
-      {filas.map((fila, i) => (
-        <div className="tutoring-edit-row" key={i}>
-          <div className="tutoring-edit-row__head">
-            <strong>Registro {i + 1}</strong>
-            <button
-              type="button"
-              className="btn btn-link"
-              aria-label={`Quitar registro ${i + 1} de ${campo.etiqueta}`}
-              onClick={() => onChange(JSON.stringify(filas.filter((_, n) => n !== i)))}
-            >
-              <Trash aria-hidden="true" /> Quitar
-            </button>
+      {fields.map((field, i) => {
+        const fila = filas[i] ?? {};
+        return (
+          <div className="tutoring-edit-row" key={field.id}>
+            <div className="tutoring-edit-row__head">
+              <strong>Registro {i + 1}</strong>
+              <button
+                type="button"
+                className="btn btn-link"
+                aria-label={`Quitar registro ${i + 1} de ${campo.etiqueta}`}
+                onClick={() => {
+                  remove(i);
+                  onEditar();
+                }}
+              >
+                <Trash aria-hidden="true" /> Quitar
+              </button>
+            </div>
+            <div className="tutoring-row-fields">
+              {campo.columnas?.map((columna) => (
+                <div className="field" key={columna.codigo}>
+                  <label htmlFor={`${id}-${field.id}-${columna.codigo}`}>{columna.etiqueta}</label>
+                  {columna.tipo === 'seleccion' ? (
+                    <select
+                      id={`${id}-${field.id}-${columna.codigo}`}
+                      className="select"
+                      value={fila[columna.codigo] ?? ''}
+                      onChange={(e) => actualizar(i, columna.codigo, e.target.value)}
+                    >
+                      <option value="">Selecciona</option>
+                      {columna.opciones?.map((o) => (
+                        <option key={o}>{o}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      id={`${id}-${field.id}-${columna.codigo}`}
+                      className="input"
+                      type={
+                        columna.tipo === 'numero'
+                          ? 'number'
+                          : columna.tipo === 'fecha'
+                            ? 'date'
+                            : 'text'
+                      }
+                      min={0}
+                      maxLength={200}
+                      step={columna.codigo === 'horas' ? '0.5' : '1'}
+                      value={fila[columna.codigo] ?? ''}
+                      onChange={(e) => actualizar(i, columna.codigo, e.target.value)}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="tutoring-row-fields">
-            {campo.columnas?.map((columna) => (
-              <div className="field" key={columna.codigo}>
-                <label htmlFor={`${id}-${i}-${columna.codigo}`}>{columna.etiqueta}</label>
-                {columna.tipo === 'seleccion' ? (
-                  <select
-                    id={`${id}-${i}-${columna.codigo}`}
-                    className="select"
-                    value={fila[columna.codigo] ?? ''}
-                    onChange={(e) => actualizar(i, columna.codigo, e.target.value)}
-                  >
-                    <option value="">Selecciona</option>
-                    {columna.opciones?.map((o) => (
-                      <option key={o}>{o}</option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    id={`${id}-${i}-${columna.codigo}`}
-                    className="input"
-                    type={
-                      columna.tipo === 'numero'
-                        ? 'number'
-                        : columna.tipo === 'fecha'
-                          ? 'date'
-                          : 'text'
-                    }
-                    min={0}
-                    maxLength={200}
-                    step={columna.codigo === 'horas' ? '0.5' : '1'}
-                    value={fila[columna.codigo] ?? ''}
-                    onChange={(e) => actualizar(i, columna.codigo, e.target.value)}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
-      {filas.length === 0 && <p className="small muted">Agrega un registro para comenzar.</p>}
+        );
+      })}
+      {fields.length === 0 && <p className="small muted">Agrega un registro para comenzar.</p>}
       <button
         type="button"
         className="btn btn-falcon-default"
-        onClick={() =>
-          onChange(
-            JSON.stringify([
-              ...filas,
-              Object.fromEntries((campo.columnas ?? []).map((columna) => [columna.codigo, ''])),
-            ]),
-          )
-        }
+        onClick={() => {
+          append(Object.fromEntries((campo.columnas ?? []).map((columna) => [columna.codigo, ''])));
+          onEditar();
+        }}
       >
         <Plus aria-hidden="true" /> Agregar registro
       </button>

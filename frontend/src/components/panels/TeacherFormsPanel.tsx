@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { definicionPorCodigo } from '../../data/formatos';
 import { estudiantePorId, nombreCompleto } from '../../data/personas';
-import type { CodigoFormato, Estudiante, Instrumento } from '../../types/domain';
+import type { CodigoFormato, Estudiante, Instrumento, Sesion } from '../../types/domain';
+import { esEvaluacionSesion } from '../../utils/evaluacionesSesion';
 import { formatFecha } from '../../utils/fechas';
 import { puedeEnviarFormato } from '../../utils/instrumentos';
 import type { MomentoTutoria } from '../../utils/instrumentos';
@@ -17,6 +18,7 @@ interface Props {
   registros: Instrumento[];
   tutorados: Estudiante[];
   momento: MomentoTutoria;
+  sesiones?: Sesion[];
   onAbrir(registro: Instrumento): void;
   onPreparar(codigo: CodigoFormato): void;
 }
@@ -25,7 +27,14 @@ const TAMANO_PAGINA = 6;
 const esEntrevista = (registro: Instrumento) => ['F03', 'F04', 'F05'].includes(registro.formato);
 
 /** Acciones breves y una bandeja de registros con permisos compartidos entre roles. */
-export function TeacherFormsPanel({ registros, tutorados, momento, onAbrir, onPreparar }: Props) {
+export function TeacherFormsPanel({
+  registros,
+  tutorados,
+  momento,
+  onAbrir,
+  onPreparar,
+  sesiones = [],
+}: Props) {
   const [parametros, setParametros] = useSearchParams();
   const estudiantes = parametros.get('ambito') === 'estudiantes';
   const estado = parametros.get('estado') ?? '';
@@ -33,7 +42,11 @@ export function TeacherFormsPanel({ registros, tutorados, momento, onAbrir, onPr
   const [busqueda, setBusqueda] = useState('');
   const [pagina, setPagina] = useState(1);
   const propios = registros.filter((r) => definicionPorCodigo(r.formato)?.actor === 'tutor');
-  const entregas = registros.filter((r) => definicionPorCodigo(r.formato)?.actor === 'tutorado');
+  const entregas = registros.filter(
+    (r) =>
+      definicionPorCodigo(r.formato)?.actor === 'tutorado' &&
+      (!esEvaluacionSesion(r.formato) || ['enviado', 'aprobado'].includes(r.estado)),
+  );
   const bandeja = estudiantes ? entregas : propios;
   function coincide(registro: Instrumento, filtro: string) {
     if (filtro === 'pendiente')
@@ -79,7 +92,8 @@ export function TeacherFormsPanel({ registros, tutorados, momento, onAbrir, onPr
   const listado = bandeja
     .filter((r) => {
       const estudiante = r.estudianteId ? estudiantePorId(r.estudianteId) : null;
-      const texto = `${tituloFormulario(r.formato)} ${definicionPorCodigo(r.formato)?.nombre} ${r.formato} ${r.formato.slice(1)} ${estudiante ? nombreCompleto(estudiante) : ''} ${estudiante?.codigo ?? ''}`;
+      const sesion = sesiones.find((s) => s.id === r.sesionId);
+      const texto = `${tituloFormulario(r.formato)} ${definicionPorCodigo(r.formato)?.nombre} ${r.formato} ${r.formato.slice(1)} ${estudiante ? nombreCompleto(estudiante) : ''} ${estudiante?.codigo ?? ''} ${sesion?.tema ?? ''} ${sesion?.codigo ?? ''}`;
       return (
         coincide(r, estado) &&
         (estudianteId === 'todos' || r.estudianteId === estudianteId) &&
@@ -242,6 +256,7 @@ export function TeacherFormsPanel({ registros, tutorados, momento, onAbrir, onPr
             listado
               .slice((paginaActual - 1) * TAMANO_PAGINA, paginaActual * TAMANO_PAGINA)
               .map((registro) => {
+                const sesion = sesiones.find((s) => s.id === registro.sesionId);
                 const def = definicionPorCodigo(registro.formato)!;
                 const estudiante = registro.estudianteId
                   ? estudiantePorId(registro.estudianteId)
@@ -263,6 +278,11 @@ export function TeacherFormsPanel({ registros, tutorados, momento, onAbrir, onPr
                         {formatFecha(registro.actualizado)}
                       </p>
                       {!ver && <small>Aún sin envío</small>}
+                      {sesion && esEvaluacionSesion(registro.formato) && (
+                        <small>
+                          {sesion.tema} · {formatFecha(sesion.fecha)} · {sesion.codigo}
+                        </small>
+                      )}
                     </div>
                     <StatusBadge estado={registro.estado} contexto="formulario" />
                     <button

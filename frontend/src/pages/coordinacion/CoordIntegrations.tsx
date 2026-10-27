@@ -275,6 +275,17 @@ export function CoordIntegrations() {
         quién los cargó y cuándo.
       </Alert>
 
+      <Alert
+        tone="alerta"
+        title="Bienestar requiere un plan de trabajo antes de autorizar el acceso"
+      >
+        La carta 001026-2026-DIBU solicita precisar finalidad, usuarios autorizados, datos mínimos y
+        modalidad de consulta. El acceso sigue en evaluación. La propuesta comprende código
+        universitario, identificador de atención, servicio, fecha, estado y fecha de corte. Las
+        pautas académicas requieren autorización y vigencia explícitas. Los diagnósticos, motivos
+        confidenciales, historias clínicas e informes profesionales quedan fuera.
+      </Alert>
+
       {conteo('no-autorizado') > 0 && (
         <Alert tone="riesgo" title="Hay datos que aún no se pueden usar">
           Ningún dato se incorpora sin autorización. Registra la alternativa institucional (por
@@ -323,8 +334,8 @@ export function CoordIntegrations() {
         </CardBody>
         <CardFoot>
           <span>
-            Cada solicitud se remitió por documento oficial a partir del 9 de octubre de 2026 con
-            copia a la coordinación.
+            Los estados y fechas de esta tabla son ficticios para probar el flujo. No acreditan una
+            entrega ni una autorización institucional.
           </span>
         </CardFoot>
       </Card>

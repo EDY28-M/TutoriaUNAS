@@ -1,6 +1,7 @@
 import type {
   AreaDerivacion,
   Curso,
+  CodigoFormato,
   Escuela,
   EtapaAcademica,
   Facultad,
@@ -465,27 +466,50 @@ export const etiquetasEstadoDerivacion: Record<string, string> = {
  */
 export const etapaAcademica: Record<
   EtapaAcademica,
-  { etiqueta: string; formato: string; descripcion: string }
+  {
+    etiqueta: string;
+    formato: CodigoFormato;
+    descripcion: string;
+    ciclos: string;
+    desde: number;
+    hasta: number;
+  }
 > = {
   ingresante: {
-    etiqueta: 'Ingresante',
+    etiqueta: 'Inicial',
     formato: 'F03',
-    descripcion: 'Entrevista inicial al estudiante ingresante (ciclo I)',
+    descripcion: 'Entrevista inicial al estudiante ingresante',
+    ciclos: 'Ciclos 1 a 3',
+    desde: 1,
+    hasta: 3,
   },
   intermedio: {
-    etiqueta: 'Ciclos intermedios',
+    etiqueta: 'Intermedio',
     formato: 'F04',
     descripcion: 'Entrevista inicial al estudiante de ciclos intermedios',
+    ciclos: 'Ciclos 4 a 7',
+    desde: 4,
+    hasta: 7,
   },
   final: {
-    etiqueta: 'Ciclos finales',
+    etiqueta: 'Final',
     formato: 'F05',
     descripcion: 'Entrevista inicial al estudiante de ciclos finales',
+    ciclos: 'Ciclos 8 a 10',
+    desde: 8,
+    hasta: 10,
   },
 };
 
+/**
+ * Rangos indicados por el usuario el 27/10/2026: inicial (1–3), intermedia (4–7)
+ * y final (8–10). Es la única fuente de la regla: la entrevista inicial, el
+ * padrón y los filtros del portal leen de aquí.
+ */
 export function etapaDeCiclo(ciclo: number): 'ingresante' | 'intermedio' | 'final' {
-  if (ciclo <= 1) return 'ingresante';
-  if (ciclo <= 7) return 'intermedio';
-  return 'final';
+  for (const etapa of ['ingresante', 'intermedio', 'final'] as const) {
+    const rango = etapaAcademica[etapa];
+    if (Number.isInteger(ciclo) && ciclo >= rango.desde && ciclo <= rango.hasta) return etapa;
+  }
+  throw new RangeError('El ciclo debe ser un número entero entre 1 y 10.');
 }

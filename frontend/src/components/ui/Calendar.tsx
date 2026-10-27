@@ -3,7 +3,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { ChevronLeft, ChevronRight } from './icons';
 import {
   DIAS_SEMANA,
-  HOY_ISO,
+  fechaActualLima,
   aIso,
   desdeIso,
   formatFechaLarga,
@@ -133,13 +133,14 @@ export function Calendar({
   etiqueta,
   onAbrir,
   maxPorDia = 3,
-  mesInicial = HOY_ISO,
+  mesInicial,
   legend,
   vistaInicial = 'semana',
 }: CalendarProps) {
+  const hoy = fechaActualLima();
   const [vista, setVista] = useState<VistaCalendario>(vistaInicial);
-  const [periodo, setPeriodo] = useState(mesInicial.slice(0, 10));
-  const [ancla, setAncla] = useState(mesInicial.slice(0, 10));
+  const [periodo, setPeriodo] = useState((mesInicial ?? hoy).slice(0, 10));
+  const [ancla, setAncla] = useState((mesInicial ?? hoy).slice(0, 10));
   const [dayLimit, setDayLimit] = useState(6);
   const agendaId = useId();
   const agenda = useRef<HTMLElement>(null);
@@ -151,8 +152,8 @@ export function Calendar({
     [lunes],
   );
   const celdas = useMemo(
-    () => matrizMensual(anclaFecha.getFullYear(), anclaFecha.getMonth()),
-    [anclaFecha],
+    () => matrizMensual(anclaFecha.getFullYear(), anclaFecha.getMonth(), hoy),
+    [anclaFecha, hoy],
   );
 
   const porFecha = useMemo(() => {
@@ -200,7 +201,7 @@ export function Calendar({
   }
 
   function irHoy() {
-    navegarA(HOY_ISO);
+    navegarA(hoy);
   }
 
   function verAgenda(iso: string) {
@@ -264,6 +265,7 @@ export function Calendar({
 
           {vista === 'semana' ? (
             <WeekView
+              hoy={hoy}
               etiqueta={etiqueta}
               dias={diasSemana}
               ancla={ancla}
@@ -328,7 +330,7 @@ export function Calendar({
                     : `${delDia.length} ${delDia.length === 1 ? 'evento' : 'eventos'}`}
                 </p>
               </div>
-              {ancla === HOY_ISO && <Badge tone="dorado">Hoy</Badge>}
+              {ancla === hoy && <Badge tone="dorado">Hoy</Badge>}
             </header>
             {delDia.length === 0 ? (
               <p className="calendar__daypanel-empty">
@@ -370,6 +372,7 @@ export function Calendar({
 }
 
 function WeekView({
+  hoy,
   etiqueta,
   dias,
   ancla,
@@ -379,6 +382,7 @@ function WeekView({
   onVerAgenda,
   agendaId,
 }: {
+  hoy: string;
   etiqueta: string;
   dias: string[];
   ancla: string;
@@ -408,7 +412,7 @@ function WeekView({
               const fecha = desdeIso(iso);
               const clases = [
                 'calendar__week-day',
-                iso === HOY_ISO ? 'is-today' : '',
+                iso === hoy ? 'is-today' : '',
                 iso === ancla ? 'is-selected' : '',
               ]
                 .filter(Boolean)
@@ -419,7 +423,7 @@ function WeekView({
                   key={iso}
                   className={clases}
                   onClick={() => onSeleccionar(iso)}
-                  aria-current={iso === HOY_ISO ? 'date' : undefined}
+                  aria-current={iso === hoy ? 'date' : undefined}
                   aria-pressed={iso === ancla}
                   aria-label={`${formatFechaLarga(iso)}: ${porFecha.get(iso)?.length ?? 0} eventos`}
                 >

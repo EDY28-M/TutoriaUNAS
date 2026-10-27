@@ -1,7 +1,7 @@
 import { instrumentos } from '../data/instrumentos';
 import { definicionPorCodigo } from '../data/formatos';
 import { asignaciones } from '../data/tutoria';
-import { estudiantePorId, nombreCompleto } from '../data/personas';
+import { docentePorId, estudiantePorId, escuelaDe, nombreCompleto } from '../data/personas';
 import type { Instrumento } from '../types/domain';
 import type { DemoUser } from '../types/auth';
 import {
@@ -12,7 +12,18 @@ import {
   puedeEnviarFormato,
   respuestasVisibles,
   filasRespuesta,
+  motivoDerivacionDesdeAtencion,
+  precargarInstrumentoConOrigen,
+  contextualizarDefinicion,
 } from '../utils/instrumentos';
+import { consultarSesiones } from './sessionWorkspace';
+import {
+  bloqueoEvaluacion,
+  esEvaluacionSesion,
+  formatoDeSesion,
+  idEvaluacionSesion,
+} from '../utils/evaluacionesSesion';
+import { recordarRespuestas } from './expediente';
 import type { MomentoTutoria } from '../utils/instrumentos';
 
 const CLAVE = 'tutoria-unas:instrument-workspace:v1';
@@ -85,10 +96,10 @@ export function guardarInstrumento(
   usuario: DemoUser,
   enviar = false,
 ): Instrumento {
-  const definicion = definicionPorCodigo(instrumento.formato);
-  if (!definicion) throw new Error('No se encontró el formato.');
   const existente = estado.registros.find((r) => r.id === instrumento.id);
   const registro = existente ?? instrumento;
+  const definicion = definicionPorCodigo(registro.formato);
+  if (!definicion) throw new Error('No se encontró el formato.');
   const estudiante = registro.estudianteId ? estudiantePorId(registro.estudianteId) : null;
   const propio =
     definicion.actor === 'tutorado'
@@ -104,18 +115,56 @@ export function guardarInstrumento(
               (a) =>
                 a.estudianteId === registro.estudianteId &&
                 a.tutorId === usuario.id &&
+                a.semestreId === registro.semestreId &&
                 a.estado === 'activa',
             ))
         : usuario.role === 'coordinacion';
-  if (!propio) throw new Error('Este formato corresponde a otra persona o rol.');
+  if (!propio) {
+    const esEntrevista = ['F03', 'F04', 'F05'].includes(registro.formato);
+    if (esEntrevista && usuario.role === 'estudiante' && usuario.id === registro.estudianteId) {
+      const etapa = formatoInicial(estudiante?.ciclo ?? 1);
+      throw new Error(
+        `Tu ciclo (${estudiante?.ciclo}) corresponde a la entrevista ${etapa}. No puedes responder otro formato de entrevista.`,
+      );
+    }
+    throw new Error('Este formato corresponde a otra persona o rol.');
+  }
   if (['enviado', 'aprobado'].includes(registro.estado))
     throw new Error(
       'El formulario ya fue enviado. Solo se habilita de nuevo si se solicitan correcciones.',
     );
+  let respuestasSesion: Record<string, string> = {};
+  if (esEvaluacionSesion(registro.formato)) {
+    const sesiones = consultarSesiones(estado.registros);
+    const sesion = sesiones.find((s) => s.id === registro.sesionId);
+    const bloqueo = bloqueoEvaluacion(sesion, usuario.id);
+    if (bloqueo) throw new Error(bloqueo);
+    if (
+      !sesion ||
+      registro.id !== idEvaluacionSesion(sesion, usuario.id) ||
+      registro.formato !== formatoDeSesion(sesion) ||
+      registro.tutorId !== sesion.tutorId ||
+      registro.semestreId !== sesion.semestreId
+    )
+      throw new Error('La evaluación debe corresponder a esta sesión, estudiante y docente tutor.');
+    const { valores: contexto } = precargarInstrumentoConOrigen(
+      { ...registro, respuestas: {} },
+      sesiones,
+      estado.registros,
+    );
+    respuestasSesion = Object.fromEntries(
+      ['fecha', 'grupo', 'turno', 'nombreTutor'].map((campo) => [campo, contexto[campo] ?? '']),
+    );
+  }
   if (enviar && !puedeEnviarFormato(registro.formato, estado.momento))
-    throw new Error('Este formato se envía al finalizar el semestre. Puedes guardar un borrador.');
-  const valores = respuestasVisibles(definicion, respuestas);
-  if (enviar && Object.keys(erroresInstrumento(definicion, valores)).length)
+    throw new Error(
+      ['F03', 'F04', 'F05'].includes(registro.formato)
+        ? 'La entrevista inicial se completa al inicio del semestre. Puedes guardar un borrador.'
+        : 'Este formato se envía al finalizar el semestre. Puedes guardar un borrador.',
+    );
+  const contexto = contextualizarDefinicion(definicion, registro);
+  const valores = respuestasVisibles(contexto, { ...respuestas, ...respuestasSesion });
+  if (enviar && Object.keys(erroresInstrumento(contexto, valores)).length)
     throw new Error('Revisa las preguntas señaladas antes de enviar.');
   let asistentesIds: string[] = [];
   if (['F06', 'F07'].includes(registro.formato)) {
@@ -125,6 +174,7 @@ export function guardarInstrumento(
         return (
           a.tutorId === usuario.id &&
           a.estado === 'activa' &&
+          a.semestreId === registro.semestreId &&
           e &&
           nombreCompleto(e) === fila.nombre
         );
@@ -147,9 +197,12 @@ export function guardarInstrumento(
           ? asistentesIds[0] || null
           : null
         : registro.estudianteId,
-    respuestas: valores,
+    respuestas:
+      registro.formato === 'F01'
+        ? { ...valores, escuela: registro.respuestas.escuela ?? '' }
+        : valores,
     estado: enviar ? 'enviado' : registro.estado === 'observado' ? 'observado' : 'borrador',
-    avance: avanceInstrumento(definicion, valores),
+    avance: avanceInstrumento(contexto, valores),
     actualizado: fechaTutoria(),
     enviado: enviar ? fechaTutoria() : null,
     version: registro.version + 1,
@@ -159,7 +212,39 @@ export function guardarInstrumento(
   };
   if (enviar && registro.formato === 'F08' && valores.resultado === 'Se deriva a:') {
     const id = `INST-F12-desde-${registro.id}`;
-    if (!estado.registros.some((r) => r.id === id))
+    if (!estado.registros.some((r) => r.id === id)) {
+      const docente = docentePorId(registro.tutorId);
+      const motivo = motivoDerivacionDesdeAtencion(valores.motivo ?? '');
+      const contacto = estado.registros
+        .filter(
+          (r) =>
+            r.estudianteId === registro.estudianteId &&
+            r.semestreId === registro.semestreId &&
+            ['F03', 'F04', 'F05'].includes(r.formato) &&
+            ['enviado', 'aprobado'].includes(r.estado),
+        )
+        .sort((a, b) => a.actualizado.localeCompare(b.actualizado) || a.version - b.version)
+        .at(-1)?.respuestas;
+      const respuestasDerivacion: Record<string, string> = {
+        fecha: valores.fecha ?? fechaTutoria(),
+        nombreEstudiante: estudiante ? nombreCompleto(estudiante) : '',
+        codigo: estudiante?.codigo ?? '',
+        escuela: estudiante ? escuelaDe(estudiante.escuelaId) : '',
+        ciclo: estudiante ? String(estudiante.ciclo) : '',
+        telefono: contacto?.telefono ?? estudiante?.telefono ?? '',
+        nombreTutor: docente ? nombreCompleto(docente) : '',
+        telefonoTutor: docente?.telefono ?? '',
+        area: valores.areaDerivacion ?? '',
+        motivo,
+        motivo__otro:
+          motivo === 'Otro'
+            ? valores.motivo === 'Otro'
+              ? (valores.motivo__otro ?? '')
+              : (valores.motivo ?? '')
+            : '',
+        detalle: valores.detalleMotivo ?? '',
+      };
+      const definicionF12 = definicionPorCodigo('F12');
       cambios = {
         ...cambios,
         [id]: {
@@ -167,20 +252,16 @@ export function guardarInstrumento(
           id,
           formato: 'F12',
           estado: 'borrador',
-          avance: 0,
-          respuestas: {
-            fecha: valores.fecha ?? fechaTutoria(),
-            area: valores.areaDerivacion ?? '',
-            motivo: 'Otro',
-            motivo__otro:
-              valores.motivo === 'Otro' ? (valores.motivo__otro ?? '') : (valores.motivo ?? ''),
-            detalle: valores.detalleMotivo ?? '',
-          },
+          avance: definicionF12 ? avanceInstrumento(definicionF12, respuestasDerivacion) : 0,
+          respuestas: respuestasDerivacion,
           enviado: null,
           observaciones: [],
         },
       };
+    }
   }
+  // Solo una operación aceptada puede cambiar la fuente compartida.
+  recordarRespuestas(actualizado, valores);
   cambios = { ...cambios, [actualizado.id]: actualizado };
   publicar();
   return actualizado;

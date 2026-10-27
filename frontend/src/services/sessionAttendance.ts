@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { Sesion } from '../types/domain';
 import type { Role } from '../types/auth';
+import { sesionFinalizo } from '../utils/evaluacionesSesion';
 
 export const ATTENDANCE_KEY = 'unas:session-attendance:v1';
 export const ATTENDANCE_EVENT = 'unas:session-attendance-updated';
@@ -37,6 +38,8 @@ export function leerRegistros(raw: string | null): RegistrosAsistencia {
 }
 
 export function aplicarRegistro(sesion: Sesion, registros: RegistrosAsistencia): Sesion {
+  if (!['programada', 'realizada'].includes(sesion.estado) || !sesionFinalizo(sesion))
+    return sesion;
   const registro = registros[sesion.id];
   if (!registro || registro.tutorId !== sesion.tutorId) return sesion;
   const ids = new Set(sesion.asistentes.map((a) => a.estudianteId));
@@ -46,7 +49,13 @@ export function aplicarRegistro(sesion: Sesion, registros: RegistrosAsistencia):
     registro.asistentes.some((a) => !ids.has(a.estudianteId))
   )
     return sesion;
-  return { ...sesion, asistentes: registro.asistentes, acuerdos: registro.acuerdos };
+  return {
+    ...sesion,
+    estado: 'realizada',
+    asistenciaConfirmada: true,
+    asistentes: registro.asistentes,
+    acuerdos: registro.acuerdos,
+  };
 }
 
 /** Persistencia de demostración en este navegador; sustituible por la API institucional. */
@@ -57,9 +66,15 @@ export function guardarAsistencia(
   mensaje: string,
   storage: Pick<Storage, 'getItem' | 'setItem'> = window.localStorage,
 ) {
-  if (actor.role !== 'tutor' || actor.id !== sesion.tutorId || sesion.estado !== 'realizada') {
-    throw new Error('Solo el tutor responsable puede registrar esta sesión realizada.');
+  if (
+    actor.role !== 'tutor' ||
+    actor.id !== sesion.tutorId ||
+    !['programada', 'realizada'].includes(sesion.estado)
+  ) {
+    throw new Error('Solo el tutor responsable puede registrar la asistencia de esta sesión.');
   }
+  if (!sesionFinalizo(sesion))
+    throw new Error('Registra la asistencia cuando haya finalizado la sesión.');
   const registros = leerRegistros(storage.getItem(ATTENDANCE_KEY));
   const actual = aplicarRegistro(sesion, registros);
   const texto = mensaje.trim();

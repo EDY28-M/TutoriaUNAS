@@ -48,7 +48,7 @@ describe('formato de fechas en español', () => {
 
 describe('operaciones de calendario', () => {
   it('construye 42 celdas que empiezan en lunes', () => {
-    const celdas = matrizMensual(2026, 9);
+    const celdas = matrizMensual(2026, 9, '2026-10-14');
     expect(celdas).toHaveLength(42);
     expect(diaSemanaCorto(celdas[0]!.fecha.getDay())).toBe('lun');
     expect(celdas.some((celda) => celda.esHoy)).toBe(true);

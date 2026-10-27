@@ -7,6 +7,7 @@ import type {
   ReglaTutoria,
 } from '../types/domain';
 import { HOY } from './tutoria';
+import { etapaAcademica } from './catalogos';
 
 /**
  * Comunicación, configuración institucional y trazabilidad.
@@ -310,9 +311,12 @@ export const reglasTutoria: ReglaTutoria[] = [
     id: 'RG-04',
     codigo: 'etapa-formato',
     descripcion: 'Instrumento de entrevista inicial según la etapa académica',
-    valor: 'Ciclos I–II: formato 03 · Ciclos III–VII: formato 04 · Ciclos VIII–X: formato 05',
+    valor: Object.values(etapaAcademica)
+      .map((etapa) => `${etapa.ciclos}: formato ${etapa.formato.slice(1)}`)
+      .join(' · '),
     estado: 'validada',
-    fuente: 'Anexos de la Resolución N.º 500-2022-CU-R-UNAS',
+    fuente:
+      'Distribución de ciclos indicada por el usuario el 27/10/2026; formatos de los anexos de la Resolución N.º 500-2022-CU-R-UNAS',
   },
   {
     id: 'RG-05',
@@ -371,7 +375,7 @@ export const permisos: PermisoRol[] = [
   {
     id: 'PM-07',
     rol: 'tutor',
-    recurso: 'Formularios 01, 02, 06, 07, 08, 09 y 12',
+    recurso: 'Formularios 02, 06, 07, 08, 09 y 12',
     acciones: ['ver', 'crear', 'editar', 'descargar'],
   },
   {

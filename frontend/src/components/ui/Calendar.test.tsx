@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Calendar } from './Calendar';
 import type { EventoCalendario } from './Calendar';
 
@@ -15,7 +15,25 @@ function evento(id: number, hora = '16:00–18:00'): EventoCalendario {
   };
 }
 
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-10-14T17:00:00Z'));
+});
+afterEach(() => vi.useRealTimers());
+
 describe('Calendar', () => {
+  it('abre en la fecha actual de Lima y Hoy no vuelve al corte de los datos ficticios', () => {
+    vi.setSystemTime(new Date('2026-11-01T02:00:00Z')); // En Lima todavía es 31 de octubre.
+    render(<Calendar etiqueta="pruebas" eventos={[]} />);
+    expect(
+      screen.getByRole('button', { name: 'sábado, 31 de octubre de 2026: 0 eventos' }),
+    ).toHaveAttribute('aria-current', 'date');
+    fireEvent.click(screen.getByRole('button', { name: 'Semana anterior' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Hoy' }));
+    expect(
+      screen.getByRole('button', { name: 'sábado, 31 de octubre de 2026: 0 eventos' }),
+    ).toHaveAttribute('aria-pressed', 'true');
+  });
   it('mantiene compacta una semana sin eventos en lugar de reservar diez horas vacías', () => {
     render(<Calendar etiqueta="pruebas" eventos={[]} />);
     expect(document.querySelector<HTMLElement>('.calendar__week-grid')!.style.height).toBe('288px');

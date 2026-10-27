@@ -1,11 +1,16 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { SessionCalendar } from './SessionCalendar';
 import { sesiones } from '../../data/tutoria';
 import type { Sesion } from '../../types/domain';
 
 const base = sesiones[0]!;
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-10-14T17:00:00Z'));
+});
+afterEach(() => vi.useRealTimers());
 const registros: Sesion[] = [
   { ...base, id: 'pasada', fecha: '2026-10-06', tema: 'Sesión realizada', estado: 'realizada' },
   { ...base, id: 'pendiente', fecha: '2026-10-20', tema: 'Sesión pendiente', estado: 'programada' },

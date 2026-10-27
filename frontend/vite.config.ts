@@ -38,6 +38,8 @@ export default defineConfig({
         'src/utils/roles.ts',
         'src/data/academico.ts',
         'src/hooks/usePortal.ts',
+        'src/hooks/useFormularioInstrumento.ts',
+        'src/utils/validacionInstrumentos.ts',
         'src/components/forms/RoleSelector.tsx',
         'src/routes/ProtectedRoute.tsx',
       ],

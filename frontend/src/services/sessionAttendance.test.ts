@@ -31,7 +31,7 @@ describe('registro de asistencia por sesión', () => {
       aplicarRegistro(sesion, leerRegistros(localStorage.getItem(ATTENDANCE_KEY))).acuerdos,
     ).toEqual(leida.acuerdos);
   });
-  it('rechaza otro docente, otros roles y sesiones aún no realizadas', () => {
+  it('rechaza otro docente, otros roles y sesiones que no han finalizado', () => {
     expect(() =>
       guardarAsistencia({ ...actor, id: 'DOC-0422' }, sesion, sesion.asistentes, ''),
     ).toThrow();
@@ -42,7 +42,12 @@ describe('registro de asistencia por sesión', () => {
       guardarAsistencia({ ...actor, role: 'coordinacion' }, sesion, sesion.asistentes, ''),
     ).toThrow();
     expect(() =>
-      guardarAsistencia(actor, { ...sesion, estado: 'programada' }, sesion.asistentes, ''),
+      guardarAsistencia(
+        actor,
+        { ...sesion, estado: 'programada', fecha: '2099-01-01' },
+        sesion.asistentes,
+        '',
+      ),
     ).toThrow();
     expect(localStorage.getItem(ATTENDANCE_KEY)).toBeNull();
   });

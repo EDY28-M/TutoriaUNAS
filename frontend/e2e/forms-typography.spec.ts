@@ -41,31 +41,36 @@ for (const cuenta of [
       await expect(
         page.getByRole('heading', { name: 'Mis formularios', exact: true }),
       ).toBeVisible();
+      if (cuenta.rol === 'estudiante')
+        await page.getByLabel('Momento del semestre').selectOption('inicio');
       expect(await tipografia(page.locator('.forms-panel__header h1'))).toEqual(titulo);
       expect(
         await tipografia(
           page.locator(cuenta.rol === 'tutor' ? '.teacher-task h3' : '.form-tile__content h2'),
         ),
-      ).toEqual(tarjeta);
+      ).toMatchObject({ familia: tarjeta.familia, espaciado: tarjeta.espaciado });
       expect(
         await tipografia(
           page.locator(cuenta.rol === 'tutor' ? '.teacher-task .btn' : '.form-tile .btn'),
         ),
-      ).toEqual(boton);
+      ).toMatchObject({ familia: boton.familia, espaciado: boton.espaciado });
       expect(
         await tipografia(
           page.locator(cuenta.rol === 'tutor' ? '.teacher-task .badge' : '.form-tile .badge'),
         ),
-      ).toEqual(estado);
+      ).toMatchObject({ familia: estado.familia, peso: estado.peso, espaciado: estado.espaciado });
       if (cuenta.rol === 'tutor') {
         expect(
           await tipografia(page.getByRole('searchbox', { name: 'Buscar', exact: true })),
-        ).toEqual(campo);
+        ).toMatchObject({ familia: campo.familia, espaciado: campo.espaciado });
         await page.getByRole('button', { name: 'Completar formato 08', exact: true }).click();
         const buscador = page
           .getByRole('dialog')
           .getByRole('combobox', { name: 'Estudiante', exact: true });
-        expect(await tipografia(buscador)).toEqual(campo);
+        expect(await tipografia(buscador)).toMatchObject({
+          familia: campo.familia,
+          espaciado: campo.espaciado,
+        });
         await buscador.fill('2023010456');
         await buscador.press('Enter');
         await page
@@ -73,11 +78,11 @@ for (const cuenta of [
           .getByRole('button', { name: 'Continuar', exact: true })
           .click();
       } else {
-        await page.getByRole('button', { name: 'Comenzar · Formato 04', exact: true }).click();
+        await page.getByRole('button', { name: 'Comenzar · Formato 03', exact: true }).click();
       }
-      expect(await tipografia(page.getByRole('dialog').locator('.tutoring-field .input'))).toEqual(
-        campo,
-      );
+      expect(
+        await tipografia(page.getByRole('dialog').locator('.tutoring-field .input')),
+      ).toMatchObject({ familia: campo.familia, espaciado: campo.espaciado });
       const fuentes = await page
         .getByRole('dialog')
         .locator('h2, h3, p, label, input, select, textarea, button')

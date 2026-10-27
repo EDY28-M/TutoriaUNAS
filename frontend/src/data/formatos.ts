@@ -4,6 +4,7 @@ import type {
   DefinicionFormato,
   SeccionFormato,
 } from '../types/domain';
+import { etapaAcademica } from './catalogos';
 
 /** Transcripción funcional de los anexos 01–12 y la guía de llenado entregada por el usuario.
  * Las opciones sugeridas agilizan la captura; «Otro» conserva la respuesta libre del anexo.
@@ -269,6 +270,16 @@ const motivacion = s('Motivación', [
   ]),
 ]);
 
+/** El anexo 05 pregunta por la motivación hacia la carrera; el 04, hacia el estudio. */
+const motivacionCarrera = s('Motivación', [
+  opciones('motivacion', '¿Cómo se encuentra tu motivación hacia la carrera?', [
+    'Alta',
+    'Media',
+    'Baja',
+    'Quisiera conversar sobre ello',
+  ]),
+]);
+
 const PERIODICIDAD: Record<CodigoFormato, { periodicidad: string; destinatario: string }> = {
   F01: {
     periodicidad: 'Al término del semestre académico',
@@ -279,15 +290,15 @@ const PERIODICIDAD: Record<CodigoFormato, { periodicidad: string; destinatario: 
     destinatario: 'Comisión de Tutoría de la escuela profesional (art. 17.f)',
   },
   F03: {
-    periodicidad: 'Al inicio del semestre, para quienes inician el primer ciclo (art. 17.k)',
+    periodicidad: `Al inicio del semestre (${etapaAcademica.ingresante.ciclos.toLowerCase()})`,
     destinatario: 'Docente tutor; expediente del tutorado',
   },
   F04: {
-    periodicidad: 'Al inicio del semestre (ciclos intermedios; no fijada en el Reglamento)',
+    periodicidad: `Al inicio del semestre (${etapaAcademica.intermedio.ciclos.toLowerCase()})`,
     destinatario: 'Docente tutor; expediente del tutorado',
   },
   F05: {
-    periodicidad: 'Al inicio del semestre (ciclos finales; no fijada en el Reglamento)',
+    periodicidad: `Al inicio del semestre (${etapaAcademica.final.ciclos.toLowerCase()})`,
     destinatario: 'Docente tutor; expediente del tutorado',
   },
   F06: {
@@ -307,11 +318,11 @@ const PERIODICIDAD: Record<CodigoFormato, { periodicidad: string; destinatario: 
     destinatario: 'Comisión de Tutoría de la escuela profesional',
   },
   F10: {
-    periodicidad: 'Encuesta por semestre académico (art. 19.h)',
+    periodicidad: 'En cada sesión individual finalizada, con asistencia confirmada por el tutor',
     destinatario: 'Responsable del Sistema de Tutoría (art. 12.g)',
   },
   F11: {
-    periodicidad: 'Encuesta por semestre académico (art. 19.h)',
+    periodicidad: 'En cada sesión grupal finalizada, con asistencia confirmada por el tutor',
     destinatario: 'Responsable del Sistema de Tutoría (art. 12.g)',
   },
   F12: {
@@ -370,13 +381,17 @@ export const definicionesFormato: DefinicionFormato[] = [
         c('comision', 'Integrantes de la comisión de acción tutorial', 'texto-largo'),
       ]),
       s('Actividades del proceso tutorial', [
-        tabla('actividades', 'Actividades ejecutadas', [
-          col('problematica', 'Problemática priorizada'),
-          col('meta', 'Meta'),
-          col('fecha', 'Fecha de realización', 'fecha'),
-          col('justificacion', 'Justificación'),
-          col('evidencia', 'Evidencia'),
-        ]),
+        {
+          ...tabla('actividades', 'Actividades ejecutadas', [
+            col('problematica', 'Problemática priorizada'),
+            col('meta', 'Meta'),
+            col('fecha', 'Fecha de realización', 'fecha'),
+            col('justificacion', 'Justificación'),
+            col('evidencia', 'Evidencia'),
+          ]),
+          ayuda:
+            'El plan aporta la problemática y la meta. Confirma qué se ejecutó y completa la fecha real y la evidencia.',
+        },
       ]),
       s('Observaciones', [c('observaciones', 'Observaciones', 'texto-largo', false)]),
     ],
@@ -443,7 +458,7 @@ export const definicionesFormato: DefinicionFormato[] = [
     'F03',
     'Entrevista inicial al estudiante ingresante',
     'tutorado',
-    'Al inicio del semestre · ciclo I',
+    `Al inicio del semestre · ${etapaAcademica.ingresante.ciclos.toLowerCase()}`,
     [
       estudiante,
       s('Trayectoria académica', [
@@ -539,7 +554,7 @@ export const definicionesFormato: DefinicionFormato[] = [
     'F04',
     'Entrevista inicial al estudiante de ciclos intermedios',
     'tutorado',
-    'Al inicio del semestre · ciclos II a VII',
+    `Al inicio del semestre · ${etapaAcademica.intermedio.ciclos.toLowerCase()}`,
     [
       estudiante,
       s('Trayectoria académica', [c('colegio', 'Colegio de procedencia', 'texto', false)]),
@@ -556,7 +571,7 @@ export const definicionesFormato: DefinicionFormato[] = [
     'F05',
     'Entrevista inicial al estudiante de ciclos finales',
     'tutorado',
-    'Al inicio del semestre · ciclo VIII en adelante',
+    `Al inicio del semestre · ${etapaAcademica.final.ciclos.toLowerCase()}`,
     [
       estudiante,
       s('Trayectoria académica', [c('colegio', 'Colegio de procedencia', 'texto', false)]),
@@ -575,7 +590,7 @@ export const definicionesFormato: DefinicionFormato[] = [
           'Creo que ahora tengo más posibilidades de encontrar trabajo',
         ].map((etiqueta, i) => opciones(`laboral${i + 1}`, etiqueta, SI_NO)),
       ),
-      motivacion,
+      motivacionCarrera,
       tiempo,
       estrategias,
       socioemocional,
@@ -723,7 +738,7 @@ export const definicionesFormato: DefinicionFormato[] = [
     'F10',
     'Evaluación de la tutoría individual',
     'tutorado',
-    'Al finalizar el semestre',
+    'Al finalizar cada sesión individual y confirmar la asistencia',
     [
       s('Datos de la evaluación', [
         c('grupo', 'Grupo'),
@@ -786,7 +801,7 @@ export const definicionesFormato: DefinicionFormato[] = [
     'F11',
     'Evaluación del desempeño de tutoría grupal',
     'tutorado',
-    'Al finalizar el semestre',
+    'Al finalizar cada sesión grupal y confirmar la asistencia',
     [
       s('Datos de la evaluación', [
         c('nombreTutor', 'Nombre de tu tutor'),

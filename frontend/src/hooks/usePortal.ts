@@ -1,13 +1,16 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from './useAuth';
 import { useSessionAttendance } from './useSessionAttendance';
-import { aplicarRegistro } from '../services/sessionAttendance';
-import { useInstrumentWorkspace } from './useInstrumentWorkspace';
-import { puedeEnviarFormato } from '../utils/instrumentos';
+import { resolverSesiones } from '../services/sessionWorkspace';
+import { useScheduledSessions } from './useScheduledSessions';
 import {
-  derivacionesDesdeInstrumentos,
-  sesionesDesdeInstrumentos,
-} from '../utils/seguimientoInstrumentos';
+  bloqueoEvaluacion,
+  esEvaluacionSesion,
+  evaluacionesDeSesiones,
+} from '../utils/evaluacionesSesion';
+import { useInstrumentWorkspace } from './useInstrumentWorkspace';
+import { formatoInicial, puedeEnviarFormato } from '../utils/instrumentos';
+import { derivacionesDesdeInstrumentos } from '../utils/seguimientoInstrumentos';
 import type {
   Asignacion,
   Derivacion,
@@ -24,14 +27,10 @@ import {
   derivacionesDeTutor,
   docentePorId,
   docentePorId as docente,
-  estudiantes,
   estudiantePorId,
   notificaciones,
-  sesionesDeEstudiante,
-  sesionesDeTutor,
   tutoradosDe,
   asignaciones as todasAsignaciones,
-  sesiones as todasSesiones,
   derivaciones as todasDerivaciones,
 } from '../data';
 
@@ -73,6 +72,12 @@ export function usePortal(): Portal {
   const userId = user?.id ?? '';
   const { registros: todosInstrumentos, momento } = useInstrumentWorkspace();
   const registrosAsistencia = useSessionAttendance();
+  const programadas = useScheduledSessions();
+  const [ahora, setAhora] = useState(Date.now);
+  useEffect(() => {
+    const timer = window.setInterval(() => setAhora(Date.now()), 30_000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   return useMemo<Portal>(() => {
     let estudiante: Estudiante | null = null;
@@ -84,47 +89,52 @@ export function usePortal(): Portal {
     let derivaciones: Derivacion[] = [];
 
     if (role === 'estudiante') {
-      estudiante = estudiantePorId(userId) ?? estudiantes[0] ?? null;
+      estudiante = estudiantePorId(userId) ?? null;
       if (estudiante) {
         asignacion = asignacionDe(estudiante.id) ?? null;
-        sesiones = sesionesDeEstudiante(estudiante.id);
         // El tutorado solo responde los instrumentos cuyo actor es él mismo
         // (entrevistas 03, 04 o 05 y evaluaciones 10 y 11). Los formatos que
         // llena el docente tutor pertenecen a su bandeja, no a la del tutorado.
         instrumentos = todosInstrumentos
           .filter((item) => item.estudianteId === estudiante!.id)
-          .filter((instrumento) => definicionPorCodigo(instrumento.formato)?.actor === 'tutorado');
+          .filter((instrumento) => definicionPorCodigo(instrumento.formato)?.actor === 'tutorado')
+          // Solo la entrevista de la etapa actual: las de etapas anteriores ya no
+          // le pertenecen aunque existan registros de semestres pasados.
+          .filter(
+            (instrumento) =>
+              !['F03', 'F04', 'F05'].includes(instrumento.formato) ||
+              instrumento.formato === formatoInicial(estudiante!.ciclo),
+          );
         derivaciones = derivacionesDe(estudiante.id);
       }
     } else if (role === 'tutor') {
       doc = docente(userId) ?? null;
       if (doc) {
         tutorados = tutoradosDe(doc.id);
-        sesiones = sesionesDeTutor(doc.id);
         instrumentos = todosInstrumentos.filter((item) => item.tutorId === doc!.id);
         derivaciones = derivacionesDeTutor(doc.id);
       }
     } else {
       doc = docentePorId('DOC-0422') ?? null;
       tutorados = todasAsignaciones;
-      sesiones = todasSesiones;
       instrumentos = todosInstrumentos;
       derivaciones = todasDerivaciones;
     }
 
-    const extrasSesiones = sesionesDesdeInstrumentos(todosInstrumentos);
     const extrasDerivaciones = derivacionesDesdeInstrumentos(todosInstrumentos);
-    sesiones = [
-      ...sesiones,
-      ...extrasSesiones.filter(
-        (s) =>
-          role === 'coordinacion' ||
-          (role === 'tutor'
-            ? s.tutorId === doc?.id
-            : s.asistentes.some((a) => a.estudianteId === estudiante?.id)),
+    sesiones = resolverSesiones(todosInstrumentos, programadas, registrosAsistencia).filter(
+      (s) =>
+        role === 'coordinacion' ||
+        (role === 'tutor'
+          ? s.tutorId === doc?.id
+          : s.asistentes.some((a) => a.estudianteId === estudiante?.id)),
+    );
+    instrumentos = [
+      ...instrumentos.filter((r) => !esEvaluacionSesion(r.formato)),
+      ...evaluacionesDeSesiones(sesiones, todosInstrumentos).filter(
+        (r) => role !== 'estudiante' || r.estudianteId === estudiante?.id,
       ),
     ];
-    sesiones = sesiones.map((sesion) => aplicarRegistro(sesion, registrosAsistencia));
     derivaciones = [
       ...derivaciones,
       ...extrasDerivaciones.filter(
@@ -138,6 +148,12 @@ export function usePortal(): Portal {
       (instrumento) =>
         ESTADOS_PENDIENTES.includes(instrumento.estado) &&
         puedeEnviarFormato(instrumento.formato, momento) &&
+        (!esEvaluacionSesion(instrumento.formato) ||
+          !bloqueoEvaluacion(
+            sesiones.find((s) => s.id === instrumento.sesionId),
+            instrumento.estudianteId ?? '',
+            ahora,
+          )) &&
         (role !== 'tutor' || definicionPorCodigo(instrumento.formato)?.actor === 'tutor'),
     ).length;
     const derivacionesAbiertas = derivaciones.filter((derivacion) =>
@@ -173,5 +189,5 @@ export function usePortal(): Portal {
       escuelaId,
       avisosSinLeer,
     };
-  }, [role, userId, todosInstrumentos, momento, registrosAsistencia]);
+  }, [role, userId, todosInstrumentos, momento, registrosAsistencia, programadas, ahora]);
 }

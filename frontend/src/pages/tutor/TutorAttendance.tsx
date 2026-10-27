@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { sesionFinalizo } from '../../utils/evaluacionesSesion';
 import { PageHeading } from '../../components/ui/PageHeading';
 import { DataTable } from '../../components/ui/DataTable';
 import { Badge } from '../../components/ui/StatusBadge';
@@ -18,10 +20,18 @@ export function TutorAttendance() {
   const { user } = useAuth();
   const [fecha, setFecha] = useState('');
   const [buscar, setBuscar] = useState('');
-  const [detalle, setDetalle] = useState<Sesion | null>(null);
+  const [parametros, setParametros] = useSearchParams();
+  const [detalleId, setDetalleId] = useState<string | null>(() => parametros.get('sesion'));
+  const detalle = sesiones.find((s) => s.id === detalleId);
+  function cerrar() {
+    setDetalleId(null);
+    const nuevos = new URLSearchParams(parametros);
+    nuevos.delete('sesion');
+    setParametros(nuevos, { replace: true });
+  }
   const [confirmacion, setConfirmacion] = useState('');
-  const realizadas = sesiones.filter((s) => s.estado === 'realizada');
-  const filas = realizadas.filter(
+  const disponibles = sesiones.filter((s) => ['programada', 'realizada'].includes(s.estado));
+  const filas = disponibles.filter(
     (s) =>
       (!fecha || s.fecha === fecha) &&
       `${s.tema} ${s.codigo}`
@@ -34,14 +44,14 @@ export function TutorAttendance() {
       <PageHeading
         eyebrow="Tutoría"
         title="Asistencias"
-        description="Registra la asistencia y los acuerdos de cada sesión."
+        description="Al finalizar cada sesión, confirma quiénes asistieron para habilitar su evaluación."
       />
       {confirmacion && (
         <p className="attendance-notice" role="status">
           {confirmacion}
         </p>
       )}
-      <section className="card attendance-register" aria-label="Sesiones realizadas">
+      <section className="card attendance-register" aria-label="Registro de sesiones">
         <div className="attendance-filters">
           <label className="field">
             <span>Buscar sesión</span>
@@ -83,11 +93,11 @@ export function TutorAttendance() {
           caption="Asistencia por sesión"
           pagination="auto"
           initialSort={{ key: 'fecha', direction: 'desc' }}
-          emptyTitle="Sin sesiones realizadas"
+          emptyTitle="Sin sesiones para registrar"
           emptyDescription={
             fecha || buscar
               ? 'Prueba con otra fecha o título.'
-              : 'Las sesiones aparecerán aquí cuando se realicen.'
+              : 'Programa una sesión desde el calendario de tutoría.'
           }
           columns={[
             {
@@ -131,7 +141,9 @@ export function TutorAttendance() {
               render: (s) => (
                 <>
                   <span className="cell-strong">
-                    {cantidadAsistentes(s)} de {s.asistentes.length}
+                    {s.asistenciaConfirmada
+                      ? `${cantidadAsistentes(s)} de ${s.asistentes.length}`
+                      : `${s.asistentes.length} convocados`}
                   </span>
                   <span className="cell-note">{s.acuerdos.length} acuerdos</span>
                 </>
@@ -146,11 +158,15 @@ export function TutorAttendance() {
                   className="btn btn-falcon-default btn-sm"
                   aria-label={`Revisar asistencia de ${s.codigo}`}
                   onClick={() => {
-                    setDetalle(s);
+                    setDetalleId(s.id);
                     setConfirmacion('');
                   }}
                 >
-                  Revisar
+                  {s.asistenciaConfirmada
+                    ? 'Revisar'
+                    : sesionFinalizo(s)
+                      ? 'Registrar'
+                      : 'Ver sesión'}
                 </button>
               ),
             },
@@ -161,15 +177,20 @@ export function TutorAttendance() {
         <AttendanceEditor
           key={detalle.id}
           sesion={detalle}
-          onClose={() => setDetalle(null)}
+          onClose={cerrar}
           onSave={(asistentes, mensaje) => {
             guardarAsistencia(user, detalle, asistentes, mensaje);
-            setDetalle(null);
+            cerrar();
             setConfirmacion(
               `Registro guardado · ${detalle.codigo}${mensaje.trim() ? '. El acuerdo ya está disponible en la sesión del estudiante.' : '.'}`,
             );
           }}
         />
+      )}
+      {detalleId && !detalle && (
+        <Alert tone="alerta" title="Sesión no disponible">
+          La sesión no existe o no está dentro de tus asignaciones.
+        </Alert>
       )}
     </div>
   );
@@ -191,8 +212,13 @@ function AttendanceEditor({
     })),
   );
   const [mensaje, setMensaje] = useState('');
+  const [marcados, setMarcados] = useState(
+    () =>
+      new Set(sesion.estado === 'realizada' ? sesion.asistentes.map((a) => a.estudianteId) : []),
+  );
   const [error, setError] = useState('');
   const total = asistentes.filter((a) => a.estado === 'asistio' || a.estado === 'tarde').length;
+  const finalizo = sesionFinalizo(sesion);
   function guardar() {
     try {
       onSave(asistentes, mensaje);
@@ -213,13 +239,32 @@ function AttendanceEditor({
           <button type="button" className="btn btn-falcon-default" onClick={onClose}>
             Cancelar
           </button>
-          <button type="button" className="btn btn-primary" onClick={guardar}>
-            Guardar registro
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={guardar}
+            disabled={!finalizo || marcados.size !== asistentes.length}
+          >
+            {sesion.asistenciaConfirmada
+              ? 'Guardar registro'
+              : 'Finalizar sesión y guardar asistencia'}
           </button>
         </>
       }
     >
       <div className="stack">
+        {!finalizo && (
+          <Alert tone="info" title="La sesión todavía no ha finalizado">
+            Podrás confirmar la asistencia después de la hora de fin. El estudiante podrá evaluar
+            únicamente si figura como presente.
+          </Alert>
+        )}
+        {finalizo && (
+          <p className="small muted">
+            Marca la asistencia de todos los convocados. Al guardar se confirma la finalización de
+            esta sesión.
+          </p>
+        )}
         {error && (
           <Alert tone="riesgo" title="No se guardó el registro">
             {error}
@@ -233,6 +278,24 @@ function AttendanceEditor({
             Formato {sesion.tipo === 'individual' ? '06' : '07'} · {sesion.semestreId}
           </span>
         </div>
+        {finalizo && (
+          <button
+            type="button"
+            className="btn btn-falcon-default"
+            onClick={() => {
+              setAsistentes((lista) =>
+                lista.map((a) => ({
+                  ...a,
+                  estado: 'asistio',
+                  horaRegistro: a.horaRegistro ?? sesion.horaInicio,
+                })),
+              );
+              setMarcados(new Set(asistentes.map((a) => a.estudianteId)));
+            }}
+          >
+            Marcar todos como presentes
+          </button>
+        )}
         <table className="attendance-students">
           <caption className="sr-only">Asistencia de los estudiantes de esta sesión</caption>
           <thead>
@@ -261,8 +324,12 @@ function AttendanceEditor({
                           type="radio"
                           name={`asistencia-${asistente.estudianteId}`}
                           value={estado}
-                          checked={asistente.estado === estado}
-                          onChange={() =>
+                          disabled={!finalizo}
+                          checked={
+                            marcados.has(asistente.estudianteId) && asistente.estado === estado
+                          }
+                          onChange={() => {
+                            setMarcados((lista) => new Set([...lista, asistente.estudianteId]));
                             setAsistentes((lista) =>
                               lista.map((alumno) =>
                                 alumno.estudianteId === asistente.estudianteId
@@ -276,8 +343,8 @@ function AttendanceEditor({
                                     }
                                   : alumno,
                               ),
-                            )
-                          }
+                            );
+                          }}
                         />
                         <span className="sr-only">
                           {estado === 'asistio' ? 'Asistió' : 'Faltó'}: {nombre}

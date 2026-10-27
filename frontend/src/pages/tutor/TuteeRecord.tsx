@@ -38,7 +38,7 @@ import { asignacionDe } from '../../data/tutoria';
 import { horarioDe, matriculaDe, nombreCurso, resultadosDe, resumenDe } from '../../data/academico';
 import {
   apoyosDe,
-  atencionesDe,
+  atencionesTutorialesDe,
   beneficiosDe,
   etiquetaBeneficio,
   etiquetaServicio,
@@ -87,13 +87,20 @@ export function TuteeRecord() {
 
   const estudiante = estudianteId ? estudiantePorId(estudianteId) : undefined;
 
-  if (!estudiante) {
+  const asignado = portal.tutorados.some(
+    (asignacion) =>
+      asignacion.estudianteId === estudianteId &&
+      asignacion.tutorId === portal.docente?.id &&
+      asignacion.semestreId === semestreActual &&
+      asignacion.estado === 'activa',
+  );
+  if (!estudiante || !asignado) {
     return (
       <>
         <PageHeading
           eyebrow="Acompañamiento tutorial"
-          title="Estudiante no encontrado"
-          description="El identificador de estudiante no corresponde a ningún estudiante registrado en el sistema."
+          title="Expediente no disponible"
+          description="Solo puedes consultar estudiantes con una asignación tutorial activa a tu cargo en este semestre."
           actions={
             <Link className="btn btn-falcon-default" to="/tutor/tutorados">
               <ArrowLeft aria-hidden="true" /> Volver al listado
@@ -122,7 +129,7 @@ export function TuteeRecord() {
   const resultados = resultadosDe(estudiante.id);
   const bloques = horarioDe(estudiante.id);
   const beneficios = beneficiosDe(estudiante.id);
-  const atenciones = atencionesDe(estudiante.id);
+  const atenciones = atencionesTutorialesDe(estudiante.id);
   const apoyos = apoyosDe(estudiante.id);
 
   const inscritos = new Map((matricula?.cursos ?? []).map((curso) => [curso.cursoId, curso]));
@@ -854,16 +861,16 @@ export function TuteeRecord() {
                       <span className="list__body">
                         <strong>{etiquetaServicio[atencion.servicio]}</strong>
                         <p>
-                          {formatFecha(atencion.fecha)} · {formatHora(atencion.hora)} ·{' '}
-                          {atencion.profesional}
+                          {formatFecha(atencion.fecha)} · {formatHora(atencion.hora)}
                         </p>
                         <p>
                           {atencion.recomendacionAcademica ??
                             'Sin recomendación académica autorizada para compartir.'}
                         </p>
                         <span className="list__meta">
-                          <Badge tone="neutro">Motivo: {atencion.motivo}</Badge>
-                          {atencion.confidencial && <Badge tone="info">Dato confidencial</Badge>}
+                          <span>
+                            {atencion.fuente} · corte {formatFecha(atencion.fechaCorte)}
+                          </span>
                           {atencion.vigenciaRecomendacion && (
                             <span>
                               Vigente hasta el {formatFecha(atencion.vigenciaRecomendacion)}
