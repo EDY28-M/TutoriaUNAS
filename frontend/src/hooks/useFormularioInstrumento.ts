@@ -77,5 +77,12 @@ export function useFormularioInstrumento(
         errores[codigo] = detalle.root.message;
     }
   }
-  return { formulario, contexto, valores, reutilizados, errores };
+  return {
+    formulario,
+    contexto,
+    valores,
+    valoresIniciales: precarga.valores,
+    reutilizados,
+    errores,
+  };
 }

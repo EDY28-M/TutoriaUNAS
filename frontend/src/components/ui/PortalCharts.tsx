@@ -422,36 +422,38 @@ export function Grafica({
         ) : (
           <>
             {summary}
-            <div className="portal-chart-shell">
-              <div
-                className="portal-chart"
-                ref={contenedor}
-                role="img"
-                aria-label={`${title}. ${description}`}
-                aria-busy={estado === 'cargando'}
-              />
-              {estado === 'lista' && overlay}
-              {estado === 'cargando' && (
-                <span className="portal-chart__status" role="status">
-                  Cargando gráfica…
-                </span>
-              )}
-              {estado === 'error' && (
-                <span className="portal-chart__status" role="alert">
-                  No se pudo cargar la gráfica.
-                  <button
-                    className="btn btn-falcon-default btn-sm"
-                    onClick={() => {
-                      setEstado('cargando');
-                      setIntento((v) => v + 1);
-                    }}
-                  >
-                    Reintentar
-                  </button>
-                </span>
-              )}
+            <div className="portal-chart-stage">
+              <div className="portal-chart-shell">
+                <div
+                  className="portal-chart"
+                  ref={contenedor}
+                  role="img"
+                  aria-label={`${title}. ${description}`}
+                  aria-busy={estado === 'cargando'}
+                />
+                {estado === 'lista' && overlay}
+                {estado === 'cargando' && (
+                  <span className="portal-chart__status" role="status">
+                    Cargando gráfica…
+                  </span>
+                )}
+                {estado === 'error' && (
+                  <span className="portal-chart__status" role="alert">
+                    No se pudo cargar la gráfica.
+                    <button
+                      className="btn btn-falcon-default btn-sm"
+                      onClick={() => {
+                        setEstado('cargando');
+                        setIntento((v) => v + 1);
+                      }}
+                    >
+                      Reintentar
+                    </button>
+                  </span>
+                )}
+              </div>
+              {children}
             </div>
-            {children}
             {footer}
             <details className="portal-chart__data">
               <summary>Ver datos del gráfico</summary>
@@ -758,7 +760,7 @@ export function PortalCharts({
       ],
     };
     const avanceOption: ChartOption = {
-      grid: { left: 0, right: 42, top: 8, bottom: 0, containLabel: true },
+      grid: { left: 4, right: 8, top: 12, bottom: 12, containLabel: true },
       tooltip: {
         ...(BASE.tooltip as Record<string, unknown>),
         valueFormatter: (v: number) => `${v}%`,
@@ -767,31 +769,53 @@ export function PortalCharts({
         type: 'value',
         min: 0,
         max: 100,
-        ...ejes,
-        axisLabel: { color: '#354a65', fontSize: 14, formatter: '{value}%' },
-        splitLine: { lineStyle: { color: '#d5dee9', type: 'dashed' } },
+        show: false,
       },
-      yAxis: { type: 'category', inverse: true, data: formatos.map((f) => f.formato), ...ejes },
+      yAxis: [
+        {
+          type: 'category',
+          inverse: true,
+          data: formatos.map((f) => f.formato.replace('Formato ', 'F')),
+          axisLine: { show: false },
+          axisTick: { show: false },
+          axisLabel: {
+            color: PALETTE.text,
+            fontSize: 12,
+            fontFamily: 'JetBrains Mono',
+            margin: 12,
+            interval: 0,
+          },
+        },
+        {
+          type: 'category',
+          inverse: true,
+          position: 'right',
+          data: formatos.map((f) => `${f.avance}%`),
+          axisLine: { show: false },
+          axisTick: { show: false },
+          axisLabel: {
+            color: PALETTE.text,
+            fontSize: 12,
+            fontFamily: 'JetBrains Mono',
+            margin: 40,
+            align: 'right',
+            interval: 0,
+          },
+        },
+      ],
       series: [
         {
           name: 'Avance',
           type: 'bar',
-          barMaxWidth: 10,
+          barMaxWidth: 8,
           showBackground: true,
-          backgroundStyle: { color: '#f0f3f8', borderRadius: 5 },
+          backgroundStyle: { color: '#edf2ef', borderRadius: 5 },
           itemStyle: { borderRadius: 5 },
-          label: {
-            show: true,
-            position: 'right',
-            formatter: '{c}%',
-            color: '#354a65',
-            fontSize: 14,
-          },
+          label: { show: false },
           data: formatos.map((f) => ({
             value: f.avance,
             itemStyle: {
-              color:
-                f.avance >= 70 ? PALETTE.green : f.avance >= 40 ? PALETTE.violet : PALETTE.amber,
+              color: f.avance >= 100 ? PALETTE.green : PALETTE.amber,
             },
           })),
         },
@@ -942,22 +966,12 @@ export function PortalCharts({
         }
       />
       <Grafica
-        title={
-          simple
-            ? instrumentView === 'estado'
-              ? 'Estado de formularios'
-              : 'Llenado por formato'
-            : 'Formularios de tutoría'
-        }
+        title="Formularios de tutoría"
         eyebrow={simple ? '' : 'FORMULARIOS'}
         description={
           simple
-            ? instrumentView === 'estado'
-              ? 'Cantidad de formularios en cada estado.'
-              : 'Promedio de preguntas respondidas por formato.'
-            : instrumentView === 'estado'
-              ? 'Revisa cuántos formularios están pendientes o aprobados.'
-              : 'Cuánto se ha completado de cada formulario.'
+            ? 'Consulta el estado y el avance de tus formularios.'
+            : 'Estado y avance de los formularios del periodo.'
         }
         className={`chart-card--instruments ${instrumentView === 'avance' ? 'chart-card--formats' : ''}`}
         choices={

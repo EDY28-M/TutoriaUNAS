@@ -1,9 +1,211 @@
 # Sistema de Tutoría Universitaria · UNAS
 
-Base ejecutable de demostración con React, TypeScript, Vite y ASP.NET Core .NET 10.
-Todas las cuentas y los registros son ficticios. Los formularios reproducen los anexos 01–12
+Sistema local de desarrollo con React, TypeScript, Vite, ASP.NET Core .NET 10 y PostgreSQL.
+Las cuentas de demostración son ficticias. La base local contiene además el padrón real
+importado del Excel autorizado por el usuario. Los formularios reproducen los anexos 01–12
 de la Resolución N.º 500-2022-CU-R-UNAS y los responsables/momentos de la guía de llenado
-proporcionada. Sus envíos son demostrativos. El frontend funciona sin API ni PostgreSQL.
+proporcionada. En modo API los envíos y borradores se persisten en PostgreSQL. Los datos
+de demostración siguen identificados como tales; las integraciones de las áreas universitarias necesitan su acceso real.
+
+## Aspecto de los portales · 4 de noviembre de 2026
+
+Estudiante, tutor y coordinación comparten las superficies de Reportes: tarjetas sin bordes
+ni sombras, tablas con separadores suaves e indicadores con iconos oficiales de Font Awesome
+sobre fondo transparente. Los listados de coordinación tienen espacio interior para títulos,
+filtros, filas y notas. Los accesos de formularios usan iconos más grandes.
+
+El menú compacto conserva la elección mediante las preferencias de la API. Las vistas de la
+gráfica de formularios mantienen su posición al alternarlas; el avance por formato alinea
+los porcentajes en una columna. Evidencia y verificaciones en [VALIDACION.md](docs/VALIDACION.md).
+
+## Cuentas institucionales y correo SMTP · 4 de noviembre de 2026
+
+En **Coordinación → Accesos y permisos → Cuentas** se pueden crear accesos de estudiante,
+docente tutor y coordinación, buscar personas del padrón o registrar sus datos de identidad.
+Las listas **Estudiantes → Crear estudiante** y **Tutores → Crear docente** abren el mismo
+formulario con el perfil elegido. **Nueva persona (fuera del padrón)** permite registrar a
+alguien que no aparece en el Excel; **Persona del padrón** permite seleccionarlo sin duplicar
+sus datos. Al guardar se actualizan la lista y sus filtros. **Gestionar cuentas** lleva
+directamente a las verificaciones, habilitación y vinculaciones pendientes.
+La operación respeta la escuela de quien administra. Genera una contraseña temporal aleatoria,
+válida por 48 horas y visible una vez; la invitación se encola para el correo institucional.
+El primer ingreso permite únicamente verificar el correo mediante un código y elegir una
+contraseña personal. No concede acceso al portal mientras esa activación esté pendiente.
+
+El login ofrece **Crear cuenta** para alumnos y docentes del padrón con correo `@unas.edu.pe`:
+correo → código → contraseña → portal, sin pedir otra verificación después del alta.
+Coordinación se crea desde el panel autorizado. Un docente cuyo padrón no informa escuela
+queda verificado y pendiente de vinculación por coordinación antes de acceder al portal.
+**Recuperar acceso** usa también un código; cambiar la contraseña revoca las sesiones previas.
+
+Se aplicó la migración `007-cuentas-correo.sql`, con respaldo previo. Las contraseñas se
+guardan como hash PBKDF2; los códigos tienen seis dígitos, caducan en diez minutos, permiten
+cinco intentos y se invalidan al reenviar. La confirmación entrega una autorización de cinco
+minutos y un solo uso. Hay límites por correo/IP, bloqueo de intentos de login y controles de
+versión. La cola PostgreSQL conserva el cuerpo cifrado, reintenta entregas y borra su contenido
+al enviarlo o cancelarlo. Los perfiles se determinan en el servidor.
+
+SMTP Gmail está configurado localmente con STARTTLS en el puerto 587. La autenticación TLS
+se comprobó sin enviar mensajes a personas reales; la entrega a una bandeja institucional
+real todavía no se ha ensayado. La contraseña de aplicación está cifrada con ASP.NET Data
+Protection/DPAPI, en `backend/TutoriaUNAS.Api/smtp-password.local.json`; ese archivo y la
+configuración local se excluyen de Git y del contenido publicado. Las claves permanecen en
+el perfil de Windows y deben conservarse para descifrar la cola y los tokens tras un reinicio.
+No se incorporaron dependencias.
+
+Para reconfigurar en este equipo, compila la API con configuración `Accounts` y ejecuta
+`scripts/Configurar-Correo.ps1 -Usuario <remitente> -Password (Read-Host -AsSecureString)`.
+El script valida SMTP, conserva la clave de códigos y protege la nueva contraseña sin
+escribirla en texto plano. El adaptador `ICorreoCuentaSender` mantiene separado el transporte.
+En un despliegue: habilita `Cuentas:Enabled`, configura una clave aleatoria `Cuentas:CodigoKey`
+de al menos 32 bytes en base64, dominio autorizado, URL HTTPS del login, archivo SMTP protegido
+y un keyring persistente y protegido para la identidad del servidor. Ejecuta `--protect-smtp`
+bajo esa identidad con el secreto en el entorno del proceso. Desactiva `LocalDevelopment:Enabled`
+y `Tutoria:SeedDemo`; aplica las migraciones expresamente. El archivo protegido en este Windows
+no se traslada como credencial utilizable a otro servidor.
+
+Verificación: **190 pruebas frontend**, **76 backend con PostgreSQL**, **gate 7/7** y
+**54 combinaciones de vista/ancho** con revisión Axe sin infracciones detectadas.
+La corrección de altas desde Estudiantes/Tutores añade **36 combinaciones de vista/ancho**
+y comprueba aparición inmediata, rechazo conservando los datos y navegación a Cuentas.
+Las pruebas de cuentas utilizan transporte simulado y bases aisladas; no crean accesos reales
+ni envían invitaciones a alumnos/docentes. Detalle en [VALIDACION.md](docs/VALIDACION.md).
+Referencias: [SMTP Gmail](https://support.google.com/mail/answer/7104828?hl=en),
+[verificación de correo OWASP](https://cheatsheetseries.owasp.org/cheatsheets/Email_Validation_and_Verification_Cheat_Sheet.html)
+y [Data Protection](https://learn.microsoft.com/en-us/aspnet/core/security/data-protection/configuration/overview?view=aspnetcore-10.0).
+
+## Padrón Excel · 4 de noviembre de 2026
+
+Se importaron las dos hojas: **3.686 alumnos**, **337 docentes**, **3.686 matrículas**,
+**21.121 inscripciones curso/grupo**, **873 cursos por escuela/código** y **45.618 bloques
+de clase**. Se excluyeron 163 filas docentes sin correo, conforme al pedido del usuario.
+La conciliación comprobó las 21 columnas y las 45.831 filas de alumnos, y las cinco columnas
+con encabezado de cada docente aceptado. Las 195 repeticiones de horario se agrupan sin perder
+sus filas de procedencia. Los 18 horarios con duración cero se conservan en la matrícula original.
+El código de semestre de los registros es `2026-2`, normalizado como `2026-II`, aunque las pestañas dicen `2026-1`.
+
+En **Coordinación → Padrón importado** se consultan ambas hojas, con búsqueda, filtro por escuela,
+paginación y ficha completa de matrícula, cursos, docentes, aulas, código de aula, día, horas,
+duración y condición teórica. El panel inicial enlaza el padrón con sus cantidades reales.
+La consulta institucional exige rol coordinación y permiso `integraciones/ver`; las operaciones
+tutoriales conservan su ámbito por escuela/asignación.
+
+Se retiraron las notas, evaluaciones, aprobados/desaprobados y repitencias calculadas por curso.
+Se conservan PPA y TCA suministrados. Ciclo, fecha de ingreso, créditos por curso, total del plan,
+categoría docente y escuela tutorial del docente no se deducen. Importar no crea usuarios,
+contraseñas ni asignaciones tutoriales; las entrevistas esperan la confirmación del ciclo.
+Los datos personales permanecen en PostgreSQL y no se escriben en los recursos públicos del frontend.
+
+Importador sin nuevas dependencias del proyecto: `scripts/importar_padron.py <archivo.xlsx>` valida;
+con `--apply` crea un respaldo completo con `pg_dump` y ejecuta una transacción con conciliación.
+Repetir el archivo no duplica personas, matrículas ni horarios. Requiere Python y los ejecutables
+PostgreSQL locales. Los respaldos y resultados quedan en `%LOCALAPPDATA%/TutoriaUNAS/importaciones/`.
+
+En esta sesión la API actualizada escucha en `http://127.0.0.1:5082`; `frontend/.env.local`
+apunta a ese puerto y `scripts/Start-Backend.ps1` lo lee para siguientes arranques.
+Los servidores previos se conservan. La aplicación sigue en `http://127.0.0.1:5173`.
+
+## Revisión de los tres portales · 30 de octubre de 2026
+
+Coordinación utiliza listas y filtros compactos, con detalles al abrir. Accesos y permisos
+se consulta por perfil; Cuentas tiene una pestaña propia. Reportes, fechas, formularios,
+preguntas, avisos, revisiones y datos de otras áreas priorizan su tarea principal. Los tres
+roles comparten la ficha de perfil y el editor de contacto. Capturas y validación del diseño:
+`artifacts/coordinacion-compacta/` y [VALIDACION.md](docs/VALIDACION.md).
+
+El modo API persiste también contacto, preferencias, avisos internos, lectura de notificaciones,
+solicitudes de cambio de tutor, habilitación de cuentas, actividades del plan, configuración
+del periodo y seguimiento administrativo de derivaciones e insumos. Los formularios confirman
+el guardado del servidor y conservan lo editado ante un rechazo; las versiones antiguas se rechazan.
+El tutor puede cancelar o reprogramar convocatorias, conservando el historial.
+
+Se eliminan borradores propios de avisos y F08/F12 sin envío previo, y actividades planificadas
+sin ejecución ni informe enviado. Los documentos enviados, asistencias y sesiones históricas
+se conservan. Las cuentas se deshabilitan; no se borran sus antecedentes.
+F01 reutiliza actividades/metas del plan y F02 resume los casos F08 sin copiar relatos personales.
+El estudiante puede consultar sus entrevistas históricas enviadas y exportar sus respuestas en CSV.
+
+La matriz funcional, las pruebas actuales y las limitaciones se encuentran al principio de
+[VALIDACION.md](docs/VALIDACION.md). Faltan las conexiones institucionales de las nueve áreas,
+el SSO universitario, el correo externo de Avisos y la emisión de documentos oficiales firmados.
+La verificación de cuentas y sus invitaciones sí disponen de transporte SMTP.
+
+## Entrevistas por ciclo · 30 de octubre de 2026
+
+Primeros ciclos (1–3): formato 03; intermedios (4–7): 04; finales (8–10): 05.
+El estudiante ve la entrevista de su etapa académica y puede recuperar una pendiente
+durante el semestre abierto. La precarga se conserva sin mostrar avisos ni bloques de datos
+disponibles; solo se pregunta lo que falta. Los datos pueden actualizarse desde la revisión final.
+El inicio, desarrollo y cierre del semestre no cambian el tipo de entrevista.
+
+Se revisaron visualmente los doce anexos. El detalle de la reutilización por instrumento
+está en [MIGRACION.md](docs/MIGRACION.md). Verificación actual: gate 7/7, 180 pruebas frontend,
+66 backend, 20 recorridos demo, 11 API, 44 rutas a seis anchos y 18 combinaciones de ciclo/ancho;
+[evidencias y límites](docs/VALIDACION.md).
+
+## Persistencia de tutoría · 28 de octubre de 2026
+
+El modo predeterminado es `VITE_DATA_SOURCE=api`. Formularios, expediente reutilizable,
+sesiones, asistencia, revisiones, asignaciones y momento del semestre usan la API. Un error
+HTTP no activa la demostración ni guarda una copia local como si la operación hubiera pasado.
+La API comprueba identidad habilitada, rol, escuela, asignación vigente, responsable,
+versión del registro, ciclo y momento del semestre. No confía en identidades del cuerpo HTTP.
+
+La asistencia requiere una sesión finalizada según el reloj del servidor. Al confirmarla se
+actualizan, en una transacción, la sesión y un único formato 06/07 con los participantes
+presentes. F10/F11 se habilitan por sesión para quienes figuran como presentes o tardanza,
+independientemente de su ciclo. Las evaluaciones enviadas no permiten convertir su asistencia
+en falta desde el registro ordinario. F08 genera F12 o una nueva cita de seguimiento en la
+misma transacción; un error revierte también el formulario y el expediente.
+
+Preparación local autorizada, sin instalar un servicio de Windows:
+
+```powershell
+./scripts/Preparar-Postgres.ps1
+./scripts/Start-Backend.ps1
+# En otra terminal:
+./scripts/Start-Frontend.ps1
+```
+
+PostgreSQL portable 18.6 escucha solo en `127.0.0.1:5449`. Las bases son `tutoria_unas` y
+`tutoria_unas_tests`; el rol de la aplicación no es superusuario. Los datos y las claves
+generadas quedan en `%LOCALAPPDATA%/TutoriaUNAS/postgresql-18.6/`. La conexión se escribe en
+`backend/TutoriaUNAS.Api/appsettings.Development.local.json` y la selección del frontend en
+`frontend/.env.local`, ambos ignorados por Git. Vuelve a ejecutar el preparador para iniciar
+PostgreSQL después de reiniciar el equipo. No borra ni reinicializa una base existente.
+
+Si el login no funciona, comprueba `/health/ready` y `/api/status` en el puerto de
+`frontend/.env.local` (actualmente 5082): este último debe indicar `databaseEnabled=true`.
+Ejecuta el preparador para levantar la base y usa `scripts/Start-Backend.ps1` para iniciar
+la API con su configuración local. Un `dotnet run` sin `TUTORIA_LOCAL_CONFIG` no carga
+`appsettings.Development.local.json`. En Development se desactiva únicamente el proveedor
+EventLog de Windows para evitar que la falta de permisos interrumpa las respuestas HTTP;
+los demás proveedores de logs permanecen activos.
+
+Solo en Development, con `LocalDevelopment:Enabled=true`, `/api/auth/login` acepta las cuentas
+ficticias: estudiante `2023010456`, tutor `DOC-0421`, coordinación `coordinacion.tutoria`;
+contraseña de prueba `tutoria2026`. Las contraseñas se almacenan como hash y el servidor emite
+un token protegido de ocho horas. Este acceso se rechaza fuera de Development. Las cuentas
+institucionales verificadas usan su propio esquema protegido y se habilitan expresamente con
+`Cuentas:Enabled`. La integración opcional con un proveedor JWT universitario exige configurar
+Authority/Audience y vincular su `iss/sub` con usuarios, personas y roles activos de la base;
+su SSO sigue pendiente. El padrón real autorizado ya está cargado.
+
+El esquema se aplica con scripts SQL versionados y checksum (`SchemaRunner`); el primer
+script proviene del modelo EF Core. Un script ya aplicado no se modifica: los cambios
+posteriores requieren otro script. El arranque local aplica migraciones y semilla solo con
+las opciones explícitas del archivo Development. En despliegue se ejecuta `--migrate`
+expresamente y se mantiene `Tutoria:SeedDemo=false`. La comprobación `/health/ready` consulta
+PostgreSQL; `/health` verifica únicamente el proceso.
+
+Verificación repetible: `./scripts/Test-Postgres.ps1` ejecuta la suite .NET con PostgreSQL
+real en esquemas aislados de la base `_tests`, incluyendo concurrencia y reinicio del host.
+`pnpm exec playwright test --config playwright.api.config.ts` comprueba el flujo entre dos
+navegadores contra la API local. La batería demo usa el puerto 5188 y selecciona `demo`
+explícitamente. Los avisos internos y las preferencias usan PostgreSQL. El envío de correo
+externo de Avisos y las fuentes institucionales requieren sus servicios reales. El correo de
+activación/recuperación de cuentas usa la cola SMTP descrita arriba. La API admite bloques
+personales de calendario; su editor no forma parte del módulo Sesiones actual.
 
 **Sesiones es el único módulo para consultar y gestionar las sesiones de tutoría en los
 tres roles.** Incluye el calendario mensual/semanal y el detalle de cada sesión. No hay
@@ -14,8 +216,8 @@ Sesiones abre en **Semana** para todos los roles. Agenda muestra las sesiones pr
 reprogramadas; Historial, las realizadas. Seleccionar una fecha conserva el período visible.
 El tutor registra la asistencia en **Asistencias**, con columnas Asistió/Faltó y círculos
 excluyentes. El acuerdo y la cantidad de asistentes aparecen en el detalle de la sesión,
-sin listas de estudiantes. Este registro se conserva en `localStorage` del navegador de
-demostración; no se envía a una API.
+sin listas de estudiantes. En modo API el registro se envía a .NET y PostgreSQL; en modo
+demo se conserva en `localStorage` del navegador de demostración.
 
 Para comprimir o trasladar el proyecto no incluyas `frontend/node_modules`, cachés, reportes,
 ni `bin/obj` del backend. Las dependencias se recuperan desde `frontend` con
@@ -30,15 +232,16 @@ editable se rehízo con el Word de referencia y está en
 `artifacts/analisis-tutoria/Requerimientos_Bienestar_Universitario_Tutoria.docx`.
 
 La precarga distingue semestre y significado de la pregunta; conserva el texto de «Otro» y los
-contactos declarados. Solo la trayectoria escolar se reutiliza entre semestres. Los envíos
+contactos declarados. La trayectoria y los datos estables de perfil se reutilizan entre semestres; la salud y el contexto del periodo requieren información vigente. Los envíos
 rechazados no cambian esa fuente y los enviados conservan su contenido. La versión anterior
 de la caché deja de usarse por no registrar semestre; los borradores del workspace permanecen.
 La ficha del tutor restringe el acceso a sus asignaciones activas y recibe estados de salud sin
 motivo médico. Una identidad estudiantil desconocida ya no muestra otro expediente.
-Estos controles de demostración requieren sus equivalentes en servidor antes del uso real.
+Los controles del flujo persistente se aplican también en .NET; las conexiones institucionales
+deben incorporar sus permisos y padrón aprobados antes de usar datos reales.
 
 - Estudiante: **Mi tutoría → Mis formularios**. Entrevista 03 (ciclos 1 a 3), 04 (ciclos 4 a 7)
-  o 05 (ciclos 8 a 10) al iniciar el semestre. Evaluaciones 10 y 11 por cada sesión
+  o 05 (ciclos 8 a 10) según la etapa académica. Se recomienda completarla al inicio; una entrevista pendiente se puede recuperar durante el semestre abierto. Evaluaciones 10 y 11 por cada sesión
   individual o grupal finalizada, con asistencia confirmada por el docente; no dependen del ciclo.
   Esta distribución sigue la indicación del usuario del 27 de octubre de 2026 y es la misma
   en frontend y backend. Los ciclos inválidos se rechazan; no se asignan a una etapa por defecto.
@@ -58,13 +261,14 @@ Estos controles de demostración requieren sus equivalentes en servidor antes de
   Si requiere derivación, prepara un borrador 12; después de su envío aparece en solicitudes
   de apoyo. Los informes precargan las cifras de las atenciones registradas.
 
-La demostración conserva el avance y el momento del semestre en `sessionStorage` de **la misma
+El modo `demo` conserva el avance y el momento del semestre en `sessionStorage` de **la misma
 pestaña**, al recargar y cambiar de rol. El selector de momento permite probar inicio,
 desarrollo y cierre; no representa una apertura institucional. Cerrar la pestaña elimina esa
 persistencia. No hay sincronización entre dispositivos, firma electrónica ni envío a servicios
-externos. La API y la autorización institucional quedan para la integración posterior.
+externos. El modo `api` usa PostgreSQL para estos flujos y sincroniza al recargar, recuperar el
+foco y cada diez segundos. El cierre oficial, las firmas y los servicios externos siguen pendientes.
 
-La programación y asistencia se guardan en `localStorage`. El tutor programa una sesión
+En modo API la programación y asistencia se guardan en PostgreSQL. El tutor programa una sesión
 individual o convoca a un grupo; ambos portales comparten el mismo calendario. Al terminar,
 el botón **Registrar asistencia** del detalle abre la lista de convocados. Confirmar presentes
 habilita **Evaluar tutoría** en el detalle del estudiante, que abre el formulario de esa sesión.
@@ -132,8 +336,10 @@ dotnet restore backend/TutoriaUNAS.slnx --locked-mode
 dotnet run --project backend/TutoriaUNAS.Api --launch-profile http
 ```
 
-No necesitas copiar `.env.example` para probar la demostración. Su URL se reserva para la
-integración futura y la demostración no envía solicitudes de autenticación a la API.
+Para una demostración sin servidor configura `VITE_DATA_SOURCE=demo` explícitamente antes
+de iniciar Vite. Para persistencia usa `.env.example` o el preparador local y ejecuta también
+la API. Ejecutar `dotnet run` directamente requiere configurar la conexión mediante variables
+de entorno; `Start-Backend.ps1` carga el archivo local ignorado durante Development.
 
 ## Desplegar en Vercel
 
@@ -209,6 +415,9 @@ Las instrucciones de cada pantalla están visibles, sin abrir un panel adicional
   sin detalle clínico.
 - Calendario mensual con eventos y agenda, bandeja de avisos con plantillas y destinatarios,
   filtros, ventanas de detalle, estados vacíos y descargas CSV.
+- Avisos del estudiante con los filtros compartidos de Formularios, lista breve y preferencias
+  en una ventana aparte. La lectura se sincroniza con el menú y la campana; el estado y las
+  preferencias se guardan por estudiante en este navegador. El correo sigue siendo simulado.
 - Navegación real, páginas 404, rechazo de rutas de otro rol y cierre de sesión.
 
 ### Paneles renovados · 16 de octubre de 2026
@@ -258,17 +467,17 @@ tutoria-unas/
   docs/                migración, validación, SonarQube y pedidos de QA
 ```
 
-La autenticación de demostración reside en `AuthService`; los datos ficticios viven en
-`src/data` y las páginas los consumen con `usePortal()`, que resuelve el alcance de cada rol
-(tutorados del docente, expediente del estudiante, ámbito de la coordinación). Ese hook es el
-punto que se sustituirá por la API institucional cuando la DIAA, Recursos Humanos y Bienestar
-habiliten sus servicios. Los componentes no acceden directamente a los fixtures.
+`AuthService` selecciona el adaptador de autenticación según el modo. En modo API,
+`apiTutoria` carga únicamente el ámbito autorizado por .NET y alimenta `usePortal` y el
+workspace; el expediente reutilizable procede del servidor. `src/data` mantiene catálogos
+y la demostración explícita. DIAA, Recursos Humanos y Bienestar aún deben habilitar sus fuentes.
 
 ## API y variables de entorno
 
 La API usa controladores, servicios por inyección de dependencias, DTOs, Problem Details,
-CORS con orígenes explícitos, OpenAPI y proveedor EF Core PostgreSQL. No crea tablas ni
-ejecuta migraciones automáticamente. `/health` comprueba el proceso, no la conexión a PostgreSQL.
+CORS con orígenes explícitos, OpenAPI y EF Core PostgreSQL. `SchemaRunner` aplica scripts
+versionados mediante la opción local de Development o `--migrate`. `/health` comprueba el
+proceso; `/health/ready` consulta las tablas de PostgreSQL.
 
 | Variable                     | Uso                                                                          |
 | ---------------------------- | ---------------------------------------------------------------------------- |
@@ -287,8 +496,9 @@ entorno o un gestor de secretos. La configuración inválida falla al arrancar.
 
 `/api/access/me` exige identidad verificada y un claim `role` permitido (`estudiante`,
 `tutor` o `coordinacion`). Con autenticación sin configurar responde 401. El backend no
-acepta las cuentas de demostración, no emite tokens y no usa el selector visual para
-conceder permisos. En producción se ocultan Swagger y el endpoint ficticio, y se habilitan
+usa el selector visual para conceder permisos. El login ficticio de desarrollo comprueba la
+cuenta y contraseña en PostgreSQL, y emite su token únicamente con la opción local habilitada.
+En producción se ocultan Swagger, el resumen ficticio y el login de prueba; se habilitan
 redirección HTTPS y HSTS.
 
 ## Verificación y calidad
@@ -331,8 +541,9 @@ Los anchos comprobados son 320, 375, 390, 768, 1024 y 1440 px.
 
 La auditoría integral del 27 de octubre de 2026 obtuvo gate PASS 7/7, 131 pruebas unitarias
 frontend y 36 backend aprobadas. La batería completa de navegador obtuvo **82 PASS y 41 FAIL**;
-incluye expectativas antiguas y defectos reproducidos. El sistema sigue siendo una demostración:
-faltan persistencia/API de negocio, autoría de F01, documentos oficiales e integraciones.
+incluye expectativas antiguas y defectos reproducidos. Esa auditoría es histórica: la
+persistencia de tutoría y la autoría persistente de F01 se incorporaron el 28 de octubre.
+Los documentos oficiales, las integraciones y los hallazgos ajenos a estos flujos siguen pendientes.
 Consulta la matriz de formatos y evidencias actuales en [el registro de validación](docs/VALIDACION.md).
 
 La migración posterior del motor de instrumentos a React Hook Form + Zod conserva el diseño
@@ -347,16 +558,17 @@ servidor; su Quality Gate depende del perfil y la configuración que utilices.
 ## Pendiente para la integración institucional
 
 1. Validar la vigencia de los anexos recibidos y las reglas institucionales de asignación, seguimiento y reportes.
-2. Definir entidades, constraints, retención y permisos por recurso con la universidad.
-3. Crear y revisar migraciones EF Core sobre PostgreSQL de desarrollo.
-4. Integrar el proveedor de identidad, mapeo de claims, renovación y cierre de sesión real.
-5. Implementar consultas y operaciones con autorización por estudiante y tutor en el servidor.
-6. Reemplazar los adaptadores de demostración por servicios API con contratos validados.
+2. Acordar retención, acceso de áreas especializadas y distribución del padrón con la universidad.
+3. Revisar el esquema y migraciones implementados con TI y preparar copias de seguridad.
+4. Conectar el proveedor institucional, vincular `iss/sub` y completar su acceso/renovación/salida.
+5. Conectar las fuentes autorizadas de matrícula, RRHH y Bienestar y retirar la semilla ficticia.
+6. Completar documentos oficiales, firmas, avisos y demás módulos fuera del flujo persistente.
 7. Incorporar recuperación real, contactos verificados y política institucional aprobada.
 
-No hay entidades institucionales definitivas ni migraciones vacías para simular avance.
-`IDesignTimeDbContextFactory` está preparado para EF Core; exige la conexión por variable
-de entorno cuando se defina el modelo. El proyecto `login-unas` permanece intacto.
+El modelo actual incluye personas, cuentas, periodos, asignaciones, matrícula, horarios,
+sesiones, asistencia, instrumentos, expediente y auditoría. Su uso local se verificó con
+PostgreSQL. El contrato y permisos definitivos de las áreas externas requieren validación
+institucional. El proyecto `login-unas` permanece intacto.
 
 ## Adaptación Falcon · 14 de octubre de 2026
 
@@ -371,9 +583,8 @@ Las rutas de instrumentos admiten `?estado=pendiente` y `?estado=observado`; ses
 navegación marca el enlace correspondiente. La búsqueda general de coordinación abre
 `/coordinacion/tutorados?buscar=CODIGO`; la tabla aplica esa búsqueda.
 
-Las preferencias de presentación se guardan en el navegador. Sesiones, asistencia,
-derivaciones y formularios mantienen el comportamiento demostrativo anterior. No se han
-conectado nuevas APIs ni convertido los datos ficticios en registros persistentes de .NET.
+Las preferencias de presentación se guardan en el navegador. Desde el 28 de octubre,
+sesiones, asistencia y formularios del modo API usan los registros persistentes de .NET.
 Las exportaciones CSV existentes sí generan archivos. La recuperación de acceso indica
 que su envío es simulado.
 

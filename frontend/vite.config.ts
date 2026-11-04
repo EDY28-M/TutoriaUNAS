@@ -21,6 +21,7 @@ export default defineConfig({
     allowedHosts: ['.trycloudflare.com'],
   },
   test: {
+    env: { VITE_DATA_SOURCE: 'demo' },
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],

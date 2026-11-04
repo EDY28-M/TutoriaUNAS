@@ -1,3 +1,5 @@
+import { CompactPage, SecondaryPanel } from '../../components/ui/CompactPage';
+import { API_MODE } from '../../services/apiConfig';
 import { useId, useMemo, useState } from 'react';
 import { Alert } from '../../components/ui/Alert';
 import { Card, CardBody, CardFoot, CardHead } from '../../components/ui/Card';
@@ -149,6 +151,7 @@ export function CoordReports() {
   const porEscuela = useMemo<Indicadores[]>(
     () =>
       escuelas
+        .filter((escuela) => !API_MODE || escuela.id === portal.escuelaId)
         .map((escuela) => indicadoresDe(escuela.id, semestreId, portal))
         .sort((a, b) => b.cobertura - a.cobertura),
     [semestreId, portal],
@@ -377,7 +380,7 @@ export function CoordReports() {
   ];
 
   return (
-    <>
+    <CompactPage>
       <PageHeading
         eyebrow={`Coordinación de tutoría · Reportes e indicadores · ${semestreId}`}
         title="Reportes de tutoría"
@@ -407,11 +410,13 @@ export function CoordReports() {
                 value={escuelaId}
                 onChange={(evento) => setEscuelaId(evento.target.value)}
               >
-                {escuelas.map((escuela) => (
-                  <option key={escuela.id} value={escuela.id}>
-                    {escuela.abreviatura} · {escuela.nombre}
-                  </option>
-                ))}
+                {escuelas
+                  .filter((escuela) => !API_MODE || escuela.id === portal.escuelaId)
+                  .map((escuela) => (
+                    <option key={escuela.id} value={escuela.id}>
+                      {escuela.abreviatura} · {escuela.nombre}
+                    </option>
+                  ))}
               </select>
             </div>
             <button type="button" className="btn btn-primary" onClick={exportar}>
@@ -424,9 +429,7 @@ export function CoordReports() {
       {ultimaExportacion && (
         <Alert tone="ok" title="Reporte generado en formato CSV">
           El archivo <strong>reporte-tutoria-{semestreId}.csv</strong> contiene{' '}
-          {ultimaExportacion.filas} filas ({ultimaExportacion.caracteres} caracteres) con los
-          indicadores por escuela, los formularios por estado, las solicitudes de apoyo por área y
-          los motivos frecuentes.
+          {ultimaExportacion.filas} filas.
         </Alert>
       )}
 
@@ -434,7 +437,7 @@ export function CoordReports() {
         <Stat
           label="Tutores"
           value={totales.tutores}
-          note={`${escuelas.length} escuelas en el ámbito`}
+          note={`${porEscuela.length} escuela(s) en el ámbito`}
           icon={<Presentation aria-hidden="true" />}
         />
         <Stat
@@ -462,9 +465,7 @@ export function CoordReports() {
 
       {totales.sesiones === 0 && (
         <Alert tone="alerta" title={`El semestre ${semestreId} no tiene sesiones registradas`}>
-          La demostración concentra las sesiones y los formularios en el semestre 2026-II. Cambia el
-          selector para consultar los indicadores disponibles; el reporte conserva la estructura
-          para cuando se cargue el histórico.
+          Selecciona otro semestre para consultar su actividad.
         </Alert>
       )}
 
@@ -489,14 +490,11 @@ export function CoordReports() {
           />
         </CardBody>
         <CardFoot>
-          <span>
-            Cobertura = estudiantes únicos atendidos / estudiantes asignados. Una atención es cada
-            asistencia registrada; una sesión puede generar varias atenciones.
-          </span>
+          <span>Cobertura de estudiantes asignados al programa de tutoría.</span>
         </CardFoot>
       </Card>
 
-      {actual && (
+      {actual && porEscuela.length > 1 && (
         <div className="grid grid--3">
           <Stat
             label={`Cobertura de ${abreviaturaEscuela(actual.escuelaId)}`}
@@ -522,203 +520,215 @@ export function CoordReports() {
         </div>
       )}
 
-      <div className="grid grid--2">
-        <Card>
-          <CardHead
-            title="Formularios por estado"
-            description={`Registros del semestre ${semestreId} en todo el ámbito`}
-          />
-          <CardBody flush>
-            {instrumentosPorEstado.length === 0 ? (
-              <EmptyState
-                title="Sin formularios registrados"
-                description="No hay formularios cargados para el semestre seleccionado."
-                icon={<ClipboardList />}
-              />
-            ) : (
-              <ul className="list">
-                {instrumentosPorEstado.map((fila) => (
-                  <li className="list__item" key={fila.estado}>
-                    <span className="list__body">
-                      <strong>
-                        <StatusBadge estado={fila.estado} />
-                      </strong>
-                      <p>
-                        {fila.total} registro(s) ·{' '}
-                        {Math.round((fila.total / instrumentosDelAlcance.length) * 100)}% del total
-                        del semestre
-                      </p>
-                    </span>
-                    <span className="list__aside num">{fila.total}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardBody>
-          <CardFoot>
-            <span>{instrumentosDelAlcance.length} formularios cargados en el semestre.</span>
-          </CardFoot>
-        </Card>
+      {actual && porEscuela.length === 1 && (
+        <p className="compact-note">
+          Avance del plan tutorial: <strong>{actual.avancePlan}%</strong>
+        </p>
+      )}
 
-        <Card>
-          <CardHead
-            title="Solicitudes de apoyo por estado"
-            description="Estado administrativo reportado por las áreas"
-          />
-          <CardBody flush>
-            {porEstadoDerivacion.length === 0 ? (
-              <EmptyState
-                title="Sin solicitudes de apoyo registradas"
-                description="El semestre seleccionado no tiene fichas de solicitud de apoyo (formato 12)."
-                icon={<Send />}
+      <div className="compact-toolbar">
+        <SecondaryPanel title="Formularios y estados">
+          <div className="grid grid--2">
+            <Card>
+              <CardHead
+                title="Formularios por estado"
+                description={`Registros del semestre ${semestreId} en todo el ámbito`}
               />
-            ) : (
-              <ul className="list">
-                {porEstadoDerivacion.map(([estado, total]) => (
-                  <li className="list__item" key={estado}>
-                    <span className="list__body">
-                      <strong>
-                        <StatusBadge estado={estado} />
-                      </strong>
-                      <p>
-                        {estadosDerivacionAbiertos.some((abierto) => abierto === estado)
-                          ? 'Caso abierto: requiere seguimiento de la coordinación.'
-                          : 'Caso con atención concluida por el área.'}
-                      </p>
-                    </span>
-                    <span className="list__aside num">{total}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardBody>
-          <CardFoot>
-            <span>
-              {derivacionesDelAlcance.length} solicitudes de apoyo en el semestre seleccionado.
-            </span>
-          </CardFoot>
-        </Card>
+              <CardBody flush>
+                {instrumentosPorEstado.length === 0 ? (
+                  <EmptyState
+                    title="Sin formularios registrados"
+                    description="No hay formularios cargados para el semestre seleccionado."
+                    icon={<ClipboardList />}
+                  />
+                ) : (
+                  <ul className="list">
+                    {instrumentosPorEstado.map((fila) => (
+                      <li className="list__item" key={fila.estado}>
+                        <span className="list__body">
+                          <strong>
+                            <StatusBadge estado={fila.estado} />
+                          </strong>
+                          <p>
+                            {fila.total} registro(s) ·{' '}
+                            {Math.round((fila.total / instrumentosDelAlcance.length) * 100)}% del
+                            total del semestre
+                          </p>
+                        </span>
+                        <span className="list__aside num">{fila.total}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </CardBody>
+              <CardFoot>
+                <span>{instrumentosDelAlcance.length} formularios cargados en el semestre.</span>
+              </CardFoot>
+            </Card>
+
+            <Card>
+              <CardHead
+                title="Solicitudes de apoyo por estado"
+                description="Estado administrativo reportado por las áreas"
+              />
+              <CardBody flush>
+                {porEstadoDerivacion.length === 0 ? (
+                  <EmptyState
+                    title="Sin solicitudes de apoyo registradas"
+                    description="El semestre seleccionado no tiene fichas de solicitud de apoyo (formato 12)."
+                    icon={<Send />}
+                  />
+                ) : (
+                  <ul className="list">
+                    {porEstadoDerivacion.map(([estado, total]) => (
+                      <li className="list__item" key={estado}>
+                        <span className="list__body">
+                          <strong>
+                            <StatusBadge estado={estado} />
+                          </strong>
+                          <p>
+                            {estadosDerivacionAbiertos.some((abierto) => abierto === estado)
+                              ? 'Caso abierto: requiere seguimiento de la coordinación.'
+                              : 'Caso con atención concluida por el área.'}
+                          </p>
+                        </span>
+                        <span className="list__aside num">{total}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </CardBody>
+              <CardFoot>
+                <span>
+                  {derivacionesDelAlcance.length} solicitudes de apoyo en el semestre seleccionado.
+                </span>
+              </CardFoot>
+            </Card>
+          </div>
+        </SecondaryPanel>
+        <SecondaryPanel title="Áreas y motivos">
+          <div className="grid grid--2">
+            <Card>
+              <CardHead
+                title="Solicitudes de apoyo por área"
+                description="Área receptora, casos totales y seguimiento"
+              />
+              <CardBody flush>
+                <ul className="list">
+                  {porArea.map((fila) => (
+                    <li className="list__item" key={fila.area.id}>
+                      <span className="list__body">
+                        <strong>{fila.area.nombre}</strong>
+                        <p>
+                          {fila.area.responsable} · respuesta estimada {fila.area.tiempoRespuesta}
+                        </p>
+                        <span className="list__meta">
+                          <span>{fila.total} casos</span>
+                          <span>{fila.cerradas} cerrados</span>
+                        </span>
+                      </span>
+                      <span className="list__aside">
+                        <Badge
+                          tone={fila.abiertas === 0 ? 'ok' : fila.abiertas > 1 ? 'alerta' : 'info'}
+                        >
+                          {fila.abiertas} abiertas
+                        </Badge>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </CardBody>
+            </Card>
+
+            <Card>
+              <CardHead
+                title="Motivos de solicitud de apoyo más frecuentes"
+                description="Temas recurrentes que orientan el plan tutorial"
+              />
+              <CardBody flush>
+                {motivos.length === 0 ? (
+                  <EmptyState
+                    title="Sin motivos registrados"
+                    description="No hay fichas de solicitud de apoyo en el semestre seleccionado."
+                    icon={<ScrollText />}
+                  />
+                ) : (
+                  <ul className="list">
+                    {motivos.map(([motivo, total]) => (
+                      <li className="list__item" key={motivo}>
+                        <span className="list__body">
+                          <strong>{motivo}</strong>
+                          <p>{total} caso(s) en el semestre</p>
+                        </span>
+                        <span className="list__aside">
+                          <Badge tone="info">{total}</Badge>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </CardBody>
+            </Card>
+          </div>
+        </SecondaryPanel>
+        <SecondaryPanel title="Cómo se calculan las cifras">
+          <Card flat>
+            <CardHead
+              title="Cómo se calculan las cifras"
+              description="Criterios usados para calcular este reporte."
+            />
+            <CardBody>
+              <dl className="def-list">
+                <div>
+                  <dt>Estudiantes atendidos</dt>
+                  <dd>
+                    Un estudiante con varias sesiones se cuenta una sola vez, aunque haya asistido a
+                    tutoría individual y grupal.
+                  </dd>
+                </div>
+                <div>
+                  <dt>Total de asistencias</dt>
+                  <dd>Cada asistencia registrada en una sesión cuenta como una atención.</dd>
+                </div>
+                <div>
+                  <dt>Sesiones realizadas</dt>
+                  <dd>
+                    Sesiones efectivamente ejecutadas y registradas en el sistema (individuales y
+                    grupales).
+                  </dd>
+                </div>
+                <div>
+                  <dt>Cobertura</dt>
+                  <dd>
+                    Porcentaje de estudiantes asignados con al menos una atención efectiva. No se
+                    calcula sobre matrícula total de la escuela.
+                  </dd>
+                </div>
+                <div>
+                  <dt>Matrícula condicionada</dt>
+                  <dd>
+                    No se configura como restricción automática; requiere disposición expresa de la
+                    autoridad (pendiente de validación).
+                  </dd>
+                </div>
+                <div>
+                  <dt>Fuente de los datos</dt>
+                  <dd>
+                    Registro y expediente: DIAA (solo lectura). Docentes: Recursos Humanos.
+                    Asignaciones: comisiones de tutoría.
+                  </dd>
+                </div>
+              </dl>
+            </CardBody>
+            <CardFoot>
+              <span>Este reporte usa datos ficticios para probar el sistema.</span>
+              <button type="button" className="btn btn-falcon-default btn-sm" onClick={exportar}>
+                <Download aria-hidden="true" /> Descargar tabla (CSV)
+              </button>
+            </CardFoot>
+          </Card>
+        </SecondaryPanel>
       </div>
-
-      <div className="grid grid--2">
-        <Card>
-          <CardHead
-            title="Solicitudes de apoyo por área"
-            description="Área receptora, casos totales y seguimiento"
-          />
-          <CardBody flush>
-            <ul className="list">
-              {porArea.map((fila) => (
-                <li className="list__item" key={fila.area.id}>
-                  <span className="list__body">
-                    <strong>{fila.area.nombre}</strong>
-                    <p>
-                      {fila.area.responsable} · respuesta estimada {fila.area.tiempoRespuesta}
-                    </p>
-                    <span className="list__meta">
-                      <span>{fila.total} casos</span>
-                      <span>{fila.cerradas} cerrados</span>
-                    </span>
-                  </span>
-                  <span className="list__aside">
-                    <Badge
-                      tone={fila.abiertas === 0 ? 'ok' : fila.abiertas > 1 ? 'alerta' : 'info'}
-                    >
-                      {fila.abiertas} abiertas
-                    </Badge>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardHead
-            title="Motivos de solicitud de apoyo más frecuentes"
-            description="Temas recurrentes que orientan el plan tutorial"
-          />
-          <CardBody flush>
-            {motivos.length === 0 ? (
-              <EmptyState
-                title="Sin motivos registrados"
-                description="No hay fichas de solicitud de apoyo en el semestre seleccionado."
-                icon={<ScrollText />}
-              />
-            ) : (
-              <ul className="list">
-                {motivos.map(([motivo, total]) => (
-                  <li className="list__item" key={motivo}>
-                    <span className="list__body">
-                      <strong>{motivo}</strong>
-                      <p>{total} caso(s) en el semestre</p>
-                    </span>
-                    <span className="list__aside">
-                      <Badge tone="info">{total}</Badge>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardBody>
-        </Card>
-      </div>
-
-      <Card flat>
-        <CardHead
-          title="Cómo se calculan las cifras"
-          description="Criterios usados para calcular este reporte."
-        />
-        <CardBody>
-          <dl className="def-list">
-            <div>
-              <dt>Estudiantes atendidos</dt>
-              <dd>
-                Un estudiante con varias sesiones se cuenta una sola vez, aunque haya asistido a
-                tutoría individual y grupal.
-              </dd>
-            </div>
-            <div>
-              <dt>Total de asistencias</dt>
-              <dd>Cada asistencia registrada en una sesión cuenta como una atención.</dd>
-            </div>
-            <div>
-              <dt>Sesiones realizadas</dt>
-              <dd>
-                Sesiones efectivamente ejecutadas y registradas en el sistema (individuales y
-                grupales).
-              </dd>
-            </div>
-            <div>
-              <dt>Cobertura</dt>
-              <dd>
-                Porcentaje de estudiantes asignados con al menos una atención efectiva. No se
-                calcula sobre matrícula total de la escuela.
-              </dd>
-            </div>
-            <div>
-              <dt>Matrícula condicionada</dt>
-              <dd>
-                No se configura como restricción automática; requiere disposición expresa de la
-                autoridad (pendiente de validación).
-              </dd>
-            </div>
-            <div>
-              <dt>Fuente de los datos</dt>
-              <dd>
-                Registro y expediente: DIAA (solo lectura). Docentes: Recursos Humanos.
-                Asignaciones: comisiones de tutoría.
-              </dd>
-            </div>
-          </dl>
-        </CardBody>
-        <CardFoot>
-          <span>Este reporte usa datos ficticios para probar el sistema.</span>
-          <button type="button" className="btn btn-falcon-default btn-sm" onClick={exportar}>
-            <Download aria-hidden="true" /> Descargar tabla (CSV)
-          </button>
-        </CardFoot>
-      </Card>
-    </>
+    </CompactPage>
   );
 }

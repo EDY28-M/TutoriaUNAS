@@ -3,18 +3,25 @@ import { definicionPorCodigo } from '../../data/formatos';
 import type { Instrumento, Sesion } from '../../types/domain';
 import { bloqueoEvaluacion, esEvaluacionSesion } from '../../utils/evaluacionesSesion';
 import { formatFecha } from '../../utils/fechas';
-import { etapaAcademica, etapaDeCiclo } from '../../data/catalogos';
-import { etapaDeFormato, formatoInicial, puedeEnviarFormato } from '../../utils/instrumentos';
+import { etapaAcademica, etapaDeCiclo, semestreActual } from '../../data/catalogos';
+import {
+  avanceInstrumento,
+  contextualizarDefinicion,
+  precargarInstrumentoConOrigen,
+  formatoInicial,
+  puedeEnviarFormato,
+} from '../../utils/instrumentos';
+import { formulariosVigentes, tituloEntrevista } from '../../utils/entrevistas';
 import type { MomentoTutoria } from '../../utils/instrumentos';
 import { Badge, StatusBadge } from '../ui/StatusBadge';
 import { EmptyState } from '../ui/EmptyState';
 import { Progress } from '../ui/Progress';
 import { ArrowRight, CircleCheck, ClipboardList, Eye, UserRound, UsersRound } from '../ui/icons';
-import { EtapaSelector, FormsFilters, FormsPanel } from '../ui/FormsPanel';
+import { FormsFilters, FormsPanel } from '../ui/FormsPanel';
 
 interface Props {
   registros: Instrumento[];
-  ciclo: number;
+  ciclo: number | null;
   momento: MomentoTutoria;
   sesiones?: Sesion[];
   onAbrir(registro: Instrumento): void;
@@ -31,8 +38,9 @@ const FILTROS = [
 export function StudentFormsPanel({ registros, ciclo, momento, onAbrir, sesiones = [] }: Props) {
   const [parametros, setParametros] = useSearchParams();
   const filtro = parametros.get('estado') ?? '';
-  const formularios = registros.filter(
-    (r) => r.formato === formatoInicial(ciclo) || ['F10', 'F11'].includes(r.formato),
+  const formularios = formulariosVigentes(registros, ciclo, semestreActual).filter(
+    (r) =>
+      (ciclo !== null && r.formato === formatoInicial(ciclo)) || ['F10', 'F11'].includes(r.formato),
   );
   const coincide = (registro: Instrumento, estado: string) => {
     if (estado === 'pendiente')
@@ -48,9 +56,9 @@ export function StudentFormsPanel({ registros, ciclo, momento, onAbrir, sesiones
     if (estado === 'entregado') return ['enviado', 'aprobado'].includes(registro.estado);
     return !estado || registro.estado === estado;
   };
-  const etapaActual = etapaAcademica[etapaDeCiclo(ciclo)];
+  const etapaActual = ciclo === null ? null : etapaAcademica[etapaDeCiclo(ciclo)];
   const visibles = formularios.filter((r) => coincide(r, filtro));
-  const entrevistas = visibles.filter((r) => r.formato === formatoInicial(ciclo));
+  const entrevistas = visibles.filter((r) => ciclo !== null && r.formato === formatoInicial(ciclo));
   const evaluaciones = visibles
     .filter((r) => esEvaluacionSesion(r.formato))
     .sort((a, b) =>
@@ -67,8 +75,13 @@ export function StudentFormsPanel({ registros, ciclo, momento, onAbrir, sesiones
   }
   function tarjeta(registro: Instrumento, entrevista = false) {
     const def = definicionPorCodigo(registro.formato)!;
+    const avance = entrevista
+      ? avanceInstrumento(
+          contextualizarDefinicion(def, registro),
+          precargarInstrumentoConOrigen(registro, sesiones, registros).valores,
+        )
+      : registro.avance;
     const entregado = ['enviado', 'aprobado'].includes(registro.estado);
-    const etapa = etapaDeFormato(registro.formato);
     const sesion = sesiones.find((s) => s.id === registro.sesionId);
     const bloqueo = entrevista ? null : bloqueoEvaluacion(sesion, registro.estudianteId ?? '');
     const bloqueado =
@@ -101,33 +114,24 @@ export function StudentFormsPanel({ registros, ciclo, momento, onAbrir, sesiones
             )}
           </span>
           {bloqueado ? (
-            <Badge>
-              {entrevista
-                ? etapa === 'inicio'
-                  ? 'Se completa al inicio'
-                  : 'Al cierre'
-                : 'Pendiente de asistencia'}
-            </Badge>
+            <Badge>Pendiente de asistencia</Badge>
           ) : (
             <StatusBadge estado={registro.estado} contexto="formulario" />
           )}
         </div>
         <div className="form-tile__content">
           <span className="form-tile__eyebrow">
-            {entrevista ? 'Inicio del semestre' : `Evaluación · Formato ${def.numero}`}
+            {entrevista
+              ? `Formato ${def.numero} · ${etapaActual?.ciclos ?? 'Ciclo pendiente'}`
+              : `Evaluación · Formato ${def.numero}`}
           </span>
           <h2>
             {entrevista
-              ? 'Entrevista inicial'
+              ? tituloEntrevista(registro.formato)
               : registro.formato === 'F10'
                 ? 'Tutoría individual'
                 : 'Tutoría grupal'}
           </h2>
-          {entrevista && (
-            <p>
-              Formato {def.numero} <span aria-hidden="true">·</span> {etapaActual.ciclos}
-            </p>
-          )}
           {!entrevista && sesion && (
             <p>
               {sesion.tema}
@@ -139,7 +143,7 @@ export function StudentFormsPanel({ registros, ciclo, momento, onAbrir, sesiones
         </div>
         {entrevista && (
           <div className="form-tile__progress">
-            <Progress valor={registro.avance} etiqueta="Completado" />
+            <Progress valor={avance} etiqueta="Datos completos" />
           </div>
         )}
         <div className="form-tile__action">
@@ -180,15 +184,16 @@ export function StudentFormsPanel({ registros, ciclo, momento, onAbrir, sesiones
         }))}
         value={filtro}
         onChange={filtrar}
-        acciones={<EtapaSelector momento={momento} />}
+        acciones={
+          <span className="small muted">
+            Ciclo {ciclo ?? 'sin informar'} · {semestreActual}
+          </span>
+        }
       />
       <p className="forms-panel__context">
-        Tu ciclo es {ciclo}: te corresponde el formato {etapaActual.formato.slice(1)} de entrevista
-        inicial ({etapaActual.ciclos.toLowerCase()}).
-      </p>
-      <p className="forms-panel__stage-note">
-        La entrevista se completa al inicio del semestre. Cada evaluación se habilita al finalizar
-        su sesión y confirmar tu asistencia, independientemente de tu ciclo.
+        {ciclo === null
+          ? 'Coordinación debe confirmar tu ciclo para habilitar la entrevista.'
+          : 'Completa las preguntas pendientes.'}
       </p>
       <div className="forms-panel__results">
         {entrevistas.map((r) => tarjeta(r, true))}

@@ -1,0 +1,5038 @@
+{
+  "aviso": "Datos ficticios para Development; no acredita acceso ni entrega de información institucional.",
+  "catalogos": {
+    "facultades": [
+      {
+        "id": "FCEA",
+        "nombre": "Facultad de Ciencias Económicas y Administrativas",
+        "abreviatura": "FCEA"
+      },
+      {
+        "id": "FIIS",
+        "nombre": "Facultad de Ingeniería en Informática y Sistemas",
+        "abreviatura": "FIIS"
+      },
+      {
+        "id": "FIA",
+        "nombre": "Facultad de Ingeniería Agraria",
+        "abreviatura": "FIA"
+      },
+      {
+        "id": "FRNR",
+        "nombre": "Facultad de Recursos Naturales Renovables",
+        "abreviatura": "FRNR"
+      },
+      {
+        "id": "FZ",
+        "nombre": "Facultad de Zootecnia",
+        "abreviatura": "FZ"
+      },
+      {
+        "id": "FC",
+        "nombre": "Facultad de Ciencias",
+        "abreviatura": "FC"
+      },
+      {
+        "id": "FMV",
+        "nombre": "Facultad de Medicina Veterinaria",
+        "abreviatura": "FMV"
+      }
+    ],
+    "escuelas": [
+      {
+        "id": "E-ADM",
+        "nombre": "Administración",
+        "abreviatura": "ADM",
+        "facultadId": "FCEA"
+      },
+      {
+        "id": "E-CON",
+        "nombre": "Contabilidad",
+        "abreviatura": "CON",
+        "facultadId": "FCEA"
+      },
+      {
+        "id": "E-ECO",
+        "nombre": "Economía",
+        "abreviatura": "ECO",
+        "facultadId": "FCEA"
+      },
+      {
+        "id": "E-IIS",
+        "nombre": "Ingeniería en Informática y Sistemas",
+        "abreviatura": "IIS",
+        "facultadId": "FIIS"
+      },
+      {
+        "id": "E-AGR",
+        "nombre": "Ingeniería Agronómica",
+        "abreviatura": "AGR",
+        "facultadId": "FIA"
+      },
+      {
+        "id": "E-FOR",
+        "nombre": "Ingeniería Forestal",
+        "abreviatura": "FOR",
+        "facultadId": "FRNR"
+      },
+      {
+        "id": "E-ZOO",
+        "nombre": "Zootecnia",
+        "abreviatura": "ZOO",
+        "facultadId": "FZ"
+      },
+      {
+        "id": "E-BIO",
+        "nombre": "Biología",
+        "abreviatura": "BIO",
+        "facultadId": "FC"
+      }
+    ],
+    "semestres": [
+      {
+        "id": "2026-I",
+        "nombre": "2026-I",
+        "inicio": "2026-03-30",
+        "fin": "2026-08-07",
+        "matriculaInicio": "2026-03-09",
+        "matriculaFin": "2026-03-20",
+        "estado": "cerrado"
+      },
+      {
+        "id": "2026-II",
+        "nombre": "2026-II",
+        "inicio": "2026-09-07",
+        "fin": "2027-01-29",
+        "matriculaInicio": "2026-08-17",
+        "matriculaFin": "2026-08-28",
+        "estado": "en-curso"
+      },
+      {
+        "id": "2027-I",
+        "nombre": "2027-I",
+        "inicio": "2027-03-29",
+        "fin": "2027-08-06",
+        "matriculaInicio": "2027-03-08",
+        "matriculaFin": "2027-03-19",
+        "estado": "planificado"
+      }
+    ],
+    "cursos": [
+      {
+        "id": "C-IIS-101",
+        "codigo": "IIS101",
+        "nombre": "Introducción a la Ingeniería de Sistemas",
+        "creditos": 3,
+        "ciclo": 1,
+        "escuelaId": "E-IIS"
+      },
+      {
+        "id": "C-IIS-201",
+        "codigo": "IIS201",
+        "nombre": "Algoritmos y Estructuras de Datos",
+        "creditos": 4,
+        "ciclo": 3,
+        "escuelaId": "E-IIS"
+      },
+      {
+        "id": "C-IIS-202",
+        "codigo": "IIS202",
+        "nombre": "Base de Datos I",
+        "creditos": 4,
+        "ciclo": 3,
+        "escuelaId": "E-IIS"
+      },
+      {
+        "id": "C-IIS-301",
+        "codigo": "IIS301",
+        "nombre": "Ingeniería de Software",
+        "creditos": 4,
+        "ciclo": 5,
+        "escuelaId": "E-IIS"
+      },
+      {
+        "id": "C-IIS-302",
+        "codigo": "IIS302",
+        "nombre": "Redes de Computadoras",
+        "creditos": 3,
+        "ciclo": 5,
+        "escuelaId": "E-IIS"
+      },
+      {
+        "id": "C-IIS-401",
+        "codigo": "IIS401",
+        "nombre": "Arquitectura de Software",
+        "creditos": 4,
+        "ciclo": 7,
+        "escuelaId": "E-IIS"
+      },
+      {
+        "id": "C-IIS-402",
+        "codigo": "IIS402",
+        "nombre": "Gestión de Proyectos TI",
+        "creditos": 3,
+        "ciclo": 7,
+        "escuelaId": "E-IIS"
+      },
+      {
+        "id": "C-IIS-501",
+        "codigo": "IIS501",
+        "nombre": "Taller de Tesis I",
+        "creditos": 3,
+        "ciclo": 9,
+        "escuelaId": "E-IIS"
+      },
+      {
+        "id": "C-ADM-101",
+        "codigo": "ADM101",
+        "nombre": "Fundamentos de Administración",
+        "creditos": 3,
+        "ciclo": 1,
+        "escuelaId": "E-ADM"
+      },
+      {
+        "id": "C-ADM-201",
+        "codigo": "ADM201",
+        "nombre": "Contabilidad General",
+        "creditos": 4,
+        "ciclo": 3,
+        "escuelaId": "E-ADM"
+      },
+      {
+        "id": "C-ADM-301",
+        "codigo": "ADM301",
+        "nombre": "Gestión del Talento Humano",
+        "creditos": 3,
+        "ciclo": 5,
+        "escuelaId": "E-ADM"
+      },
+      {
+        "id": "C-ADM-401",
+        "codigo": "ADM401",
+        "nombre": "Planeamiento Estratégico",
+        "creditos": 4,
+        "ciclo": 7,
+        "escuelaId": "E-ADM"
+      },
+      {
+        "id": "C-CON-101",
+        "codigo": "CON101",
+        "nombre": "Contabilidad Básica",
+        "creditos": 4,
+        "ciclo": 1,
+        "escuelaId": "E-CON"
+      },
+      {
+        "id": "C-CON-201",
+        "codigo": "CON201",
+        "nombre": "Costos y Presupuestos",
+        "creditos": 4,
+        "ciclo": 3,
+        "escuelaId": "E-CON"
+      },
+      {
+        "id": "C-CON-301",
+        "codigo": "CON301",
+        "nombre": "Auditoría Financiera",
+        "creditos": 3,
+        "ciclo": 5,
+        "escuelaId": "E-CON"
+      },
+      {
+        "id": "C-ECO-101",
+        "codigo": "ECO101",
+        "nombre": "Microeconomía I",
+        "creditos": 4,
+        "ciclo": 1,
+        "escuelaId": "E-ECO"
+      },
+      {
+        "id": "C-ECO-201",
+        "codigo": "ECO201",
+        "nombre": "Estadística Económica",
+        "creditos": 3,
+        "ciclo": 3,
+        "escuelaId": "E-ECO"
+      },
+      {
+        "id": "C-ECO-301",
+        "codigo": "ECO301",
+        "nombre": "Econometría",
+        "creditos": 4,
+        "ciclo": 5,
+        "escuelaId": "E-ECO"
+      },
+      {
+        "id": "C-AGR-101",
+        "codigo": "AGR101",
+        "nombre": "Botánica General",
+        "creditos": 4,
+        "ciclo": 1,
+        "escuelaId": "E-AGR"
+      },
+      {
+        "id": "C-AGR-201",
+        "codigo": "AGR201",
+        "nombre": "Suelos y Fertilidad",
+        "creditos": 4,
+        "ciclo": 3,
+        "escuelaId": "E-AGR"
+      },
+      {
+        "id": "C-AGR-301",
+        "codigo": "AGR301",
+        "nombre": "Fitopatología",
+        "creditos": 3,
+        "ciclo": 5,
+        "escuelaId": "E-AGR"
+      },
+      {
+        "id": "C-FOR-101",
+        "codigo": "FOR101",
+        "nombre": "Dendrología",
+        "creditos": 4,
+        "ciclo": 1,
+        "escuelaId": "E-FOR"
+      },
+      {
+        "id": "C-FOR-201",
+        "codigo": "FOR201",
+        "nombre": "Silvicultura",
+        "creditos": 4,
+        "ciclo": 3,
+        "escuelaId": "E-FOR"
+      },
+      {
+        "id": "C-ZOO-101",
+        "codigo": "ZOO101",
+        "nombre": "Anatomía Animal",
+        "creditos": 4,
+        "ciclo": 1,
+        "escuelaId": "E-ZOO"
+      },
+      {
+        "id": "C-ZOO-201",
+        "codigo": "ZOO201",
+        "nombre": "Nutrición Animal",
+        "creditos": 4,
+        "ciclo": 3,
+        "escuelaId": "E-ZOO"
+      },
+      {
+        "id": "C-BIO-101",
+        "codigo": "BIO101",
+        "nombre": "Biología General",
+        "creditos": 4,
+        "ciclo": 1,
+        "escuelaId": "E-BIO"
+      },
+      {
+        "id": "C-BIO-201",
+        "codigo": "BIO201",
+        "nombre": "Ecología General",
+        "creditos": 3,
+        "ciclo": 3,
+        "escuelaId": "E-BIO"
+      }
+    ],
+    "serviciosBienestar": [
+      {
+        "id": "SB-MED",
+        "servicio": "medicina",
+        "nombre": "Servicio de Medicina",
+        "responsable": "Dra. Carmen Ríos Valverde",
+        "correo": "medicina@unas.edu.pe",
+        "telefono": "+51 962 000 101",
+        "horario": "Lun – Vie · 8:00 a. m. a 5:00 p. m.",
+        "ubicacion": "Pabellón de Bienestar Universitario · 1.er piso",
+        "requisitos": "Código universitario y documento de identidad",
+        "canalCita": "Cita presencial en tópico o solicitud desde el sistema"
+      },
+      {
+        "id": "SB-ENF",
+        "servicio": "enfermeria",
+        "nombre": "Servicio de Enfermería y Tópico",
+        "responsable": "Lic. Rosa Paredes Auqui",
+        "correo": "enfermeria@unas.edu.pe",
+        "telefono": "+51 962 000 102",
+        "horario": "Lun – Sáb · 7:30 a. m. a 6:00 p. m.",
+        "ubicacion": "Tópico de Bienestar Universitario",
+        "requisitos": "Atención inmediata para casos de urgencia",
+        "canalCita": "Atención directa en tópico"
+      },
+      {
+        "id": "SB-PSI",
+        "servicio": "psicologia",
+        "nombre": "Servicio de Psicología",
+        "responsable": "Ps. Jorge Bermúdez Salas",
+        "correo": "psicologia@unas.edu.pe",
+        "telefono": "+51 962 000 103",
+        "horario": "Lun – Vie · 9:00 a. m. a 4:00 p. m.",
+        "ubicacion": "Pabellón de Bienestar Universitario · 2.° piso",
+        "requisitos": "Derivación tutorial (formato 12) o solicitud del estudiante",
+        "canalCita": "Cita programada por el servicio"
+      },
+      {
+        "id": "SB-PSP",
+        "servicio": "psicopedagogia",
+        "nombre": "Servicio de Psicopedagogía",
+        "responsable": "Lic. Milagros Huamán Ríos",
+        "correo": "psicopedagogia@unas.edu.pe",
+        "telefono": "+51 962 000 104",
+        "horario": "Lun – Vie · 8:30 a. m. a 3:30 p. m.",
+        "ubicacion": "Pabellón de Bienestar Universitario · 2.° piso",
+        "requisitos": "Derivación tutorial (formato 12)",
+        "canalCita": "Cita programada por el servicio"
+      },
+      {
+        "id": "SB-SOC",
+        "servicio": "servicio-social",
+        "nombre": "Área de Servicio Social",
+        "responsable": "Lic. Pedro Zavaleta Ruiz",
+        "correo": "serviciosocial@unas.edu.pe",
+        "telefono": "+51 962 000 105",
+        "horario": "Lun – Vie · 8:00 a. m. a 4:30 p. m.",
+        "ubicacion": "Pabellón de Bienestar Universitario · 1.er piso",
+        "requisitos": "Ficha socioeconómica vigente",
+        "canalCita": "Solicitud en ventanilla o desde el sistema"
+      },
+      {
+        "id": "SB-COM",
+        "servicio": "comedor",
+        "nombre": "Comedor Universitario",
+        "responsable": "Lic. Pedro Zavaleta Ruiz",
+        "correo": "comedor@unas.edu.pe",
+        "telefono": "+51 962 000 106",
+        "horario": "Lun – Sáb · 11:30 a. m. a 3:00 p. m.",
+        "ubicacion": "Comedor Universitario",
+        "requisitos": "Clasificación socioeconómica vigente",
+        "canalCita": "Convocatoria semestral"
+      },
+      {
+        "id": "SB-RES",
+        "servicio": "residencia",
+        "nombre": "Residencia Estudiantil",
+        "responsable": "Lic. Pedro Zavaleta Ruiz",
+        "correo": "residencia@unas.edu.pe",
+        "telefono": "+51 962 000 107",
+        "horario": "Atención administrativa · Lun – Vie 8:00 a. m. a 4:00 p. m.",
+        "ubicacion": "Residencia Universitaria",
+        "requisitos": "Clasificación socioeconómica y lugar de procedencia",
+        "canalCita": "Convocatoria semestral"
+      }
+    ],
+    "areasDerivacion": [
+      {
+        "id": "tutoria-academica",
+        "nombre": "Tutoría académica",
+        "responsable": "Docente tutor asignado",
+        "correo": "tutoria@unas.edu.pe",
+        "servicioId": "SB-PSP",
+        "tiempoRespuesta": "3 días hábiles"
+      },
+      {
+        "id": "psicologia",
+        "nombre": "Psicología",
+        "responsable": "Ps. Jorge Bermúdez Salas",
+        "correo": "psicologia@unas.edu.pe",
+        "servicioId": "SB-PSI",
+        "tiempoRespuesta": "5 días hábiles"
+      },
+      {
+        "id": "psicopedagogia",
+        "nombre": "Psicopedagogía",
+        "responsable": "Lic. Milagros Huamán Ríos",
+        "correo": "psicopedagogia@unas.edu.pe",
+        "servicioId": "SB-PSP",
+        "tiempoRespuesta": "5 días hábiles"
+      },
+      {
+        "id": "medicina",
+        "nombre": "Medicina y Salud",
+        "responsable": "Dra. Carmen Ríos Valverde",
+        "correo": "medicina@unas.edu.pe",
+        "servicioId": "SB-MED",
+        "tiempoRespuesta": "2 días hábiles"
+      },
+      {
+        "id": "bienestar-social",
+        "nombre": "Bienestar y Servicio Social",
+        "responsable": "Lic. Pedro Zavaleta Ruiz",
+        "correo": "serviciosocial@unas.edu.pe",
+        "servicioId": "SB-SOC",
+        "tiempoRespuesta": "5 días hábiles"
+      }
+    ],
+    "formatos": [
+      {
+        "codigo": "F01",
+        "numero": "01",
+        "nombre": "Informe de actividades del proceso tutorial",
+        "actor": "equipo-tutores",
+        "actorEtiqueta": "Comisión de tutoría",
+        "momento": "Al finalizar el semestre · comisión de tutoría",
+        "periodicidad": "Al término del semestre académico",
+        "destinatario": "Comisión de Tutoría de la EP → responsable del Sistema (arts. 15.c–d)",
+        "secciones": [
+          {
+            "titulo": "Identificación",
+            "campos": [
+              {
+                "codigo": "facultad",
+                "etiqueta": "Facultad o escuela profesional",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "comision",
+                "etiqueta": "Integrantes de la comisión de acción tutorial",
+                "tipo": "texto-largo",
+                "obligatorio": true
+              }
+            ]
+          },
+          {
+            "titulo": "Actividades del proceso tutorial",
+            "campos": [
+              {
+                "codigo": "actividades",
+                "etiqueta": "Actividades ejecutadas",
+                "tipo": "tabla",
+                "obligatorio": true,
+                "columnas": [
+                  {
+                    "codigo": "problematica",
+                    "etiqueta": "Problemática priorizada",
+                    "tipo": "texto"
+                  },
+                  {
+                    "codigo": "meta",
+                    "etiqueta": "Meta",
+                    "tipo": "texto"
+                  },
+                  {
+                    "codigo": "fecha",
+                    "etiqueta": "Fecha de realización",
+                    "tipo": "fecha"
+                  },
+                  {
+                    "codigo": "justificacion",
+                    "etiqueta": "Justificación",
+                    "tipo": "texto"
+                  },
+                  {
+                    "codigo": "evidencia",
+                    "etiqueta": "Evidencia",
+                    "tipo": "texto"
+                  }
+                ],
+                "ayuda": "El plan aporta la problemática y la meta. Confirma qué se ejecutó y completa la fecha real y la evidencia."
+              }
+            ]
+          },
+          {
+            "titulo": "Observaciones",
+            "campos": [
+              {
+                "codigo": "observaciones",
+                "etiqueta": "Observaciones",
+                "tipo": "texto-largo",
+                "obligatorio": false
+              }
+            ]
+          }
+        ],
+        "proposito": "La comisión consolida el proceso tutorial y solicita el visto bueno del decano.",
+        "obligatorio": true,
+        "version": "Anexos 01–12 · Resolución N.º 500-2022-CU-R-UNAS",
+        "vigencia": "Responsables y momentos según la guía de llenado proporcionada",
+        "aprobacion": "Resolución N.º 500-2022-CU-R-UNAS",
+        "visaciones": [
+          "Comisión de tutoría",
+          "V.º B.º del decano"
+        ]
+      },
+      {
+        "codigo": "F02",
+        "numero": "02",
+        "nombre": "Informe de actividades del tutor",
+        "actor": "tutor",
+        "actorEtiqueta": "Docente tutor",
+        "momento": "Al finalizar el semestre",
+        "periodicidad": "Semestral",
+        "destinatario": "Comisión de Tutoría de la escuela profesional (art. 17.f)",
+        "secciones": [
+          {
+            "titulo": "Datos del docente",
+            "campos": [
+              {
+                "codigo": "nombreTutor",
+                "etiqueta": "Docente tutor",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "fecha",
+                "etiqueta": "Fecha",
+                "tipo": "fecha",
+                "obligatorio": true
+              }
+            ]
+          },
+          {
+            "titulo": "Estudiantes atendidos",
+            "campos": [
+              {
+                "codigo": "atendidosIndividual",
+                "etiqueta": "Estudiantes atendidos en tutoría individual",
+                "tipo": "numero",
+                "obligatorio": true
+              },
+              {
+                "codigo": "ciclosIndividual",
+                "etiqueta": "Ciclos atendidos en tutoría individual",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "individuales",
+                "etiqueta": "Número de sesiones individuales",
+                "tipo": "numero",
+                "obligatorio": true
+              },
+              {
+                "codigo": "atendidosGrupal",
+                "etiqueta": "Estudiantes atendidos en tutoría grupal",
+                "tipo": "numero",
+                "obligatorio": true
+              },
+              {
+                "codigo": "ciclosGrupal",
+                "etiqueta": "Ciclos atendidos en tutoría grupal",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "grupales",
+                "etiqueta": "Número de sesiones grupales",
+                "tipo": "numero",
+                "obligatorio": true
+              }
+            ]
+          },
+          {
+            "titulo": "Dificultades académicas más comunes",
+            "campos": [
+              {
+                "codigo": "dificultadesAcademicas",
+                "etiqueta": "Dificultades, actividades y resultados",
+                "tipo": "tabla",
+                "obligatorio": false,
+                "columnas": [
+                  {
+                    "codigo": "dificultad",
+                    "etiqueta": "Dificultad académica",
+                    "tipo": "texto"
+                  },
+                  {
+                    "codigo": "actividad",
+                    "etiqueta": "Actividad recomendada",
+                    "tipo": "texto"
+                  },
+                  {
+                    "codigo": "resultado",
+                    "etiqueta": "Resultado observado",
+                    "tipo": "texto"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "titulo": "Dificultades para realizar la tutoría",
+            "campos": [
+              {
+                "codigo": "dificultadesTutoria",
+                "etiqueta": "Dificultades en la tutoría",
+                "tipo": "tabla",
+                "obligatorio": false,
+                "columnas": [
+                  {
+                    "codigo": "dificultad",
+                    "etiqueta": "Dificultad",
+                    "tipo": "texto"
+                  },
+                  {
+                    "codigo": "atencion",
+                    "etiqueta": "Tipo de atención realizada",
+                    "tipo": "texto"
+                  },
+                  {
+                    "codigo": "resultado",
+                    "etiqueta": "Resultado observado",
+                    "tipo": "texto"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "titulo": "Dificultades personales identificadas",
+            "campos": [
+              {
+                "codigo": "dificultadesPersonales",
+                "etiqueta": "Acompañamiento realizado",
+                "tipo": "tabla",
+                "obligatorio": false,
+                "columnas": [
+                  {
+                    "codigo": "dificultad",
+                    "etiqueta": "Dificultad personal",
+                    "tipo": "texto"
+                  },
+                  {
+                    "codigo": "atencion",
+                    "etiqueta": "Tipo de atención realizada",
+                    "tipo": "texto"
+                  },
+                  {
+                    "codigo": "resultado",
+                    "etiqueta": "Resultado observado",
+                    "tipo": "texto"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "titulo": "Observaciones generales",
+            "campos": [
+              {
+                "codigo": "observaciones",
+                "etiqueta": "Observaciones generales",
+                "tipo": "texto-largo",
+                "obligatorio": false
+              }
+            ]
+          }
+        ],
+        "proposito": "Resume las atenciones y sus resultados. Los totales se precargan desde las sesiones registradas.",
+        "obligatorio": true,
+        "version": "Anexos 01–12 · Resolución N.º 500-2022-CU-R-UNAS",
+        "vigencia": "Responsables y momentos según la guía de llenado proporcionada",
+        "aprobacion": "Resolución N.º 500-2022-CU-R-UNAS",
+        "visaciones": [
+          "Docente tutor"
+        ]
+      },
+      {
+        "codigo": "F03",
+        "numero": "03",
+        "nombre": "Entrevista inicial al estudiante ingresante",
+        "actor": "tutorado",
+        "actorEtiqueta": "Estudiante",
+        "momento": "Al inicio del semestre · ciclos 1 a 3",
+        "periodicidad": "Al inicio del semestre (ciclos 1 a 3)",
+        "destinatario": "Docente tutor; expediente del tutorado",
+        "secciones": [
+          {
+            "titulo": "Tus datos",
+            "campos": [
+              {
+                "codigo": "nombreEstudiante",
+                "etiqueta": "Nombre del estudiante",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "grupo",
+                "etiqueta": "Grupo",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "correo",
+                "etiqueta": "Correo electrónico",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "telefono",
+                "etiqueta": "Teléfono",
+                "tipo": "texto",
+                "obligatorio": false
+              },
+              {
+                "codigo": "apoderado",
+                "etiqueta": "Nombre del padre o apoderado",
+                "tipo": "texto",
+                "obligatorio": false
+              }
+            ]
+          },
+          {
+            "titulo": "Trayectoria académica",
+            "campos": [
+              {
+                "codigo": "colegio",
+                "etiqueta": "Colegio de procedencia",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "promedioSecundaria",
+                "etiqueta": "Promedio general de secundaria",
+                "tipo": "numero",
+                "obligatorio": false
+              },
+              {
+                "codigo": "materiasSecundaria",
+                "etiqueta": "Materias que se te dificultaron en secundaria",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Matemática",
+                  "Comunicación",
+                  "Ciencia y Tecnología",
+                  "Inglés",
+                  "Ninguna",
+                  "Otro"
+                ]
+              }
+            ]
+          },
+          {
+            "titulo": "Expectativas de la tutoría",
+            "campos": [
+              {
+                "codigo": "conoceTutoria",
+                "etiqueta": "¿Sabes qué es una tutoría?",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "No"
+                ]
+              },
+              {
+                "codigo": "expectativas",
+                "etiqueta": "¿Qué esperas de una tutoría?",
+                "tipo": "multiple",
+                "obligatorio": true,
+                "opciones": [
+                  "Adaptarme a la universidad",
+                  "Mejorar mi forma de estudiar",
+                  "Organizar mi tiempo",
+                  "Conocer los servicios de apoyo",
+                  "Otro"
+                ]
+              }
+            ]
+          },
+          {
+            "titulo": "Motivación y carrera",
+            "campos": [
+              {
+                "codigo": "eleccionCarrera",
+                "etiqueta": "¿Qué influyó para elegir esta carrera?",
+                "tipo": "multiple",
+                "obligatorio": true,
+                "opciones": [
+                  "Interés personal",
+                  "Aptitudes",
+                  "Familia",
+                  "Oportunidades laborales",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "expectativaCarrera",
+                "etiqueta": "¿Qué esperas de tu carrera profesional?",
+                "tipo": "multiple",
+                "obligatorio": true,
+                "opciones": [
+                  "Desarrollar mi vocación",
+                  "Trabajar en mi especialidad",
+                  "Investigar",
+                  "Emprender",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "expectativaUniversidad",
+                "etiqueta": "¿Qué esperas de la universidad y la facultad?",
+                "tipo": "multiple",
+                "obligatorio": true,
+                "opciones": [
+                  "Buena formación",
+                  "Acompañamiento",
+                  "Prácticas",
+                  "Investigación",
+                  "Otro"
+                ]
+              }
+            ]
+          },
+          {
+            "titulo": "Un día en la universidad y el hogar",
+            "campos": [
+              {
+                "codigo": "administracionTiempo",
+                "etiqueta": "Tus actividades y el tiempo que les dedicas",
+                "tipo": "tabla",
+                "obligatorio": false,
+                "columnas": [
+                  {
+                    "codigo": "actividad",
+                    "etiqueta": "Actividad",
+                    "tipo": "texto"
+                  },
+                  {
+                    "codigo": "horas",
+                    "etiqueta": "Horas al día",
+                    "tipo": "numero"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "titulo": "Tu forma de estudiar",
+            "campos": [
+              {
+                "codigo": "horasEstudio",
+                "etiqueta": "¿Cuántas horas al día dedicas al estudio?",
+                "tipo": "numero",
+                "obligatorio": true
+              },
+              {
+                "codigo": "tiempoSuficiente",
+                "etiqueta": "¿El tiempo que utilizas para estudiar es suficiente?",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "No"
+                ]
+              },
+              {
+                "codigo": "formaEstudio",
+                "etiqueta": "Cuando estudias, ¿cómo prefieres hacerlo?",
+                "tipo": "multiple",
+                "obligatorio": true,
+                "opciones": [
+                  "Individual",
+                  "En grupo",
+                  "Haciendo acordeón",
+                  "En tu cuarto",
+                  "Al aire libre",
+                  "Con música",
+                  "Repasando en silencio",
+                  "Repasando en voz alta",
+                  "Generalmente no estudio",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "estudioEfectivo",
+                "etiqueta": "¿Tu forma de estudiar te resulta efectiva para los exámenes?",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "A veces",
+                  "No"
+                ]
+              }
+            ]
+          }
+        ],
+        "proposito": "Cuéntale a tu tutor cómo llegas a la universidad y qué apoyo necesitas.",
+        "obligatorio": true,
+        "version": "Anexos 01–12 · Resolución N.º 500-2022-CU-R-UNAS",
+        "vigencia": "Responsables y momentos según la guía de llenado proporcionada",
+        "aprobacion": "Resolución N.º 500-2022-CU-R-UNAS",
+        "visaciones": [
+          "Tutorado"
+        ]
+      },
+      {
+        "codigo": "F04",
+        "numero": "04",
+        "nombre": "Entrevista inicial al estudiante de ciclos intermedios",
+        "actor": "tutorado",
+        "actorEtiqueta": "Estudiante",
+        "momento": "Al inicio del semestre · ciclos 4 a 7",
+        "periodicidad": "Al inicio del semestre (ciclos 4 a 7)",
+        "destinatario": "Docente tutor; expediente del tutorado",
+        "secciones": [
+          {
+            "titulo": "Tus datos",
+            "campos": [
+              {
+                "codigo": "nombreEstudiante",
+                "etiqueta": "Nombre del estudiante",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "grupo",
+                "etiqueta": "Grupo",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "correo",
+                "etiqueta": "Correo electrónico",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "telefono",
+                "etiqueta": "Teléfono",
+                "tipo": "texto",
+                "obligatorio": false
+              },
+              {
+                "codigo": "apoderado",
+                "etiqueta": "Nombre del padre o apoderado",
+                "tipo": "texto",
+                "obligatorio": false
+              }
+            ]
+          },
+          {
+            "titulo": "Trayectoria académica",
+            "campos": [
+              {
+                "codigo": "colegio",
+                "etiqueta": "Colegio de procedencia",
+                "tipo": "texto",
+                "obligatorio": false
+              }
+            ]
+          },
+          {
+            "titulo": "Tu experiencia con la tutoría",
+            "campos": [
+              {
+                "codigo": "expectativas",
+                "etiqueta": "¿La tutoría recibida ha colmado tus expectativas?",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "No",
+                  "Todavía no recibí tutoría"
+                ]
+              },
+              {
+                "codigo": "motivoExpectativas",
+                "etiqueta": "¿Qué te faltó recibir?",
+                "tipo": "texto-largo",
+                "obligatorio": true,
+                "visibleSi": {
+                  "campo": "expectativas",
+                  "valores": [
+                    "No"
+                  ]
+                }
+              },
+              {
+                "codigo": "aprendizajes",
+                "etiqueta": "Aspectos que aprendiste en las tutorías",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Organizar mi tiempo",
+                  "Técnicas de estudio",
+                  "Conocer los servicios de apoyo",
+                  "Resolver dificultades",
+                  "Prepararme para el trabajo",
+                  "Aún ninguno",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "caracteristicasTutor",
+                "etiqueta": "¿Qué acompañamiento te gustaría encontrar en tu tutor?",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Escucha",
+                  "Orientación académica",
+                  "Disponibilidad",
+                  "Seguimiento",
+                  "Orientación laboral",
+                  "Otro"
+                ]
+              }
+            ]
+          },
+          {
+            "titulo": "Motivación",
+            "campos": [
+              {
+                "codigo": "motivacion",
+                "etiqueta": "¿Cómo se encuentra tu motivación hacia el estudio?",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Alta",
+                  "Media",
+                  "Baja",
+                  "Quisiera conversar sobre ello"
+                ]
+              }
+            ]
+          },
+          {
+            "titulo": "Organización del tiempo",
+            "campos": [
+              {
+                "codigo": "otrasActividades",
+                "etiqueta": "Además de estudiar, ¿qué actividades realizas?",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Trabajo",
+                  "Deporte",
+                  "Cuidado de familiares",
+                  "Actividades sociales",
+                  "Solo estudio",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "administracionTiempo",
+                "etiqueta": "Describe un día en la universidad y el hogar",
+                "tipo": "tabla",
+                "obligatorio": false,
+                "columnas": [
+                  {
+                    "codigo": "actividad",
+                    "etiqueta": "Actividad",
+                    "tipo": "texto"
+                  },
+                  {
+                    "codigo": "horas",
+                    "etiqueta": "Horas al día",
+                    "tipo": "numero"
+                  }
+                ]
+              },
+              {
+                "codigo": "transporte",
+                "etiqueta": "¿Cómo te transportas a la universidad?",
+                "tipo": "escala",
+                "obligatorio": false,
+                "opciones": [
+                  "A pie",
+                  "Bicicleta",
+                  "Transporte público",
+                  "Mototaxi",
+                  "Vehículo propio",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "tiempoTransporte",
+                "etiqueta": "Tiempo para llegar (minutos)",
+                "tipo": "numero",
+                "obligatorio": false
+              }
+            ]
+          },
+          {
+            "titulo": "Estrategias de estudio",
+            "campos": [
+              {
+                "codigo": "lugarEstudio",
+                "etiqueta": "¿Dónde estudias regularmente?",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "En casa",
+                  "Biblioteca",
+                  "Universidad",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "espacioEstudio",
+                "etiqueta": "¿Tienes un espacio específico para estudiar?",
+                "tipo": "escala",
+                "obligatorio": false,
+                "opciones": [
+                  "Sí",
+                  "No"
+                ]
+              },
+              {
+                "codigo": "cursosDificiles",
+                "etiqueta": "¿Qué cursos te cuestan más?",
+                "tipo": "multiple",
+                "obligatorio": true,
+                "opciones": [
+                  "Ninguno",
+                  "Otro"
+                ],
+                "ayuda": "Selecciona tus cursos o indica que no tienes dificultades."
+              },
+              {
+                "codigo": "accionesCursos",
+                "etiqueta": "¿Qué haces para estudiarlos?",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Repaso mis apuntes",
+                  "Practico ejercicios",
+                  "Estudio en grupo",
+                  "Pido asesoría",
+                  "Veo material de apoyo",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "dificultades",
+                "etiqueta": "¿Has tenido dificultades con tus estudios?",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "No he tenido",
+                  "Organización del tiempo",
+                  "Comprender los temas",
+                  "Concentración",
+                  "Asistencia",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "soluciones",
+                "etiqueta": "¿Qué has hecho para resolverlas?",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Organicé un horario",
+                  "Consulté al docente",
+                  "Pedí apoyo a compañeros",
+                  "Busqué tutoría",
+                  "Aún necesito ayuda",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "materiasFaciles",
+                "etiqueta": "¿Qué cursos te gustan y se te facilitan?",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Ninguno",
+                  "Otro"
+                ]
+              }
+            ]
+          },
+          {
+            "titulo": "Cómo te encuentras",
+            "campos": [
+              {
+                "codigo": "problemasPersonales",
+                "etiqueta": "¿Qué situaciones influyen en tu aprendizaje?",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Ninguna",
+                  "Económicas",
+                  "Familiares",
+                  "Trabajo",
+                  "Salud",
+                  "Prefiero conversarlo con mi tutor",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "estadoSalud",
+                "etiqueta": "¿Cómo consideras tu estado actual de salud?",
+                "tipo": "escala",
+                "obligatorio": false,
+                "opciones": [
+                  "Bueno",
+                  "Regular",
+                  "Necesito apoyo",
+                  "Prefiero conversarlo con mi tutor"
+                ]
+              },
+              {
+                "codigo": "autodescripcion",
+                "etiqueta": "¿Cómo te describes física, mental y temperamentalmente?",
+                "tipo": "texto-largo",
+                "obligatorio": false
+              },
+              {
+                "codigo": "preocupaciones",
+                "etiqueta": "¿Hay algo que te preocupe en este momento?",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "No",
+                  "Mis estudios",
+                  "Mi familia",
+                  "Mi situación económica",
+                  "Mi futuro laboral",
+                  "Prefiero conversarlo con mi tutor",
+                  "Otro"
+                ]
+              }
+            ]
+          },
+          {
+            "titulo": "Un poco más sobre ti",
+            "campos": [
+              {
+                "codigo": "cualidades",
+                "etiqueta": "Tus cualidades",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Responsabilidad",
+                  "Perseverancia",
+                  "Empatía",
+                  "Creatividad",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "habilidades",
+                "etiqueta": "Tus habilidades",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Comunicación",
+                  "Trabajo en equipo",
+                  "Tecnología",
+                  "Organización",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "aficiones",
+                "etiqueta": "Tus aficiones",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Lectura",
+                  "Música",
+                  "Deporte",
+                  "Arte",
+                  "Videojuegos",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "adicciones",
+                "etiqueta": "Adicciones, si existen",
+                "tipo": "texto-largo",
+                "obligatorio": false
+              },
+              {
+                "codigo": "valores",
+                "etiqueta": "Tus valores",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Honestidad",
+                  "Respeto",
+                  "Solidaridad",
+                  "Responsabilidad",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "antivalores",
+                "etiqueta": "Antivalores que quisieras mejorar, si existen",
+                "tipo": "texto-largo",
+                "obligatorio": false
+              }
+            ]
+          }
+        ],
+        "proposito": "Actualiza tu situación al iniciar el semestre para preparar el acompañamiento con tu tutor.",
+        "obligatorio": true,
+        "version": "Anexos 01–12 · Resolución N.º 500-2022-CU-R-UNAS",
+        "vigencia": "Responsables y momentos según la guía de llenado proporcionada",
+        "aprobacion": "Resolución N.º 500-2022-CU-R-UNAS",
+        "visaciones": [
+          "Tutorado"
+        ]
+      },
+      {
+        "codigo": "F05",
+        "numero": "05",
+        "nombre": "Entrevista inicial al estudiante de ciclos finales",
+        "actor": "tutorado",
+        "actorEtiqueta": "Estudiante",
+        "momento": "Al inicio del semestre · ciclos 8 a 10",
+        "periodicidad": "Al inicio del semestre (ciclos 8 a 10)",
+        "destinatario": "Docente tutor; expediente del tutorado",
+        "secciones": [
+          {
+            "titulo": "Tus datos",
+            "campos": [
+              {
+                "codigo": "nombreEstudiante",
+                "etiqueta": "Nombre del estudiante",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "grupo",
+                "etiqueta": "Grupo",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "correo",
+                "etiqueta": "Correo electrónico",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "telefono",
+                "etiqueta": "Teléfono",
+                "tipo": "texto",
+                "obligatorio": false
+              },
+              {
+                "codigo": "apoderado",
+                "etiqueta": "Nombre del padre o apoderado",
+                "tipo": "texto",
+                "obligatorio": false
+              }
+            ]
+          },
+          {
+            "titulo": "Trayectoria académica",
+            "campos": [
+              {
+                "codigo": "colegio",
+                "etiqueta": "Colegio de procedencia",
+                "tipo": "texto",
+                "obligatorio": false
+              }
+            ]
+          },
+          {
+            "titulo": "Tu experiencia con la tutoría",
+            "campos": [
+              {
+                "codigo": "expectativas",
+                "etiqueta": "¿La tutoría recibida ha colmado tus expectativas?",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "No",
+                  "Todavía no recibí tutoría"
+                ]
+              },
+              {
+                "codigo": "motivoExpectativas",
+                "etiqueta": "¿Qué te faltó recibir?",
+                "tipo": "texto-largo",
+                "obligatorio": true,
+                "visibleSi": {
+                  "campo": "expectativas",
+                  "valores": [
+                    "No"
+                  ]
+                }
+              },
+              {
+                "codigo": "aprendizajes",
+                "etiqueta": "Aspectos que aprendiste en las tutorías",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Organizar mi tiempo",
+                  "Técnicas de estudio",
+                  "Conocer los servicios de apoyo",
+                  "Resolver dificultades",
+                  "Prepararme para el trabajo",
+                  "Aún ninguno",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "caracteristicasTutor",
+                "etiqueta": "¿Qué acompañamiento te gustaría encontrar en tu tutor?",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Escucha",
+                  "Orientación académica",
+                  "Disponibilidad",
+                  "Seguimiento",
+                  "Orientación laboral",
+                  "Otro"
+                ]
+              }
+            ]
+          },
+          {
+            "titulo": "Campo laboral",
+            "campos": [
+              {
+                "codigo": "laboral1",
+                "etiqueta": "He logrado clarificar en qué puedo trabajar",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "No"
+                ]
+              },
+              {
+                "codigo": "laboral2",
+                "etiqueta": "He aprendido dónde puedo buscar trabajo y cursos de formación",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "No"
+                ]
+              },
+              {
+                "codigo": "laboral3",
+                "etiqueta": "Me siento capaz de redactar mi currículum",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "No"
+                ]
+              },
+              {
+                "codigo": "laboral4",
+                "etiqueta": "Me siento capaz de redactar una carta de presentación",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "No"
+                ]
+              },
+              {
+                "codigo": "laboral5",
+                "etiqueta": "Me siento más capacitado para afrontar con éxito una entrevista de trabajo",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "No"
+                ]
+              },
+              {
+                "codigo": "laboral6",
+                "etiqueta": "He logrado construir un proyecto profesional durante la tutoría",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "No"
+                ]
+              },
+              {
+                "codigo": "laboral7",
+                "etiqueta": "El tiempo de duración de la acción de tutoría ha sido adecuado",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "No"
+                ]
+              },
+              {
+                "codigo": "laboral8",
+                "etiqueta": "He mejorado mis habilidades y capacidades comunicativas",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "No"
+                ]
+              },
+              {
+                "codigo": "laboral9",
+                "etiqueta": "Creo que ahora tengo más posibilidades de encontrar trabajo",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "No"
+                ]
+              }
+            ]
+          },
+          {
+            "titulo": "Motivación",
+            "campos": [
+              {
+                "codigo": "motivacion",
+                "etiqueta": "¿Cómo se encuentra tu motivación hacia la carrera?",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Alta",
+                  "Media",
+                  "Baja",
+                  "Quisiera conversar sobre ello"
+                ]
+              }
+            ]
+          },
+          {
+            "titulo": "Organización del tiempo",
+            "campos": [
+              {
+                "codigo": "otrasActividades",
+                "etiqueta": "Además de estudiar, ¿qué actividades realizas?",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Trabajo",
+                  "Deporte",
+                  "Cuidado de familiares",
+                  "Actividades sociales",
+                  "Solo estudio",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "administracionTiempo",
+                "etiqueta": "Describe un día en la universidad y el hogar",
+                "tipo": "tabla",
+                "obligatorio": false,
+                "columnas": [
+                  {
+                    "codigo": "actividad",
+                    "etiqueta": "Actividad",
+                    "tipo": "texto"
+                  },
+                  {
+                    "codigo": "horas",
+                    "etiqueta": "Horas al día",
+                    "tipo": "numero"
+                  }
+                ]
+              },
+              {
+                "codigo": "transporte",
+                "etiqueta": "¿Cómo te transportas a la universidad?",
+                "tipo": "escala",
+                "obligatorio": false,
+                "opciones": [
+                  "A pie",
+                  "Bicicleta",
+                  "Transporte público",
+                  "Mototaxi",
+                  "Vehículo propio",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "tiempoTransporte",
+                "etiqueta": "Tiempo para llegar (minutos)",
+                "tipo": "numero",
+                "obligatorio": false
+              }
+            ]
+          },
+          {
+            "titulo": "Estrategias de estudio",
+            "campos": [
+              {
+                "codigo": "lugarEstudio",
+                "etiqueta": "¿Dónde estudias regularmente?",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "En casa",
+                  "Biblioteca",
+                  "Universidad",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "espacioEstudio",
+                "etiqueta": "¿Tienes un espacio específico para estudiar?",
+                "tipo": "escala",
+                "obligatorio": false,
+                "opciones": [
+                  "Sí",
+                  "No"
+                ]
+              },
+              {
+                "codigo": "cursosDificiles",
+                "etiqueta": "¿Qué cursos te cuestan más?",
+                "tipo": "multiple",
+                "obligatorio": true,
+                "opciones": [
+                  "Ninguno",
+                  "Otro"
+                ],
+                "ayuda": "Selecciona tus cursos o indica que no tienes dificultades."
+              },
+              {
+                "codigo": "accionesCursos",
+                "etiqueta": "¿Qué haces para estudiarlos?",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Repaso mis apuntes",
+                  "Practico ejercicios",
+                  "Estudio en grupo",
+                  "Pido asesoría",
+                  "Veo material de apoyo",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "dificultades",
+                "etiqueta": "¿Has tenido dificultades con tus estudios?",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "No he tenido",
+                  "Organización del tiempo",
+                  "Comprender los temas",
+                  "Concentración",
+                  "Asistencia",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "soluciones",
+                "etiqueta": "¿Qué has hecho para resolverlas?",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Organicé un horario",
+                  "Consulté al docente",
+                  "Pedí apoyo a compañeros",
+                  "Busqué tutoría",
+                  "Aún necesito ayuda",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "materiasFaciles",
+                "etiqueta": "¿Qué cursos te gustan y se te facilitan?",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Ninguno",
+                  "Otro"
+                ]
+              }
+            ]
+          },
+          {
+            "titulo": "Cómo te encuentras",
+            "campos": [
+              {
+                "codigo": "problemasPersonales",
+                "etiqueta": "¿Qué situaciones influyen en tu aprendizaje?",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Ninguna",
+                  "Económicas",
+                  "Familiares",
+                  "Trabajo",
+                  "Salud",
+                  "Prefiero conversarlo con mi tutor",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "estadoSalud",
+                "etiqueta": "¿Cómo consideras tu estado actual de salud?",
+                "tipo": "escala",
+                "obligatorio": false,
+                "opciones": [
+                  "Bueno",
+                  "Regular",
+                  "Necesito apoyo",
+                  "Prefiero conversarlo con mi tutor"
+                ]
+              },
+              {
+                "codigo": "autodescripcion",
+                "etiqueta": "¿Cómo te describes física, mental y temperamentalmente?",
+                "tipo": "texto-largo",
+                "obligatorio": false
+              },
+              {
+                "codigo": "preocupaciones",
+                "etiqueta": "¿Hay algo que te preocupe en este momento?",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "No",
+                  "Mis estudios",
+                  "Mi familia",
+                  "Mi situación económica",
+                  "Mi futuro laboral",
+                  "Prefiero conversarlo con mi tutor",
+                  "Otro"
+                ]
+              }
+            ]
+          },
+          {
+            "titulo": "Un poco más sobre ti",
+            "campos": [
+              {
+                "codigo": "cualidades",
+                "etiqueta": "Tus cualidades",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Responsabilidad",
+                  "Perseverancia",
+                  "Empatía",
+                  "Creatividad",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "habilidades",
+                "etiqueta": "Tus habilidades",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Comunicación",
+                  "Trabajo en equipo",
+                  "Tecnología",
+                  "Organización",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "aficiones",
+                "etiqueta": "Tus aficiones",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Lectura",
+                  "Música",
+                  "Deporte",
+                  "Arte",
+                  "Videojuegos",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "adicciones",
+                "etiqueta": "Adicciones, si existen",
+                "tipo": "texto-largo",
+                "obligatorio": false
+              },
+              {
+                "codigo": "valores",
+                "etiqueta": "Tus valores",
+                "tipo": "multiple",
+                "obligatorio": false,
+                "opciones": [
+                  "Honestidad",
+                  "Respeto",
+                  "Solidaridad",
+                  "Responsabilidad",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "antivalores",
+                "etiqueta": "Antivalores que quisieras mejorar, si existen",
+                "tipo": "texto-largo",
+                "obligatorio": false
+              }
+            ]
+          }
+        ],
+        "proposito": "Revisa tus hábitos de estudio y tu preparación para el campo laboral.",
+        "obligatorio": true,
+        "version": "Anexos 01–12 · Resolución N.º 500-2022-CU-R-UNAS",
+        "vigencia": "Responsables y momentos según la guía de llenado proporcionada",
+        "aprobacion": "Resolución N.º 500-2022-CU-R-UNAS",
+        "visaciones": [
+          "Tutorado"
+        ]
+      },
+      {
+        "codigo": "F06",
+        "numero": "06",
+        "nombre": "Registro de asistencia: tutoría individual",
+        "actor": "tutor",
+        "actorEtiqueta": "Docente tutor",
+        "momento": "Durante el semestre · en cada sesión individual",
+        "periodicidad": "En cada sesión de tutoría individual; el tutorado firma (art. 18.f)",
+        "destinatario": "Expediente del tutorado y archivo del tutor",
+        "secciones": [
+          {
+            "titulo": "Datos del docente",
+            "campos": [
+              {
+                "codigo": "nombreTutor",
+                "etiqueta": "Docente tutor",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "fecha",
+                "etiqueta": "Fecha",
+                "tipo": "fecha",
+                "obligatorio": true
+              }
+            ]
+          },
+          {
+            "titulo": "Horario de la atención",
+            "campos": [
+              {
+                "codigo": "horaInicio",
+                "etiqueta": "Hora de inicio",
+                "tipo": "hora",
+                "obligatorio": true
+              },
+              {
+                "codigo": "horaFin",
+                "etiqueta": "Hora de fin",
+                "tipo": "hora",
+                "obligatorio": true
+              }
+            ]
+          },
+          {
+            "titulo": "Asistencia individual",
+            "campos": [
+              {
+                "codigo": "asistentes",
+                "etiqueta": "Registro de estudiantes",
+                "tipo": "tabla",
+                "obligatorio": true,
+                "columnas": [
+                  {
+                    "codigo": "nombre",
+                    "etiqueta": "Apellidos y nombres",
+                    "tipo": "texto"
+                  },
+                  {
+                    "codigo": "grupo",
+                    "etiqueta": "Grupo",
+                    "tipo": "texto"
+                  },
+                  {
+                    "codigo": "tipo",
+                    "etiqueta": "Tipo de tutoría",
+                    "tipo": "seleccion",
+                    "opciones": [
+                      "Académica",
+                      "Personal",
+                      "Social"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "proposito": "Registra a quién atendiste y el tipo de tutoría. La firma del estudiante se recoge fuera de esta demostración.",
+        "obligatorio": true,
+        "version": "Anexos 01–12 · Resolución N.º 500-2022-CU-R-UNAS",
+        "vigencia": "Responsables y momentos según la guía de llenado proporcionada",
+        "aprobacion": "Resolución N.º 500-2022-CU-R-UNAS",
+        "visaciones": [
+          "Docente tutor"
+        ]
+      },
+      {
+        "codigo": "F07",
+        "numero": "07",
+        "nombre": "Registro de asistencia: tutoría grupal",
+        "actor": "tutor",
+        "actorEtiqueta": "Docente tutor",
+        "momento": "Durante el semestre · en cada actividad grupal",
+        "periodicidad": "En cada actividad de tutoría grupal; el tutorado firma (art. 18.f)",
+        "destinatario": "Expediente del grupo y archivo del tutor",
+        "secciones": [
+          {
+            "titulo": "Datos del docente",
+            "campos": [
+              {
+                "codigo": "nombreTutor",
+                "etiqueta": "Docente tutor",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "fecha",
+                "etiqueta": "Fecha",
+                "tipo": "fecha",
+                "obligatorio": true
+              }
+            ]
+          },
+          {
+            "titulo": "Actividad grupal",
+            "campos": [
+              {
+                "codigo": "grupo",
+                "etiqueta": "Grupo",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "tema",
+                "etiqueta": "Tema o título de la actividad",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Técnicas de estudio",
+                  "Organización del tiempo",
+                  "Adaptación universitaria",
+                  "Bienestar emocional",
+                  "Orientación laboral",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "horaInicio",
+                "etiqueta": "Hora de inicio",
+                "tipo": "hora",
+                "obligatorio": true
+              },
+              {
+                "codigo": "horaFin",
+                "etiqueta": "Hora de fin",
+                "tipo": "hora",
+                "obligatorio": true
+              }
+            ]
+          },
+          {
+            "titulo": "Asistencia grupal",
+            "campos": [
+              {
+                "codigo": "asistentes",
+                "etiqueta": "Participantes de la actividad",
+                "tipo": "tabla",
+                "obligatorio": true,
+                "columnas": [
+                  {
+                    "codigo": "nombre",
+                    "etiqueta": "Apellidos y nombres",
+                    "tipo": "texto"
+                  },
+                  {
+                    "codigo": "ciclo",
+                    "etiqueta": "Ciclo",
+                    "tipo": "numero"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "proposito": "Registra el tema, la fecha y los participantes. Las firmas no se simulan.",
+        "obligatorio": true,
+        "version": "Anexos 01–12 · Resolución N.º 500-2022-CU-R-UNAS",
+        "vigencia": "Responsables y momentos según la guía de llenado proporcionada",
+        "aprobacion": "Resolución N.º 500-2022-CU-R-UNAS",
+        "visaciones": [
+          "Docente tutor"
+        ]
+      },
+      {
+        "codigo": "F08",
+        "numero": "08",
+        "nombre": "Registro de atención personalizada al estudiante",
+        "actor": "tutor",
+        "actorEtiqueta": "Docente tutor",
+        "momento": "Durante el semestre · al identificar un caso",
+        "periodicidad": "Cuando el estudiante requiere atención específica",
+        "destinatario": "Expediente del tutorado; áreas de apoyo si hay derivación",
+        "secciones": [
+          {
+            "titulo": "Datos del docente",
+            "campos": [
+              {
+                "codigo": "nombreTutor",
+                "etiqueta": "Docente tutor",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "fecha",
+                "etiqueta": "Fecha",
+                "tipo": "fecha",
+                "obligatorio": true
+              }
+            ]
+          },
+          {
+            "titulo": "Estudiante atendido",
+            "campos": [
+              {
+                "codigo": "nombreEstudiante",
+                "etiqueta": "Estudiante",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "ciclo",
+                "etiqueta": "Ciclo",
+                "tipo": "numero",
+                "obligatorio": true
+              },
+              {
+                "codigo": "grupo",
+                "etiqueta": "Grupo",
+                "tipo": "texto",
+                "obligatorio": true
+              }
+            ]
+          },
+          {
+            "titulo": "Motivo de atención",
+            "campos": [
+              {
+                "codigo": "motivo",
+                "etiqueta": "¿Qué motivó la atención?",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Dificultades de estudio",
+                  "Organización del tiempo",
+                  "Riesgo académico",
+                  "Situación personal",
+                  "Situación familiar",
+                  "Necesidad de apoyo especializado",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "detalleMotivo",
+                "etiqueta": "Detalle que ayude al acompañamiento",
+                "tipo": "texto-largo",
+                "obligatorio": false
+              }
+            ]
+          },
+          {
+            "titulo": "Proceso de atención",
+            "campos": [
+              {
+                "codigo": "resultado",
+                "etiqueta": "¿Cómo continúa la atención?",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Se resuelve con la asesoría",
+                  "Se programa nueva cita para seguimiento",
+                  "Se deriva a:"
+                ]
+              },
+              {
+                "codigo": "proximaCita",
+                "etiqueta": "Fecha de la nueva cita",
+                "tipo": "fecha",
+                "obligatorio": true,
+                "visibleSi": {
+                  "campo": "resultado",
+                  "valores": [
+                    "Se programa nueva cita para seguimiento"
+                  ]
+                }
+              },
+              {
+                "codigo": "horaCita",
+                "etiqueta": "Hora de inicio de la nueva cita",
+                "tipo": "hora",
+                "obligatorio": true,
+                "visibleSi": {
+                  "campo": "resultado",
+                  "valores": [
+                    "Se programa nueva cita para seguimiento"
+                  ]
+                }
+              },
+              {
+                "codigo": "horaFinCita",
+                "etiqueta": "Hora de fin de la nueva cita",
+                "tipo": "hora",
+                "obligatorio": true,
+                "visibleSi": {
+                  "campo": "resultado",
+                  "valores": [
+                    "Se programa nueva cita para seguimiento"
+                  ]
+                }
+              },
+              {
+                "codigo": "areaDerivacion",
+                "etiqueta": "Área a la que se deriva",
+                "tipo": "seleccion",
+                "obligatorio": true,
+                "opciones": [
+                  "Psicología",
+                  "Psicopedagogía",
+                  "Medicina y Salud",
+                  "Bienestar y Servicio Social"
+                ],
+                "visibleSi": {
+                  "campo": "resultado",
+                  "valores": [
+                    "Se deriva a:"
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "proposito": "Registra el caso y decide si se resuelve, requiere seguimiento o necesita una derivación.",
+        "obligatorio": true,
+        "version": "Anexos 01–12 · Resolución N.º 500-2022-CU-R-UNAS",
+        "vigencia": "Responsables y momentos según la guía de llenado proporcionada",
+        "aprobacion": "Resolución N.º 500-2022-CU-R-UNAS",
+        "visaciones": [
+          "Docente tutor"
+        ]
+      },
+      {
+        "codigo": "F09",
+        "numero": "09",
+        "nombre": "Autoevaluación de la actividad tutorial",
+        "actor": "tutor",
+        "actorEtiqueta": "Docente tutor",
+        "momento": "Durante el semestre y al finalizarlo",
+        "periodicidad": "Al cierre del semestre académico",
+        "destinatario": "Comisión de Tutoría de la escuela profesional",
+        "secciones": [
+          {
+            "titulo": "Tu grupo de tutoría",
+            "campos": [
+              {
+                "codigo": "nombreTutor",
+                "etiqueta": "Docente tutor",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "gruposAsignados",
+                "etiqueta": "Número de grupos asignados",
+                "tipo": "numero",
+                "obligatorio": true
+              },
+              {
+                "codigo": "estudiantesAsignados",
+                "etiqueta": "Número de estudiantes",
+                "tipo": "numero",
+                "obligatorio": true
+              }
+            ]
+          },
+          {
+            "titulo": "Actividades realizadas",
+            "campos": [
+              {
+                "codigo": "actividad1",
+                "etiqueta": "Participé en el curso inductivo para favorecer la integración del equipo de tutores",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Realizada",
+                  "No realizada"
+                ],
+                "ayuda": "«Realizada» equivale a marcar X en el formato oficial."
+              },
+              {
+                "codigo": "actividad2",
+                "etiqueta": "Conozco personalmente a cada uno de los tutorados",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Realizada",
+                  "No realizada"
+                ],
+                "ayuda": "«Realizada» equivale a marcar X en el formato oficial."
+              },
+              {
+                "codigo": "actividad3",
+                "etiqueta": "Realicé un diagnóstico de hábitos, estrategias y técnicas de estudio de mis tutorados",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Realizada",
+                  "No realizada"
+                ],
+                "ayuda": "«Realizada» equivale a marcar X en el formato oficial."
+              },
+              {
+                "codigo": "actividad4",
+                "etiqueta": "Elaboré con el equipo de tutores el Plan de Acción Tutorial",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Realizada",
+                  "No realizada"
+                ],
+                "ayuda": "«Realizada» equivale a marcar X en el formato oficial."
+              },
+              {
+                "codigo": "actividad5",
+                "etiqueta": "Colaboré con el equipo de tutores en las actividades planeadas",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Realizada",
+                  "No realizada"
+                ],
+                "ayuda": "«Realizada» equivale a marcar X en el formato oficial."
+              },
+              {
+                "codigo": "actividad6",
+                "etiqueta": "Llevé a cabo el seguimiento académico de los estudiantes de alto riesgo",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Realizada",
+                  "No realizada"
+                ],
+                "ayuda": "«Realizada» equivale a marcar X en el formato oficial."
+              },
+              {
+                "codigo": "actividad7",
+                "etiqueta": "Derivé a estudiantes que requerían atención especializada",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Realizada",
+                  "No realizada"
+                ],
+                "ayuda": "«Realizada» equivale a marcar X en el formato oficial."
+              },
+              {
+                "codigo": "actividad8",
+                "etiqueta": "Convoqué a padres de estudiantes cuando fue necesario",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Realizada",
+                  "No realizada"
+                ],
+                "ayuda": "«Realizada» equivale a marcar X en el formato oficial."
+              },
+              {
+                "codigo": "actividad9",
+                "etiqueta": "Mantuve contacto con docentes para conocer la situación académica de mis tutorados",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Realizada",
+                  "No realizada"
+                ],
+                "ayuda": "«Realizada» equivale a marcar X en el formato oficial."
+              },
+              {
+                "codigo": "actividad10",
+                "etiqueta": "Realicé actividades preventivas con mi grupo de tutorados",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Realizada",
+                  "No realizada"
+                ],
+                "ayuda": "«Realizada» equivale a marcar X en el formato oficial."
+              }
+            ]
+          },
+          {
+            "titulo": "Observaciones",
+            "campos": [
+              {
+                "codigo": "observaciones",
+                "etiqueta": "Observaciones",
+                "tipo": "texto-largo",
+                "obligatorio": false
+              }
+            ]
+          }
+        ],
+        "proposito": "Marca las actividades que realizaste. Puedes preparar el registro durante el semestre y enviarlo al cierre.",
+        "obligatorio": true,
+        "version": "Anexos 01–12 · Resolución N.º 500-2022-CU-R-UNAS",
+        "vigencia": "Responsables y momentos según la guía de llenado proporcionada",
+        "aprobacion": "Resolución N.º 500-2022-CU-R-UNAS",
+        "visaciones": [
+          "Docente tutor"
+        ]
+      },
+      {
+        "codigo": "F10",
+        "numero": "10",
+        "nombre": "Evaluación de la tutoría individual",
+        "actor": "tutorado",
+        "actorEtiqueta": "Estudiante",
+        "momento": "Al finalizar cada sesión individual y confirmar la asistencia",
+        "periodicidad": "En cada sesión individual finalizada, con asistencia confirmada por el tutor",
+        "destinatario": "Responsable del Sistema de Tutoría (art. 12.g)",
+        "secciones": [
+          {
+            "titulo": "Datos de la evaluación",
+            "campos": [
+              {
+                "codigo": "grupo",
+                "etiqueta": "Grupo",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "turno",
+                "etiqueta": "Turno",
+                "tipo": "seleccion",
+                "obligatorio": false,
+                "opciones": [
+                  "Mañana",
+                  "Tarde",
+                  "Noche"
+                ]
+              },
+              {
+                "codigo": "fecha",
+                "etiqueta": "Fecha",
+                "tipo": "fecha",
+                "obligatorio": true
+              }
+            ]
+          },
+          {
+            "titulo": "Atención y confianza",
+            "campos": [
+              {
+                "codigo": "p01",
+                "etiqueta": "Mostró buena disposición para atenderme",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "A · Totalmente de acuerdo",
+                  "B · De acuerdo",
+                  "C · En desacuerdo",
+                  "D · Totalmente en desacuerdo"
+                ]
+              },
+              {
+                "codigo": "p02",
+                "etiqueta": "Logró un clima de confianza",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "A · Totalmente de acuerdo",
+                  "B · De acuerdo",
+                  "C · En desacuerdo",
+                  "D · Totalmente en desacuerdo"
+                ]
+              },
+              {
+                "codigo": "p03",
+                "etiqueta": "Su trato fue respetuoso",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "A · Totalmente de acuerdo",
+                  "B · De acuerdo",
+                  "C · En desacuerdo",
+                  "D · Totalmente en desacuerdo"
+                ]
+              },
+              {
+                "codigo": "p04",
+                "etiqueta": "Mostró interés en los problemas académicos y personales que afectan mi rendimiento",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "A · Totalmente de acuerdo",
+                  "B · De acuerdo",
+                  "C · En desacuerdo",
+                  "D · Totalmente en desacuerdo"
+                ]
+              },
+              {
+                "codigo": "p05",
+                "etiqueta": "Mostró capacidad de escucha y empatía",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "A · Totalmente de acuerdo",
+                  "B · De acuerdo",
+                  "C · En desacuerdo",
+                  "D · Totalmente en desacuerdo"
+                ]
+              }
+            ]
+          },
+          {
+            "titulo": "Acompañamiento recibido",
+            "campos": [
+              {
+                "codigo": "p06",
+                "etiqueta": "Mostró disposición para mantener una comunicación permanente",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "A · Totalmente de acuerdo",
+                  "B · De acuerdo",
+                  "C · En desacuerdo",
+                  "D · Totalmente en desacuerdo"
+                ]
+              },
+              {
+                "codigo": "p07",
+                "etiqueta": "Me ayudó a resolver dudas académicas y/o personales",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "A · Totalmente de acuerdo",
+                  "B · De acuerdo",
+                  "C · En desacuerdo",
+                  "D · Totalmente en desacuerdo"
+                ]
+              },
+              {
+                "codigo": "p08",
+                "etiqueta": "Me ofreció asesoría respecto a técnicas de estudio",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "A · Totalmente de acuerdo",
+                  "B · De acuerdo",
+                  "C · En desacuerdo",
+                  "D · Totalmente en desacuerdo"
+                ]
+              },
+              {
+                "codigo": "p09",
+                "etiqueta": "Me motivó para continuar en mis estudios",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "A · Totalmente de acuerdo",
+                  "B · De acuerdo",
+                  "C · En desacuerdo",
+                  "D · Totalmente en desacuerdo"
+                ]
+              }
+            ]
+          },
+          {
+            "titulo": "Resultados de la tutoría",
+            "campos": [
+              {
+                "codigo": "p10",
+                "etiqueta": "El tiempo que destinó mi tutor para atenderme fue el necesario",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "A · Totalmente de acuerdo",
+                  "B · De acuerdo",
+                  "C · En desacuerdo",
+                  "D · Totalmente en desacuerdo"
+                ]
+              },
+              {
+                "codigo": "p11",
+                "etiqueta": "Fue fácil localizar a mi tutor cuando lo necesitaba",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "A · Totalmente de acuerdo",
+                  "B · De acuerdo",
+                  "C · En desacuerdo",
+                  "D · Totalmente en desacuerdo"
+                ]
+              },
+              {
+                "codigo": "p12",
+                "etiqueta": "Me derivó si necesité apoyo profesional en otras instancias",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "A · Totalmente de acuerdo",
+                  "B · De acuerdo",
+                  "C · En desacuerdo",
+                  "D · Totalmente en desacuerdo"
+                ]
+              },
+              {
+                "codigo": "p13",
+                "etiqueta": "Participar en el Programa de Tutoría ha hecho que mejore mi rendimiento académico",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "A · Totalmente de acuerdo",
+                  "B · De acuerdo",
+                  "C · En desacuerdo",
+                  "D · Totalmente en desacuerdo"
+                ]
+              },
+              {
+                "codigo": "p14",
+                "etiqueta": "Me siento conforme con el tutor que me asignaron",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "A · Totalmente de acuerdo",
+                  "B · De acuerdo",
+                  "C · En desacuerdo",
+                  "D · Totalmente en desacuerdo"
+                ]
+              }
+            ]
+          },
+          {
+            "titulo": "Sugerencias",
+            "campos": [
+              {
+                "codigo": "tieneSugerencia",
+                "etiqueta": "¿Tienes alguna sugerencia para mejorar la tutoría?",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "No, todo bien"
+                ]
+              },
+              {
+                "codigo": "sugerencia",
+                "etiqueta": "Tu sugerencia",
+                "tipo": "texto-largo",
+                "obligatorio": true,
+                "visibleSi": {
+                  "campo": "tieneSugerencia",
+                  "valores": [
+                    "Sí"
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "proposito": "Evalúa la tutoría individual recibida con la escala A–D del anexo.",
+        "obligatorio": true,
+        "version": "Anexos 01–12 · Resolución N.º 500-2022-CU-R-UNAS",
+        "vigencia": "Responsables y momentos según la guía de llenado proporcionada",
+        "aprobacion": "Resolución N.º 500-2022-CU-R-UNAS",
+        "visaciones": [
+          "Tutorado"
+        ]
+      },
+      {
+        "codigo": "F11",
+        "numero": "11",
+        "nombre": "Evaluación del desempeño de tutoría grupal",
+        "actor": "tutorado",
+        "actorEtiqueta": "Estudiante",
+        "momento": "Al finalizar cada sesión grupal y confirmar la asistencia",
+        "periodicidad": "En cada sesión grupal finalizada, con asistencia confirmada por el tutor",
+        "destinatario": "Responsable del Sistema de Tutoría (art. 12.g)",
+        "secciones": [
+          {
+            "titulo": "Datos de la evaluación",
+            "campos": [
+              {
+                "codigo": "nombreTutor",
+                "etiqueta": "Nombre de tu tutor",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "fecha",
+                "etiqueta": "Fecha de aplicación",
+                "tipo": "fecha",
+                "obligatorio": true
+              }
+            ]
+          },
+          {
+            "titulo": "Atención al grupo",
+            "campos": [
+              {
+                "codigo": "p01",
+                "etiqueta": "Mostró buena disposición para atender las necesidades de la tutoría grupal",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "A veces",
+                  "No"
+                ]
+              },
+              {
+                "codigo": "p02",
+                "etiqueta": "Generó un clima de confianza en el grupo",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "A veces",
+                  "No"
+                ]
+              },
+              {
+                "codigo": "p03",
+                "etiqueta": "Trató con respeto y cordialidad al grupo de estudiantes",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "A veces",
+                  "No"
+                ]
+              },
+              {
+                "codigo": "p04",
+                "etiqueta": "Tiene las competencias para orientar al grupo con respecto a sus necesidades",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "A veces",
+                  "No"
+                ]
+              }
+            ]
+          },
+          {
+            "titulo": "Orientación y apoyo",
+            "campos": [
+              {
+                "codigo": "p05",
+                "etiqueta": "Utilizó estrategias didácticas útiles para los temas que expuso",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "A veces",
+                  "No"
+                ]
+              },
+              {
+                "codigo": "p06",
+                "etiqueta": "Dio a conocer el programa de atención tutorial",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "A veces",
+                  "No"
+                ]
+              },
+              {
+                "codigo": "p07",
+                "etiqueta": "Se mostró interesado por los problemas que manifestó el grupo",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "A veces",
+                  "No"
+                ]
+              },
+              {
+                "codigo": "p08",
+                "etiqueta": "Dio soluciones a los problemas que como grupo presentan",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "A veces",
+                  "No"
+                ]
+              }
+            ]
+          },
+          {
+            "titulo": "Participación y seguimiento",
+            "campos": [
+              {
+                "codigo": "p09",
+                "etiqueta": "Abordó temas de interés grupal para mejorar el rendimiento académico",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "A veces",
+                  "No"
+                ]
+              },
+              {
+                "codigo": "p10",
+                "etiqueta": "Estuvo cuando lo necesitan como grupo de su asesoría",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "A veces",
+                  "No"
+                ]
+              },
+              {
+                "codigo": "p11",
+                "etiqueta": "Aplicó algún cuestionario al inicio de la tutoría sobre la problemática del grupo",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "A veces",
+                  "No"
+                ]
+              },
+              {
+                "codigo": "p12",
+                "etiqueta": "Generó motivación y participación en el grupo",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "A veces",
+                  "No"
+                ]
+              },
+              {
+                "codigo": "p13",
+                "etiqueta": "Identificó problemáticas y/o necesidades del grupo",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Sí",
+                  "A veces",
+                  "No"
+                ]
+              }
+            ]
+          }
+        ],
+        "proposito": "Evalúa las 13 preguntas del anexo grupal con sus opciones: Sí, A veces y No.",
+        "obligatorio": true,
+        "version": "Anexos 01–12 · Resolución N.º 500-2022-CU-R-UNAS",
+        "vigencia": "Responsables y momentos según la guía de llenado proporcionada",
+        "aprobacion": "Resolución N.º 500-2022-CU-R-UNAS",
+        "visaciones": [
+          "Tutorado"
+        ]
+      },
+      {
+        "codigo": "F12",
+        "numero": "12",
+        "nombre": "Ficha de derivación",
+        "actor": "tutor",
+        "actorEtiqueta": "Docente tutor",
+        "momento": "Durante el semestre · al detectar problemas no académicos",
+        "periodicidad": "Cuando el caso excede la competencia del tutor (art. 17.o)",
+        "destinatario": "Área especializada de destino y copia en el expediente tutorial",
+        "secciones": [
+          {
+            "titulo": "Estudiante y docente",
+            "campos": [
+              {
+                "codigo": "fecha",
+                "etiqueta": "Fecha de derivación",
+                "tipo": "fecha",
+                "obligatorio": true
+              },
+              {
+                "codigo": "nombreEstudiante",
+                "etiqueta": "Apellidos y nombres del estudiante",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "ciclo",
+                "etiqueta": "Ciclo",
+                "tipo": "numero",
+                "obligatorio": true
+              },
+              {
+                "codigo": "escuela",
+                "etiqueta": "Escuela profesional",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "codigo",
+                "etiqueta": "Código universitario",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "telefono",
+                "etiqueta": "Teléfono del estudiante",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "nombreTutor",
+                "etiqueta": "Docente tutor",
+                "tipo": "texto",
+                "obligatorio": true
+              },
+              {
+                "codigo": "telefonoTutor",
+                "etiqueta": "Teléfono del docente tutor",
+                "tipo": "texto",
+                "obligatorio": true
+              }
+            ]
+          },
+          {
+            "titulo": "Derivación al área especializada",
+            "campos": [
+              {
+                "codigo": "area",
+                "etiqueta": "Área de destino",
+                "tipo": "seleccion",
+                "obligatorio": true,
+                "opciones": [
+                  "Psicología",
+                  "Psicopedagogía",
+                  "Medicina y Salud",
+                  "Bienestar y Servicio Social"
+                ]
+              },
+              {
+                "codigo": "motivo",
+                "etiqueta": "Motivo de derivación",
+                "tipo": "escala",
+                "obligatorio": true,
+                "opciones": [
+                  "Apoyo emocional",
+                  "Dificultades de aprendizaje",
+                  "Atención de salud",
+                  "Situación económica o familiar",
+                  "Otro"
+                ]
+              },
+              {
+                "codigo": "detalle",
+                "etiqueta": "Información necesaria para la atención",
+                "tipo": "texto-largo",
+                "obligatorio": false
+              }
+            ]
+          }
+        ],
+        "proposito": "El docente deriva el caso al área adecuada y mantiene el seguimiento tutorial.",
+        "obligatorio": true,
+        "version": "Anexos 01–12 · Resolución N.º 500-2022-CU-R-UNAS",
+        "vigencia": "Responsables y momentos según la guía de llenado proporcionada",
+        "aprobacion": "Resolución N.º 500-2022-CU-R-UNAS",
+        "visaciones": [
+          "Docente tutor"
+        ]
+      }
+    ],
+    "reglasTutoria": [
+      {
+        "id": "RG-01",
+        "codigo": "sesiones-periodicidad",
+        "descripcion": "Periodicidad mínima de tutoría individual y grupal en el primer ciclo",
+        "valor": "Al menos una tutoría grupal y una individual al inicio del semestre para estudiantes de primer ciclo",
+        "estado": "validada",
+        "fuente": "Reglamento de Tutoría de Pregrado UNAS, Resolución N.º 500-2022-CU-R-UNAS, art. 17.k"
+      },
+      {
+        "id": "RG-08",
+        "codigo": "tutoria-especial",
+        "descripcion": "Periodicidad de la tutoría especial presencial",
+        "valor": "Presencial y obligatoria, al menos dos veces por semestre",
+        "estado": "validada",
+        "fuente": "Reglamento de Tutoría de Pregrado UNAS, Resolución N.º 500-2022-CU-R-UNAS, art. 17.l"
+      },
+      {
+        "id": "RG-02",
+        "codigo": "aforo-tutor",
+        "descripcion": "Número máximo de tutorados por docente tutor",
+        "valor": "Propuesta: entre 10 y 14 según la escuela",
+        "estado": "propuesta",
+        "fuente": "Acta de audiencia FIIS del 7 de octubre de 2026, punto PRIMERO"
+      },
+      {
+        "id": "RG-03",
+        "codigo": "criterio-asignacion",
+        "descripcion": "Criterio de asignación del docente tutor",
+        "valor": "Asignación directiva por la comisión; afinidad de curso como criterio complementario",
+        "estado": "propuesta",
+        "fuente": "Acta de audiencia FIIS del 7 de octubre de 2026, punto PRIMERO"
+      },
+      {
+        "id": "RG-04",
+        "codigo": "etapa-formato",
+        "descripcion": "Instrumento de entrevista inicial según la etapa académica",
+        "valor": "Ciclos 1 a 3: formato 03 · Ciclos 4 a 7: formato 04 · Ciclos 8 a 10: formato 05",
+        "estado": "validada",
+        "fuente": "Distribución de ciclos indicada por el usuario el 27/10/2026; formatos de los anexos de la Resolución N.º 500-2022-CU-R-UNAS"
+      },
+      {
+        "id": "RG-05",
+        "codigo": "conteo-cobertura",
+        "descripcion": "Forma de conteo de la cobertura tutorial",
+        "valor": "Separar estudiantes únicos atendidos, atenciones acumuladas y sesiones realizadas",
+        "estado": "propuesta",
+        "fuente": "Acta de audiencia FIIS del 7 de octubre de 2026, punto QUINTO"
+      },
+      {
+        "id": "RG-06",
+        "codigo": "matricula-condicionada",
+        "descripcion": "Condicionar la matrícula a una constancia de tutoría",
+        "valor": "No se configura como restricción automática",
+        "estado": "pendiente-validacion",
+        "fuente": "Acta de reunión del 6 de octubre de 2026, punto SEGUNDO. Requiere disposición expresa de la autoridad."
+      },
+      {
+        "id": "RG-07",
+        "codigo": "derivacion-acceso",
+        "descripcion": "Información visible al tutor sobre una derivación",
+        "valor": "Área de destino, estado administrativo y recomendación comunicable; sin diagnóstico",
+        "estado": "validada",
+        "fuente": "Solicitudes 07_Medicina_Salud y 08_Psicologia"
+      }
+    ]
+  },
+  "fuentes": {
+    "resumenesAcademicos": [
+      {
+        "estudianteId": "EST-2023010456",
+        "semestreId": "2026-II",
+        "promedioPonderado": 15.4,
+        "creditosMatriculados": 8,
+        "creditosAprobados": 62,
+        "avanceCurricular": 29.5,
+        "posicion": 30,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010457",
+        "semestreId": "2026-II",
+        "promedioPonderado": 11.8,
+        "creditosMatriculados": 8,
+        "creditosAprobados": 48,
+        "avanceCurricular": 22.9,
+        "posicion": 11,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010458",
+        "semestreId": "2026-II",
+        "promedioPonderado": 16.9,
+        "creditosMatriculados": 7,
+        "creditosAprobados": 108,
+        "avanceCurricular": 51.4,
+        "posicion": 28,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010459",
+        "semestreId": "2026-II",
+        "promedioPonderado": 13.2,
+        "creditosMatriculados": 7,
+        "creditosAprobados": 96,
+        "avanceCurricular": 45.7,
+        "posicion": 9,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010460",
+        "semestreId": "2026-II",
+        "promedioPonderado": 14.7,
+        "creditosMatriculados": 7,
+        "creditosAprobados": 152,
+        "avanceCurricular": 72.4,
+        "posicion": 17,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010461",
+        "semestreId": "2026-II",
+        "promedioPonderado": 12.4,
+        "creditosMatriculados": 7,
+        "creditosAprobados": 138,
+        "avanceCurricular": 65.7,
+        "posicion": 38,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010462",
+        "semestreId": "2026-II",
+        "promedioPonderado": 16.1,
+        "creditosMatriculados": 3,
+        "creditosAprobados": 186,
+        "avanceCurricular": 88.6,
+        "posicion": 19,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2026010012",
+        "semestreId": "2026-II",
+        "promedioPonderado": 14.2,
+        "creditosMatriculados": 3,
+        "creditosAprobados": 0,
+        "avanceCurricular": 0,
+        "posicion": 39,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2026010013",
+        "semestreId": "2026-II",
+        "promedioPonderado": 12.9,
+        "creditosMatriculados": 3,
+        "creditosAprobados": 0,
+        "avanceCurricular": 0,
+        "posicion": 18,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010470",
+        "semestreId": "2026-II",
+        "promedioPonderado": 15.9,
+        "creditosMatriculados": 4,
+        "creditosAprobados": 64,
+        "avanceCurricular": 30.5,
+        "posicion": 8,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010471",
+        "semestreId": "2026-II",
+        "promedioPonderado": 12.1,
+        "creditosMatriculados": 4,
+        "creditosAprobados": 45,
+        "avanceCurricular": 21.4,
+        "posicion": 27,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010472",
+        "semestreId": "2026-II",
+        "promedioPonderado": 16.4,
+        "creditosMatriculados": 3,
+        "creditosAprobados": 112,
+        "avanceCurricular": 53.3,
+        "posicion": 6,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010473",
+        "semestreId": "2026-II",
+        "promedioPonderado": 13.7,
+        "creditosMatriculados": 4,
+        "creditosAprobados": 148,
+        "avanceCurricular": 70.5,
+        "posicion": 25,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010480",
+        "semestreId": "2026-II",
+        "promedioPonderado": 15.1,
+        "creditosMatriculados": 4,
+        "creditosAprobados": 20,
+        "avanceCurricular": 9.5,
+        "posicion": 35,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010481",
+        "semestreId": "2026-II",
+        "promedioPonderado": 11.4,
+        "creditosMatriculados": 4,
+        "creditosAprobados": 42,
+        "avanceCurricular": 20,
+        "posicion": 16,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010482",
+        "semestreId": "2026-II",
+        "promedioPonderado": 17.2,
+        "creditosMatriculados": 3,
+        "creditosAprobados": 118,
+        "avanceCurricular": 56.2,
+        "posicion": 33,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010490",
+        "semestreId": "2026-II",
+        "promedioPonderado": 14.6,
+        "creditosMatriculados": 3,
+        "creditosAprobados": 58,
+        "avanceCurricular": 27.6,
+        "posicion": 26,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010491",
+        "semestreId": "2026-II",
+        "promedioPonderado": 15.8,
+        "creditosMatriculados": 4,
+        "creditosAprobados": 104,
+        "avanceCurricular": 49.5,
+        "posicion": 5,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010500",
+        "semestreId": "2026-II",
+        "promedioPonderado": 13.9,
+        "creditosMatriculados": 4,
+        "creditosAprobados": 60,
+        "avanceCurricular": 28.6,
+        "posicion": 10,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010501",
+        "semestreId": "2026-II",
+        "promedioPonderado": 12.7,
+        "creditosMatriculados": 0,
+        "creditosAprobados": 144,
+        "avanceCurricular": 68.6,
+        "posicion": 31,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2026010020",
+        "semestreId": "2026-II",
+        "promedioPonderado": 14.9,
+        "creditosMatriculados": 4,
+        "creditosAprobados": 0,
+        "avanceCurricular": 0,
+        "posicion": 38,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010510",
+        "semestreId": "2026-II",
+        "promedioPonderado": 15.2,
+        "creditosMatriculados": 4,
+        "creditosAprobados": 61,
+        "avanceCurricular": 29,
+        "posicion": 33,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010511",
+        "semestreId": "2026-II",
+        "promedioPonderado": 16.6,
+        "creditosMatriculados": 0,
+        "creditosAprobados": 110,
+        "avanceCurricular": 52.4,
+        "posicion": 14,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010520",
+        "semestreId": "2026-II",
+        "promedioPonderado": 12.3,
+        "creditosMatriculados": 4,
+        "creditosAprobados": 52,
+        "avanceCurricular": 24.8,
+        "posicion": 30,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010521",
+        "semestreId": "2026-II",
+        "promedioPonderado": 15.5,
+        "creditosMatriculados": 0,
+        "creditosAprobados": 106,
+        "avanceCurricular": 50.5,
+        "posicion": 9,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010530",
+        "semestreId": "2026-II",
+        "promedioPonderado": 14.4,
+        "creditosMatriculados": 3,
+        "creditosAprobados": 59,
+        "avanceCurricular": 28.1,
+        "posicion": 19,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010531",
+        "semestreId": "2026-II",
+        "promedioPonderado": 17.4,
+        "creditosMatriculados": 0,
+        "creditosAprobados": 158,
+        "avanceCurricular": 75.2,
+        "posicion": 38,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      },
+      {
+        "estudianteId": "EST-2023010532",
+        "semestreId": "2026-II",
+        "promedioPonderado": 13.1,
+        "creditosMatriculados": 0,
+        "creditosAprobados": 176,
+        "avanceCurricular": 83.8,
+        "posicion": 21,
+        "fuente": "DIAA · Sistema de Gestión Académica (consulta de solo lectura)",
+        "fechaCorte": "2026-10-13"
+      }
+    ],
+    "horariosDocentes": [
+      {
+        "id": "HD-1",
+        "titulo": "Base de Datos I · Sec. A",
+        "dia": 1,
+        "horaInicio": "08:00",
+        "horaFin": "10:00",
+        "modalidad": "presencial",
+        "lugar": "Aula 204 · Pabellón B",
+        "tipo": "academico",
+        "tutorId": "DOC-0421",
+        "cursoId": "C-IIS-202"
+      },
+      {
+        "id": "HD-2",
+        "titulo": "Ingeniería de Software · Sec. A",
+        "dia": 2,
+        "horaInicio": "10:00",
+        "horaFin": "12:00",
+        "modalidad": "presencial",
+        "lugar": "Aula 205 · Pabellón B",
+        "tipo": "academico",
+        "tutorId": "DOC-0421",
+        "cursoId": "C-IIS-301"
+      },
+      {
+        "id": "HD-3",
+        "titulo": "Base de Datos I · Sec. B",
+        "dia": 3,
+        "horaInicio": "14:00",
+        "horaFin": "16:00",
+        "modalidad": "presencial",
+        "lugar": "Laboratorio 3 · Pabellón C",
+        "tipo": "academico",
+        "tutorId": "DOC-0421",
+        "cursoId": "C-IIS-202"
+      },
+      {
+        "id": "HD-4",
+        "titulo": "Consejo de facultad",
+        "dia": 4,
+        "horaInicio": "11:00",
+        "horaFin": "12:00",
+        "modalidad": "presencial",
+        "lugar": "Sala de sesiones FIIS",
+        "tipo": "institucional",
+        "tutorId": "DOC-0421"
+      },
+      {
+        "id": "HD-5",
+        "titulo": "Arquitectura de Software · Sec. A",
+        "dia": 5,
+        "horaInicio": "08:00",
+        "horaFin": "10:00",
+        "modalidad": "presencial",
+        "lugar": "Aula 301 · Pabellón A",
+        "tipo": "academico",
+        "tutorId": "DOC-0422",
+        "cursoId": "C-IIS-401"
+      }
+    ],
+    "afiliacionesSis": [
+      {
+        "estudianteId": "EST-2023010456",
+        "estado": "vigente",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010457",
+        "estado": "vigente",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010458",
+        "estado": "vigente",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010459",
+        "estado": "vigente",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010460",
+        "estado": "en-tramite",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010461",
+        "estado": "vigente",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010462",
+        "estado": "en-tramite",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2026010012",
+        "estado": "no-vigente",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2026010013",
+        "estado": "vigente",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010470",
+        "estado": "en-tramite",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010471",
+        "estado": "en-tramite",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010472",
+        "estado": "en-tramite",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010473",
+        "estado": "en-tramite",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010480",
+        "estado": "vigente",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010481",
+        "estado": "vigente",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010482",
+        "estado": "vigente",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010490",
+        "estado": "vigente",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010491",
+        "estado": "no-vigente",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010500",
+        "estado": "no-vigente",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010501",
+        "estado": "no-vigente",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2026010020",
+        "estado": "vigente",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010510",
+        "estado": "no-vigente",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010511",
+        "estado": "vigente",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010520",
+        "estado": "vigente",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010521",
+        "estado": "en-tramite",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010530",
+        "estado": "vigente",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010531",
+        "estado": "vigente",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      },
+      {
+        "estudianteId": "EST-2023010532",
+        "estado": "vigente",
+        "fechaCorte": "2026-10-13",
+        "nota": "Requisito del usuario · pendiente de la API institucional. No forma parte de la Resolución N.º 500-2022-CU-R-UNAS."
+      }
+    ],
+    "atencionesSalud": [
+      {
+        "id": "ATN-2023010456-1",
+        "estudianteId": "EST-2023010456",
+        "servicio": "psicologia",
+        "fecha": "2026-10-22",
+        "hora": "12:30",
+        "motivo": "Control de tratamiento preventivo",
+        "profesional": "Lic. Milagros Huamán Ríos",
+        "tipo": "consulta",
+        "estado": "atendida",
+        "recomendacionAcademica": "Se sugiere mantener una rutina de descanso y actividad física moderada.",
+        "vigenciaRecomendacion": "2026-12-31",
+        "confidencial": true
+      },
+      {
+        "id": "ATN-2023010456-2",
+        "estudianteId": "EST-2023010456",
+        "servicio": "medicina",
+        "fecha": "2026-10-25",
+        "hora": "13:00",
+        "motivo": "Evaluación por fatiga y sueño insuficiente",
+        "profesional": "Dra. Carmen Ríos Valverde",
+        "tipo": "consulta",
+        "estado": "atendida",
+        "recomendacionAcademica": null,
+        "vigenciaRecomendacion": null,
+        "confidencial": true
+      },
+      {
+        "id": "ATN-2023010458-1",
+        "estudianteId": "EST-2023010458",
+        "servicio": "enfermeria",
+        "fecha": "2026-10-28",
+        "hora": "10:30",
+        "motivo": "Malestar estomacal recurrente",
+        "profesional": "Lic. Rosa Paredes Auqui",
+        "tipo": "consulta",
+        "estado": "atendida",
+        "recomendacionAcademica": "Se sugiere evitar la exposición prolongada a pantallas y fraccionar las sesiones de estudio.",
+        "vigenciaRecomendacion": "2026-12-31",
+        "confidencial": true
+      },
+      {
+        "id": "ATN-2023010458-2",
+        "estudianteId": "EST-2023010458",
+        "servicio": "medicina",
+        "fecha": "2026-10-17",
+        "hora": "11:00",
+        "motivo": "Cefalea tensional asociada al estudio",
+        "profesional": "Ps. Jorge Bermúdez Salas",
+        "tipo": "consulta",
+        "estado": "atendida",
+        "recomendacionAcademica": "Se recomienda justificar inasistencias por atención médica y reprogramar evaluaciones.",
+        "vigenciaRecomendacion": "2026-12-31",
+        "confidencial": true
+      },
+      {
+        "id": "ATN-2023010460-1",
+        "estudianteId": "EST-2023010460",
+        "servicio": "medicina",
+        "fecha": "2026-10-27",
+        "hora": "11:00",
+        "motivo": "Cefalea tensional asociada al estudio",
+        "profesional": "Ps. Jorge Bermúdez Salas",
+        "tipo": "consulta",
+        "estado": "atendida",
+        "recomendacionAcademica": "Se recomienda justificar inasistencias por atención médica y reprogramar evaluaciones.",
+        "vigenciaRecomendacion": "2026-12-31",
+        "confidencial": true
+      },
+      {
+        "id": "ATN-2023010462-1",
+        "estudianteId": "EST-2023010462",
+        "servicio": "medicina",
+        "fecha": "2026-10-22",
+        "hora": "09:00",
+        "motivo": "Control general y consejería en salud",
+        "profesional": "Dra. Carmen Ríos Valverde",
+        "tipo": "consulta",
+        "estado": "programada",
+        "recomendacionAcademica": null,
+        "vigenciaRecomendacion": null,
+        "confidencial": true
+      },
+      {
+        "id": "ATN-2026010012-1",
+        "estudianteId": "EST-2026010012",
+        "servicio": "medicina",
+        "fecha": "2026-10-22",
+        "hora": "11:00",
+        "motivo": "Cefalea tensional asociada al estudio",
+        "profesional": "Ps. Jorge Bermúdez Salas",
+        "tipo": "consulta",
+        "estado": "programada",
+        "recomendacionAcademica": null,
+        "vigenciaRecomendacion": null,
+        "confidencial": true
+      },
+      {
+        "id": "ATN-2023010480-1",
+        "estudianteId": "EST-2023010480",
+        "servicio": "medicina",
+        "fecha": "2026-10-22",
+        "hora": "11:00",
+        "motivo": "Cefalea tensional asociada al estudio",
+        "profesional": "Ps. Jorge Bermúdez Salas",
+        "tipo": "consulta",
+        "estado": "programada",
+        "recomendacionAcademica": null,
+        "vigenciaRecomendacion": null,
+        "confidencial": true
+      },
+      {
+        "id": "ATN-2023010500-1",
+        "estudianteId": "EST-2023010500",
+        "servicio": "psicologia",
+        "fecha": "2026-10-20",
+        "hora": "12:30",
+        "motivo": "Control de tratamiento preventivo",
+        "profesional": "Lic. Milagros Huamán Ríos",
+        "tipo": "consulta",
+        "estado": "no-asistio",
+        "recomendacionAcademica": null,
+        "vigenciaRecomendacion": null,
+        "confidencial": true
+      },
+      {
+        "id": "ATN-2023010500-2",
+        "estudianteId": "EST-2023010500",
+        "servicio": "medicina",
+        "fecha": "2026-10-23",
+        "hora": "13:00",
+        "motivo": "Evaluación por fatiga y sueño insuficiente",
+        "profesional": "Dra. Carmen Ríos Valverde",
+        "tipo": "consulta",
+        "estado": "no-asistio",
+        "recomendacionAcademica": null,
+        "vigenciaRecomendacion": null,
+        "confidencial": true
+      },
+      {
+        "id": "ATN-2023010521-1",
+        "estudianteId": "EST-2023010521",
+        "servicio": "medicina",
+        "fecha": "2026-10-17",
+        "hora": "09:00",
+        "motivo": "Control general y consejería en salud",
+        "profesional": "Dra. Carmen Ríos Valverde",
+        "tipo": "consulta",
+        "estado": "atendida",
+        "recomendacionAcademica": "Se recomienda flexibilidad en la entrega de trabajos durante el periodo de tratamiento.",
+        "vigenciaRecomendacion": "2026-12-31",
+        "confidencial": true
+      }
+    ],
+    "beneficiosSociales": [
+      {
+        "id": "BEN-2023010456",
+        "estudianteId": "EST-2023010456",
+        "tipo": "materiales",
+        "estado": "finalizado",
+        "inicio": "2026-09-07",
+        "fin": "2026-10-01",
+        "fuente": "Área de Servicio Social · concesión del semestre 2026-II (dato de demostración)"
+      },
+      {
+        "id": "BEN-2023010457",
+        "estudianteId": "EST-2023010457",
+        "tipo": "movilidad",
+        "estado": "finalizado",
+        "inicio": "2026-09-07",
+        "fin": "2026-10-01",
+        "fuente": "Área de Servicio Social · concesión del semestre 2026-II (dato de demostración)"
+      },
+      {
+        "id": "BEN-2023010458",
+        "estudianteId": "EST-2023010458",
+        "tipo": "materiales",
+        "estado": "activo",
+        "inicio": "2026-09-07",
+        "fin": null,
+        "fuente": "Área de Servicio Social · concesión del semestre 2026-II (dato de demostración)"
+      },
+      {
+        "id": "BEN-2023010459",
+        "estudianteId": "EST-2023010459",
+        "tipo": "movilidad",
+        "estado": "activo",
+        "inicio": "2026-09-07",
+        "fin": null,
+        "fuente": "Área de Servicio Social · concesión del semestre 2026-II (dato de demostración)"
+      },
+      {
+        "id": "BEN-2026010012",
+        "estudianteId": "EST-2026010012",
+        "tipo": "comedor",
+        "estado": "en-evaluacion",
+        "inicio": "2026-09-07",
+        "fin": null,
+        "fuente": "Área de Servicio Social · concesión del semestre 2026-II (dato de demostración)"
+      },
+      {
+        "id": "BEN-2026010013",
+        "estudianteId": "EST-2026010013",
+        "tipo": "materiales",
+        "estado": "en-evaluacion",
+        "inicio": "2026-09-07",
+        "fin": null,
+        "fuente": "Área de Servicio Social · concesión del semestre 2026-II (dato de demostración)"
+      },
+      {
+        "id": "BEN-2023010480",
+        "estudianteId": "EST-2023010480",
+        "tipo": "beca",
+        "estado": "activo",
+        "inicio": "2026-09-07",
+        "fin": null,
+        "fuente": "Área de Servicio Social · concesión del semestre 2026-II (dato de demostración)"
+      },
+      {
+        "id": "BEN-2023010482",
+        "estudianteId": "EST-2023010482",
+        "tipo": "comedor",
+        "estado": "activo",
+        "inicio": "2026-09-07",
+        "fin": null,
+        "fuente": "Área de Servicio Social · concesión del semestre 2026-II (dato de demostración)"
+      },
+      {
+        "id": "BEN-2023010511",
+        "estudianteId": "EST-2023010511",
+        "tipo": "materiales",
+        "estado": "activo",
+        "inicio": "2026-09-07",
+        "fin": null,
+        "fuente": "Área de Servicio Social · concesión del semestre 2026-II (dato de demostración)"
+      }
+    ],
+    "apoyosComunicables": [
+      {
+        "id": "APO-1",
+        "estudianteId": "EST-2023010456",
+        "area": "psicologia",
+        "necesidad": "Control de tratamiento preventivo",
+        "apoyoRecomendado": "Se sugiere mantener una rutina de descanso y actividad física moderada.",
+        "prioridad": "alta",
+        "fecha": "2026-10-22",
+        "vigencia": "2026-12-31",
+        "autorizadoPor": "Lic. Milagros Huamán Ríos · autorización de comunicación al tutor"
+      },
+      {
+        "id": "APO-2",
+        "estudianteId": "EST-2023010458",
+        "area": "medicina",
+        "necesidad": "Malestar estomacal recurrente",
+        "apoyoRecomendado": "Se sugiere evitar la exposición prolongada a pantallas y fraccionar las sesiones de estudio.",
+        "prioridad": "media",
+        "fecha": "2026-10-28",
+        "vigencia": "2026-12-31",
+        "autorizadoPor": "Lic. Rosa Paredes Auqui · autorización de comunicación al tutor"
+      },
+      {
+        "id": "APO-3",
+        "estudianteId": "EST-2023010458",
+        "area": "medicina",
+        "necesidad": "Cefalea tensional asociada al estudio",
+        "apoyoRecomendado": "Se recomienda justificar inasistencias por atención médica y reprogramar evaluaciones.",
+        "prioridad": "baja",
+        "fecha": "2026-10-17",
+        "vigencia": "2026-12-31",
+        "autorizadoPor": "Ps. Jorge Bermúdez Salas · autorización de comunicación al tutor"
+      },
+      {
+        "id": "APO-4",
+        "estudianteId": "EST-2023010460",
+        "area": "medicina",
+        "necesidad": "Cefalea tensional asociada al estudio",
+        "apoyoRecomendado": "Se recomienda justificar inasistencias por atención médica y reprogramar evaluaciones.",
+        "prioridad": "alta",
+        "fecha": "2026-10-27",
+        "vigencia": "2026-12-31",
+        "autorizadoPor": "Ps. Jorge Bermúdez Salas · autorización de comunicación al tutor"
+      },
+      {
+        "id": "APO-5",
+        "estudianteId": "EST-2023010521",
+        "area": "medicina",
+        "necesidad": "Control general y consejería en salud",
+        "apoyoRecomendado": "Se recomienda flexibilidad en la entrega de trabajos durante el periodo de tratamiento.",
+        "prioridad": "media",
+        "fecha": "2026-10-17",
+        "vigencia": "2026-12-31",
+        "autorizadoPor": "Dra. Carmen Ríos Valverde · autorización de comunicación al tutor"
+      }
+    ],
+    "campanasSalud": [
+      {
+        "id": "CAMP-01",
+        "tema": "Jornada de salud preventiva: control de presión y glucosa",
+        "fecha": "2026-10-21",
+        "hora": "09:00",
+        "canal": "Presencial",
+        "lugar": "Explanada del Pabellón Central",
+        "escuelas": [
+          "E-IIS",
+          "E-ADM",
+          "E-CON"
+        ],
+        "cupos": 120,
+        "inscritos": 86
+      },
+      {
+        "id": "CAMP-02",
+        "tema": "Charla: manejo del estrés en época de exámenes",
+        "fecha": "2026-10-28",
+        "hora": "16:00",
+        "canal": "Virtual",
+        "lugar": "Sala institucional UNAS",
+        "escuelas": [
+          "E-IIS",
+          "E-ECO",
+          "E-AGR",
+          "E-FOR",
+          "E-ZOO",
+          "E-BIO"
+        ],
+        "cupos": 200,
+        "inscritos": 143
+      },
+      {
+        "id": "CAMP-03",
+        "tema": "Campaña de vacunación e inmunización",
+        "fecha": "2026-11-05",
+        "hora": "08:30",
+        "canal": "Presencial",
+        "lugar": "Tópico de Bienestar Universitario",
+        "escuelas": [
+          "E-IIS",
+          "E-ADM",
+          "E-CON",
+          "E-ECO",
+          "E-AGR",
+          "E-FOR",
+          "E-ZOO",
+          "E-BIO"
+        ],
+        "cupos": 300,
+        "inscritos": 112
+      },
+      {
+        "id": "CAMP-04",
+        "tema": "Taller de primeros auxilios para delegados de aula",
+        "fecha": "2026-11-12",
+        "hora": "15:00",
+        "canal": "Presencial",
+        "lugar": "Auditorio de Bienestar Universitario",
+        "escuelas": [
+          "E-IIS",
+          "E-ADM"
+        ],
+        "cupos": 60,
+        "inscritos": 41
+      }
+    ],
+    "insumos": [
+      {
+        "id": "INS-01",
+        "area": "Gestión Pedagógica · Tutoría y Capacitación Docente",
+        "insumoPrioritario": "Plantillas oficiales de los doce formularios, reglas de campos, calendario y permisos",
+        "aplicacion": "Formularios digitales, estados de presentación y reportes",
+        "estado": "parcial",
+        "fechaSolicitud": "2026-10-09",
+        "fechaRespuesta": "2026-10-13",
+        "responsable": "Departamento de Pedagogía",
+        "observacion": "Se recibieron los anexos de la Resolución N.º 500-2022-CU-R-UNAS. Falta confirmar vigencia y reglas de llenado por actor."
+      },
+      {
+        "id": "INS-02",
+        "area": "DIAA · Dirección de Asuntos Académicos",
+        "insumoPrioritario": "API de lectura; padrones, matrícula, cursos, notas, promedio y horarios",
+        "aplicacion": "Precarga y consulta del expediente académico",
+        "estado": "parcial",
+        "fechaSolicitud": "2026-10-09",
+        "fechaRespuesta": "2026-10-12",
+        "responsable": "Área de Soporte Informático del Sistema de Gestión Académica",
+        "observacion": "Se confirmó el padrón de estudiantes y el horario. La API de notas y matrícula continúa en evaluación; por ahora se usa carga CSV autorizada."
+      },
+      {
+        "id": "INS-03",
+        "area": "Decanatos y direcciones de escuela",
+        "insumoPrioritario": "Asignación de tutores, comisiones, horarios y planes de acción tutorial",
+        "aplicacion": "Tutorados por docente, programación y revisión por ámbito",
+        "estado": "entregado",
+        "fechaSolicitud": "2026-10-09",
+        "fechaRespuesta": "2026-10-11",
+        "responsable": "Comisiones de tutoría de cada facultad",
+        "observacion": "Ocho escuelas remitieron su relación de asignaciones y su plan de acción tutorial."
+      },
+      {
+        "id": "INS-04",
+        "area": "Recursos Humanos",
+        "insumoPrioritario": "Identificador docente, vigencia laboral y contactos institucionales",
+        "aplicacion": "Validación de cuentas y actualización de habilitación",
+        "estado": "entregado",
+        "fechaSolicitud": "2026-10-09",
+        "fechaRespuesta": "2026-10-10",
+        "responsable": "Unidad de Recursos Humanos",
+        "observacion": "Padrón docente validado. Se reportó un docente con vínculo concluido."
+      },
+      {
+        "id": "INS-05",
+        "area": "OTIC · Tecnologías de la Información",
+        "insumoPrioritario": "Identidad institucional, servidor, dominio, HTTPS y respaldos",
+        "aplicacion": "Servicios de operación, integración y despliegue",
+        "estado": "pendiente",
+        "fechaSolicitud": "2026-10-09",
+        "fechaRespuesta": null,
+        "responsable": "Oficina de Tecnologías de la Información y Comunicación",
+        "observacion": "Se solicitó servidor o máquina virtual, base de datos propia, subdominio institucional y habilitación de la conexión con la API de la DIAA."
+      },
+      {
+        "id": "INS-06",
+        "area": "Bienestar Universitario · Servicio Social",
+        "insumoPrioritario": "Directorio, rutas de atención y estados de solicitudes de apoyo social",
+        "aplicacion": "Derivación social y seguimiento administrativo",
+        "estado": "parcial",
+        "fechaSolicitud": "2026-10-09",
+        "fechaRespuesta": "2026-10-12",
+        "responsable": "Área de Servicio Social",
+        "observacion": "Se entregó el directorio. Los estados de las solicitudes de apoyo están propuestos y pendientes de validación."
+      },
+      {
+        "id": "INS-07",
+        "area": "Medicina · Bienestar Universitario",
+        "insumoPrioritario": "Ruta de atención, recepción de solicitudes de apoyo y recomendaciones académicas",
+        "aplicacion": "Seguimiento de la derivación sin historia clínica completa",
+        "estado": "parcial",
+        "fechaSolicitud": "2026-10-09",
+        "fechaRespuesta": "2026-10-12",
+        "responsable": "Servicio de Medicina, con coordinación de Enfermería",
+        "observacion": "Se validó la ruta y el protocolo de respuesta al tutor. Falta confirmar la base de tratamiento de datos de salud."
+      },
+      {
+        "id": "INS-08",
+        "area": "Psicología · Bienestar Universitario",
+        "insumoPrioritario": "Canales, estados y coordinación autorizada; pautas comunicables",
+        "aplicacion": "Estado administrativo y apoyo tutorial pertinente",
+        "estado": "entregado",
+        "fechaSolicitud": "2026-10-09",
+        "fechaRespuesta": "2026-10-13",
+        "responsable": "Servicio de Psicología",
+        "observacion": "Se acordó comunicar únicamente el estado administrativo y las pautas de acompañamiento."
+      },
+      {
+        "id": "INS-09",
+        "area": "Psicopedagogía · Bienestar Universitario",
+        "insumoPrioritario": "Ruta de apoyo, recomendaciones de aprendizaje y plan de seguimiento",
+        "aplicacion": "Acciones tutoriales y revisión de avances autorizados",
+        "estado": "entregado",
+        "fechaSolicitud": "2026-10-09",
+        "fechaRespuesta": "2026-10-13",
+        "responsable": "Servicio de Psicopedagogía",
+        "observacion": "Se recibieron las recomendaciones de aprendizaje y el plan mínimo de seguimiento."
+      }
+    ],
+    "derivaciones": [
+      {
+        "id": "DER-2023010457",
+        "codigo": "DER-2026II-0001",
+        "formato": "F12",
+        "estudianteId": "EST-2023010457",
+        "tutorId": "DOC-0421",
+        "semestreId": "2026-II",
+        "area": "bienestar-social",
+        "motivo": "Dificultad económica para la continuidad de estudios",
+        "detalle": "El tutorado reporta que la suspensión del beneficio de comedor afecta su asistencia regular.",
+        "prioridad": "alta",
+        "fechaDerivacion": "2026-10-09",
+        "fechaRecepcion": "2026-10-12",
+        "fechaCita": null,
+        "fechaAtencion": null,
+        "estado": "no-presentado",
+        "responsableArea": "Lic. Pedro Zavaleta Ruiz",
+        "siguienteAccion": "Coordinar una nueva cita con el área.",
+        "actualizado": "2026-10-15",
+        "recomendacionComunicable": null,
+        "vigenciaRecomendacion": null,
+        "historial": [
+          {
+            "fecha": "2026-10-09",
+            "estado": "registrada",
+            "nota": "El docente tutor registró la ficha de derivación (formato 12).",
+            "responsable": "DOC-0421"
+          },
+          {
+            "fecha": "2026-10-12",
+            "estado": "recibida",
+            "nota": "El área confirmó la recepción de la ficha.",
+            "responsable": "Lic. Pedro Zavaleta Ruiz"
+          },
+          {
+            "fecha": "2026-10-15",
+            "estado": "no-presentado",
+            "nota": "El estudiante no asistió a la cita programada.",
+            "responsable": "Lic. Pedro Zavaleta Ruiz"
+          }
+        ]
+      },
+      {
+        "id": "DER-2023010458",
+        "codigo": "DER-2026II-0002",
+        "formato": "F12",
+        "estudianteId": "EST-2023010458",
+        "tutorId": "DOC-0421",
+        "semestreId": "2026-II",
+        "area": "psicopedagogia",
+        "motivo": "Dificultades en hábitos y técnicas de estudio",
+        "detalle": "El tutorado reporta que no logra organizar su tiempo y pierde evaluaciones por entregas tardías.",
+        "prioridad": "media",
+        "fechaDerivacion": "2026-10-12",
+        "fechaRecepcion": "2026-10-15",
+        "fechaCita": null,
+        "fechaAtencion": null,
+        "estado": "no-presentado",
+        "responsableArea": "Lic. Milagros Huamán Ríos",
+        "siguienteAccion": "Coordinar una nueva cita con el área.",
+        "actualizado": "2026-10-18",
+        "recomendacionComunicable": null,
+        "vigenciaRecomendacion": null,
+        "historial": [
+          {
+            "fecha": "2026-10-12",
+            "estado": "registrada",
+            "nota": "El docente tutor registró la ficha de derivación (formato 12).",
+            "responsable": "DOC-0421"
+          },
+          {
+            "fecha": "2026-10-15",
+            "estado": "recibida",
+            "nota": "El área confirmó la recepción de la ficha.",
+            "responsable": "Lic. Milagros Huamán Ríos"
+          },
+          {
+            "fecha": "2026-10-18",
+            "estado": "no-presentado",
+            "nota": "El estudiante no asistió a la cita programada.",
+            "responsable": "Lic. Milagros Huamán Ríos"
+          }
+        ]
+      },
+      {
+        "id": "DER-2023010459",
+        "codigo": "DER-2026II-0003",
+        "formato": "F12",
+        "estudianteId": "EST-2023010459",
+        "tutorId": "DOC-0421",
+        "semestreId": "2026-II",
+        "area": "psicopedagogia",
+        "motivo": "Dificultades en hábitos y técnicas de estudio",
+        "detalle": "El tutorado reporta que no logra organizar su tiempo y pierde evaluaciones por entregas tardías.",
+        "prioridad": "media",
+        "fechaDerivacion": "2026-10-11",
+        "fechaRecepcion": "2026-10-14",
+        "fechaCita": null,
+        "fechaAtencion": null,
+        "estado": "no-presentado",
+        "responsableArea": "Lic. Milagros Huamán Ríos",
+        "siguienteAccion": "Coordinar una nueva cita con el área.",
+        "actualizado": "2026-10-17",
+        "recomendacionComunicable": null,
+        "vigenciaRecomendacion": null,
+        "historial": [
+          {
+            "fecha": "2026-10-11",
+            "estado": "registrada",
+            "nota": "El docente tutor registró la ficha de derivación (formato 12).",
+            "responsable": "DOC-0421"
+          },
+          {
+            "fecha": "2026-10-14",
+            "estado": "recibida",
+            "nota": "El área confirmó la recepción de la ficha.",
+            "responsable": "Lic. Milagros Huamán Ríos"
+          },
+          {
+            "fecha": "2026-10-17",
+            "estado": "no-presentado",
+            "nota": "El estudiante no asistió a la cita programada.",
+            "responsable": "Lic. Milagros Huamán Ríos"
+          }
+        ]
+      },
+      {
+        "id": "DER-2023010461",
+        "codigo": "DER-2026II-0004",
+        "formato": "F12",
+        "estudianteId": "EST-2023010461",
+        "tutorId": "DOC-0421",
+        "semestreId": "2026-II",
+        "area": "tutoria-academica",
+        "motivo": "Curso desaprobado y riesgo de repitencia",
+        "detalle": "El tutorado desaprobó Base de Datos I y requiere nivelación antes del siguiente semestre.",
+        "prioridad": "media",
+        "fechaDerivacion": "2026-10-12",
+        "fechaRecepcion": "2026-10-15",
+        "fechaCita": "2026-10-18",
+        "fechaAtencion": null,
+        "estado": "seguimiento",
+        "responsableArea": "Docente tutor asignado",
+        "siguienteAccion": "Mantener el acompañamiento y revisar la próxima fecha.",
+        "actualizado": "2026-10-24",
+        "recomendacionComunicable": "Programar asesoría académica semanal con el docente del curso.",
+        "vigenciaRecomendacion": "2026-12-31",
+        "historial": [
+          {
+            "fecha": "2026-10-12",
+            "estado": "registrada",
+            "nota": "El docente tutor registró la ficha de derivación (formato 12).",
+            "responsable": "DOC-0421"
+          },
+          {
+            "fecha": "2026-10-15",
+            "estado": "recibida",
+            "nota": "El área confirmó la recepción de la ficha.",
+            "responsable": "Docente tutor asignado"
+          },
+          {
+            "fecha": "2026-10-18",
+            "estado": "citada",
+            "nota": "El área programó la cita con el estudiante.",
+            "responsable": "Docente tutor asignado"
+          },
+          {
+            "fecha": "2026-10-21",
+            "estado": "en-atencion",
+            "nota": "El área inició la atención del caso.",
+            "responsable": "Docente tutor asignado"
+          },
+          {
+            "fecha": "2026-10-24",
+            "estado": "seguimiento",
+            "nota": "El caso continúa en seguimiento con coordinación tutorial.",
+            "responsable": "Docente tutor asignado"
+          }
+        ]
+      },
+      {
+        "id": "DER-2023010480",
+        "codigo": "DER-2026II-0005",
+        "formato": "F12",
+        "estudianteId": "EST-2023010480",
+        "tutorId": "DOC-0425",
+        "semestreId": "2026-II",
+        "area": "psicopedagogia",
+        "motivo": "Dificultades en hábitos y técnicas de estudio",
+        "detalle": "El tutorado reporta que no logra organizar su tiempo y pierde evaluaciones por entregas tardías.",
+        "prioridad": "media",
+        "fechaDerivacion": "2026-10-13",
+        "fechaRecepcion": "2026-10-16",
+        "fechaCita": null,
+        "fechaAtencion": null,
+        "estado": "no-presentado",
+        "responsableArea": "Lic. Milagros Huamán Ríos",
+        "siguienteAccion": "Coordinar una nueva cita con el área.",
+        "actualizado": "2026-10-19",
+        "recomendacionComunicable": null,
+        "vigenciaRecomendacion": null,
+        "historial": [
+          {
+            "fecha": "2026-10-13",
+            "estado": "registrada",
+            "nota": "El docente tutor registró la ficha de derivación (formato 12).",
+            "responsable": "DOC-0425"
+          },
+          {
+            "fecha": "2026-10-16",
+            "estado": "recibida",
+            "nota": "El área confirmó la recepción de la ficha.",
+            "responsable": "Lic. Milagros Huamán Ríos"
+          },
+          {
+            "fecha": "2026-10-19",
+            "estado": "no-presentado",
+            "nota": "El estudiante no asistió a la cita programada.",
+            "responsable": "Lic. Milagros Huamán Ríos"
+          }
+        ]
+      },
+      {
+        "id": "DER-2023010481",
+        "codigo": "DER-2026II-0006",
+        "formato": "F12",
+        "estudianteId": "EST-2023010481",
+        "tutorId": "DOC-0425",
+        "semestreId": "2026-II",
+        "area": "medicina",
+        "motivo": "Molestias recurrentes que dificultan la asistencia",
+        "detalle": "El tutorado refiere dolores de cabeza frecuentes durante las clases de laboratorio.",
+        "prioridad": "media",
+        "fechaDerivacion": "2026-10-14",
+        "fechaRecepcion": "2026-10-17",
+        "fechaCita": "2026-10-20",
+        "fechaAtencion": "2026-10-23",
+        "estado": "cerrada",
+        "responsableArea": "Dra. Carmen Ríos Valverde",
+        "siguienteAccion": "Sin acción pendiente.",
+        "actualizado": "2026-10-26",
+        "recomendacionComunicable": "Se recomienda justificar inasistencias por atención médica y reprogramar evaluaciones.",
+        "vigenciaRecomendacion": null,
+        "historial": [
+          {
+            "fecha": "2026-10-14",
+            "estado": "registrada",
+            "nota": "El docente tutor registró la ficha de derivación (formato 12).",
+            "responsable": "DOC-0425"
+          },
+          {
+            "fecha": "2026-10-17",
+            "estado": "recibida",
+            "nota": "El área confirmó la recepción de la ficha.",
+            "responsable": "Dra. Carmen Ríos Valverde"
+          },
+          {
+            "fecha": "2026-10-20",
+            "estado": "citada",
+            "nota": "El área programó la cita con el estudiante.",
+            "responsable": "Dra. Carmen Ríos Valverde"
+          },
+          {
+            "fecha": "2026-10-23",
+            "estado": "atendida",
+            "nota": "El área registró la atención y la recomendación comunicable.",
+            "responsable": "Dra. Carmen Ríos Valverde"
+          },
+          {
+            "fecha": "2026-10-26",
+            "estado": "cerrada",
+            "nota": "El área cerró el caso y notificó al tutor.",
+            "responsable": "Dra. Carmen Ríos Valverde"
+          }
+        ]
+      },
+      {
+        "id": "DER-2023010511",
+        "codigo": "DER-2026II-0007",
+        "formato": "F12",
+        "estudianteId": "EST-2023010511",
+        "tutorId": "DOC-0428",
+        "semestreId": "2026-II",
+        "area": "psicologia",
+        "motivo": "Situación socioemocional que afecta la asistencia",
+        "detalle": "El tutorado manifiesta ansiedad antes de las evaluaciones y ha faltado a dos sesiones.",
+        "prioridad": "alta",
+        "fechaDerivacion": "2026-10-16",
+        "fechaRecepcion": "2026-10-19",
+        "fechaCita": null,
+        "fechaAtencion": null,
+        "estado": "no-presentado",
+        "responsableArea": "Ps. Jorge Bermúdez Salas",
+        "siguienteAccion": "Coordinar una nueva cita con el área.",
+        "actualizado": "2026-10-22",
+        "recomendacionComunicable": null,
+        "vigenciaRecomendacion": null,
+        "historial": [
+          {
+            "fecha": "2026-10-16",
+            "estado": "registrada",
+            "nota": "El docente tutor registró la ficha de derivación (formato 12).",
+            "responsable": "DOC-0428"
+          },
+          {
+            "fecha": "2026-10-19",
+            "estado": "recibida",
+            "nota": "El área confirmó la recepción de la ficha.",
+            "responsable": "Ps. Jorge Bermúdez Salas"
+          },
+          {
+            "fecha": "2026-10-22",
+            "estado": "no-presentado",
+            "nota": "El estudiante no asistió a la cita programada.",
+            "responsable": "Ps. Jorge Bermúdez Salas"
+          }
+        ]
+      },
+      {
+        "id": "DER-2023010520",
+        "codigo": "DER-2026II-0008",
+        "formato": "F12",
+        "estudianteId": "EST-2023010520",
+        "tutorId": "DOC-0429",
+        "semestreId": "2026-II",
+        "area": "psicologia",
+        "motivo": "Situación socioemocional que afecta la asistencia",
+        "detalle": "El tutorado manifiesta ansiedad antes de las evaluaciones y ha faltado a dos sesiones.",
+        "prioridad": "alta",
+        "fechaDerivacion": "2026-10-16",
+        "fechaRecepcion": null,
+        "fechaCita": null,
+        "fechaAtencion": null,
+        "estado": "registrada",
+        "responsableArea": "Ps. Jorge Bermúdez Salas",
+        "siguienteAccion": "Esperar la confirmación de recepción del área.",
+        "actualizado": "2026-10-16",
+        "recomendacionComunicable": null,
+        "vigenciaRecomendacion": null,
+        "historial": [
+          {
+            "fecha": "2026-10-16",
+            "estado": "registrada",
+            "nota": "El docente tutor registró la ficha de derivación (formato 12).",
+            "responsable": "DOC-0429"
+          }
+        ]
+      },
+      {
+        "id": "DER-2023010521",
+        "codigo": "DER-2026II-0009",
+        "formato": "F12",
+        "estudianteId": "EST-2023010521",
+        "tutorId": "DOC-0429",
+        "semestreId": "2026-II",
+        "area": "bienestar-social",
+        "motivo": "Dificultad económica para la continuidad de estudios",
+        "detalle": "El tutorado reporta que la suspensión del beneficio de comedor afecta su asistencia regular.",
+        "prioridad": "alta",
+        "fechaDerivacion": "2026-10-17",
+        "fechaRecepcion": "2026-10-20",
+        "fechaCita": "2026-10-23",
+        "fechaAtencion": null,
+        "estado": "seguimiento",
+        "responsableArea": "Lic. Pedro Zavaleta Ruiz",
+        "siguienteAccion": "Mantener el acompañamiento y revisar la próxima fecha.",
+        "actualizado": "2026-10-29",
+        "recomendacionComunicable": "Gestionar la evaluación socioeconómica para el comedor universitario.",
+        "vigenciaRecomendacion": "2026-12-31",
+        "historial": [
+          {
+            "fecha": "2026-10-17",
+            "estado": "registrada",
+            "nota": "El docente tutor registró la ficha de derivación (formato 12).",
+            "responsable": "DOC-0429"
+          },
+          {
+            "fecha": "2026-10-20",
+            "estado": "recibida",
+            "nota": "El área confirmó la recepción de la ficha.",
+            "responsable": "Lic. Pedro Zavaleta Ruiz"
+          },
+          {
+            "fecha": "2026-10-23",
+            "estado": "citada",
+            "nota": "El área programó la cita con el estudiante.",
+            "responsable": "Lic. Pedro Zavaleta Ruiz"
+          },
+          {
+            "fecha": "2026-10-26",
+            "estado": "en-atencion",
+            "nota": "El área inició la atención del caso.",
+            "responsable": "Lic. Pedro Zavaleta Ruiz"
+          },
+          {
+            "fecha": "2026-10-29",
+            "estado": "seguimiento",
+            "nota": "El caso continúa en seguimiento con coordinación tutorial.",
+            "responsable": "Lic. Pedro Zavaleta Ruiz"
+          }
+        ]
+      }
+    ]
+  },
+  "actividadesPlan": [
+    {
+      "id": "PLAN-E-ADM-1",
+      "semestreId": "2026-II",
+      "escuelaId": "E-ADM",
+      "problematica": "Inasistencia a las sesiones de tutoría y desorientación en la matrícula.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Administración.",
+      "actividad": "Taller de técnicas de estudio",
+      "meta": "80% de los estudiantes del ciclo participan en el taller",
+      "fechaInicio": "2026-09-10",
+      "fechaFin": "2026-12-05",
+      "responsable": "Coordinación de tutoría de la escuela",
+      "evidencia": "Acta y lista de asistencia",
+      "avance": 40,
+      "estado": "en-ejecucion",
+      "aprobacion": "Resolución de aprobación del plan tutorial ADM · 2026-II"
+    },
+    {
+      "id": "PLAN-E-ADM-2",
+      "semestreId": "2026-II",
+      "escuelaId": "E-ADM",
+      "problematica": "Inasistencia a las sesiones de tutoría y desorientación en la matrícula.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Administración.",
+      "actividad": "Jornada de orientación para la matrícula",
+      "meta": "100% de ingresantes orientados antes del cierre de matrícula",
+      "fechaInicio": "2026-09-13",
+      "fechaFin": "2026-12-09",
+      "responsable": "Tutores de la escuela",
+      "evidencia": "Informe del tutor (formato 02)",
+      "avance": 100,
+      "estado": "culminada",
+      "aprobacion": "Resolución de aprobación del plan tutorial ADM · 2026-II"
+    },
+    {
+      "id": "PLAN-E-ADM-3",
+      "semestreId": "2026-II",
+      "escuelaId": "E-ADM",
+      "problematica": "Inasistencia a las sesiones de tutoría y desorientación en la matrícula.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Administración.",
+      "actividad": "Feria de servicios de Bienestar Universitario",
+      "meta": "Difundir los servicios de salud, psicología y servicio social",
+      "fechaInicio": "2026-09-16",
+      "fechaFin": "2026-12-13",
+      "responsable": "Comisión de tutoría",
+      "evidencia": "Acta y lista de asistencia",
+      "avance": 40,
+      "estado": "en-ejecucion",
+      "aprobacion": "Resolución de aprobación del plan tutorial ADM · 2026-II"
+    },
+    {
+      "id": "PLAN-E-ADM-4",
+      "semestreId": "2026-II",
+      "escuelaId": "E-ADM",
+      "problematica": "Inasistencia a las sesiones de tutoría y desorientación en la matrícula.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Administración.",
+      "actividad": "Acompañamiento focalizado a estudiantes en riesgo",
+      "meta": "Reducir a 10% los estudiantes con promedio menor a 12",
+      "fechaInicio": "2026-09-19",
+      "fechaFin": "2026-12-17",
+      "responsable": "Tutor y coordinación",
+      "evidencia": "Informe del tutor (formato 02)",
+      "avance": 100,
+      "estado": "culminada",
+      "aprobacion": "Resolución de aprobación del plan tutorial ADM · 2026-II"
+    },
+    {
+      "id": "PLAN-E-CON-1",
+      "semestreId": "2026-II",
+      "escuelaId": "E-CON",
+      "problematica": "Cursos desaprobados en el primer año y riesgo de pérdida de condición de estudiante.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Contabilidad.",
+      "actividad": "Taller de técnicas de estudio",
+      "meta": "80% de los estudiantes del ciclo participan en el taller",
+      "fechaInicio": "2026-09-10",
+      "fechaFin": "2026-12-05",
+      "responsable": "Coordinación de tutoría de la escuela",
+      "evidencia": "Acta y lista de asistencia",
+      "avance": 40,
+      "estado": "en-ejecucion",
+      "aprobacion": "Resolución de aprobación del plan tutorial CON · 2026-II"
+    },
+    {
+      "id": "PLAN-E-CON-2",
+      "semestreId": "2026-II",
+      "escuelaId": "E-CON",
+      "problematica": "Cursos desaprobados en el primer año y riesgo de pérdida de condición de estudiante.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Contabilidad.",
+      "actividad": "Jornada de orientación para la matrícula",
+      "meta": "100% de ingresantes orientados antes del cierre de matrícula",
+      "fechaInicio": "2026-09-13",
+      "fechaFin": "2026-12-09",
+      "responsable": "Tutores de la escuela",
+      "evidencia": "Informe del tutor (formato 02)",
+      "avance": 40,
+      "estado": "en-ejecucion",
+      "aprobacion": "Resolución de aprobación del plan tutorial CON · 2026-II"
+    },
+    {
+      "id": "PLAN-E-CON-3",
+      "semestreId": "2026-II",
+      "escuelaId": "E-CON",
+      "problematica": "Cursos desaprobados en el primer año y riesgo de pérdida de condición de estudiante.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Contabilidad.",
+      "actividad": "Feria de servicios de Bienestar Universitario",
+      "meta": "Difundir los servicios de salud, psicología y servicio social",
+      "fechaInicio": "2026-09-16",
+      "fechaFin": "2026-12-13",
+      "responsable": "Comisión de tutoría",
+      "evidencia": "Acta y lista de asistencia",
+      "avance": 40,
+      "estado": "en-ejecucion",
+      "aprobacion": "Resolución de aprobación del plan tutorial CON · 2026-II"
+    },
+    {
+      "id": "PLAN-E-CON-4",
+      "semestreId": "2026-II",
+      "escuelaId": "E-CON",
+      "problematica": "Cursos desaprobados en el primer año y riesgo de pérdida de condición de estudiante.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Contabilidad.",
+      "actividad": "Acompañamiento focalizado a estudiantes en riesgo",
+      "meta": "Reducir a 10% los estudiantes con promedio menor a 12",
+      "fechaInicio": "2026-09-19",
+      "fechaFin": "2026-12-17",
+      "responsable": "Tutor y coordinación",
+      "evidencia": "Informe del tutor (formato 02)",
+      "avance": 40,
+      "estado": "en-ejecucion",
+      "aprobacion": "Resolución de aprobación del plan tutorial CON · 2026-II"
+    },
+    {
+      "id": "PLAN-E-ECO-1",
+      "semestreId": "2026-II",
+      "escuelaId": "E-ECO",
+      "problematica": "Estudiantes que trabajan y presentan dificultades de horario para la tutoría.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Economía.",
+      "actividad": "Taller de técnicas de estudio",
+      "meta": "80% de los estudiantes del ciclo participan en el taller",
+      "fechaInicio": "2026-09-10",
+      "fechaFin": "2026-12-05",
+      "responsable": "Coordinación de tutoría de la escuela",
+      "evidencia": "Acta y lista de asistencia",
+      "avance": 15,
+      "estado": "en-ejecucion",
+      "aprobacion": "Resolución de aprobación del plan tutorial ECO · 2026-II"
+    },
+    {
+      "id": "PLAN-E-ECO-2",
+      "semestreId": "2026-II",
+      "escuelaId": "E-ECO",
+      "problematica": "Estudiantes que trabajan y presentan dificultades de horario para la tutoría.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Economía.",
+      "actividad": "Jornada de orientación para la matrícula",
+      "meta": "100% de ingresantes orientados antes del cierre de matrícula",
+      "fechaInicio": "2026-09-13",
+      "fechaFin": "2026-12-09",
+      "responsable": "Tutores de la escuela",
+      "evidencia": "Informe del tutor (formato 02)",
+      "avance": 15,
+      "estado": "en-ejecucion",
+      "aprobacion": "Resolución de aprobación del plan tutorial ECO · 2026-II"
+    },
+    {
+      "id": "PLAN-E-ECO-3",
+      "semestreId": "2026-II",
+      "escuelaId": "E-ECO",
+      "problematica": "Estudiantes que trabajan y presentan dificultades de horario para la tutoría.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Economía.",
+      "actividad": "Feria de servicios de Bienestar Universitario",
+      "meta": "Difundir los servicios de salud, psicología y servicio social",
+      "fechaInicio": "2026-09-16",
+      "fechaFin": "2026-12-13",
+      "responsable": "Comisión de tutoría",
+      "evidencia": "Acta y lista de asistencia",
+      "avance": 15,
+      "estado": "en-ejecucion",
+      "aprobacion": "Resolución de aprobación del plan tutorial ECO · 2026-II"
+    },
+    {
+      "id": "PLAN-E-ECO-4",
+      "semestreId": "2026-II",
+      "escuelaId": "E-ECO",
+      "problematica": "Estudiantes que trabajan y presentan dificultades de horario para la tutoría.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Economía.",
+      "actividad": "Acompañamiento focalizado a estudiantes en riesgo",
+      "meta": "Reducir a 10% los estudiantes con promedio menor a 12",
+      "fechaInicio": "2026-09-19",
+      "fechaFin": "2026-12-17",
+      "responsable": "Tutor y coordinación",
+      "evidencia": "Informe del tutor (formato 02)",
+      "avance": 15,
+      "estado": "en-ejecucion",
+      "aprobacion": "Resolución de aprobación del plan tutorial ECO · 2026-II"
+    },
+    {
+      "id": "PLAN-E-IIS-1",
+      "semestreId": "2026-II",
+      "escuelaId": "E-IIS",
+      "problematica": "Bajo rendimiento en cursos de programación y bases de datos en el tercer ciclo.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Ingeniería en Informática y Sistemas.",
+      "actividad": "Taller de técnicas de estudio",
+      "meta": "80% de los estudiantes del ciclo participan en el taller",
+      "fechaInicio": "2026-09-10",
+      "fechaFin": "2026-12-05",
+      "responsable": "Coordinación de tutoría de la escuela",
+      "evidencia": "Acta y lista de asistencia",
+      "avance": 15,
+      "estado": "en-ejecucion",
+      "aprobacion": "Resolución de aprobación del plan tutorial IIS · 2026-II"
+    },
+    {
+      "id": "PLAN-E-IIS-2",
+      "semestreId": "2026-II",
+      "escuelaId": "E-IIS",
+      "problematica": "Bajo rendimiento en cursos de programación y bases de datos en el tercer ciclo.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Ingeniería en Informática y Sistemas.",
+      "actividad": "Jornada de orientación para la matrícula",
+      "meta": "100% de ingresantes orientados antes del cierre de matrícula",
+      "fechaInicio": "2026-09-13",
+      "fechaFin": "2026-12-09",
+      "responsable": "Tutores de la escuela",
+      "evidencia": "Informe del tutor (formato 02)",
+      "avance": 65,
+      "estado": "en-ejecucion",
+      "aprobacion": "Resolución de aprobación del plan tutorial IIS · 2026-II"
+    },
+    {
+      "id": "PLAN-E-IIS-3",
+      "semestreId": "2026-II",
+      "escuelaId": "E-IIS",
+      "problematica": "Bajo rendimiento en cursos de programación y bases de datos en el tercer ciclo.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Ingeniería en Informática y Sistemas.",
+      "actividad": "Feria de servicios de Bienestar Universitario",
+      "meta": "Difundir los servicios de salud, psicología y servicio social",
+      "fechaInicio": "2026-09-16",
+      "fechaFin": "2026-12-13",
+      "responsable": "Comisión de tutoría",
+      "evidencia": "Acta y lista de asistencia",
+      "avance": 15,
+      "estado": "en-ejecucion",
+      "aprobacion": "Resolución de aprobación del plan tutorial IIS · 2026-II"
+    },
+    {
+      "id": "PLAN-E-IIS-4",
+      "semestreId": "2026-II",
+      "escuelaId": "E-IIS",
+      "problematica": "Bajo rendimiento en cursos de programación y bases de datos en el tercer ciclo.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Ingeniería en Informática y Sistemas.",
+      "actividad": "Acompañamiento focalizado a estudiantes en riesgo",
+      "meta": "Reducir a 10% los estudiantes con promedio menor a 12",
+      "fechaInicio": "2026-09-19",
+      "fechaFin": "2026-12-17",
+      "responsable": "Tutor y coordinación",
+      "evidencia": "Informe del tutor (formato 02)",
+      "avance": 65,
+      "estado": "en-ejecucion",
+      "aprobacion": "Resolución de aprobación del plan tutorial IIS · 2026-II"
+    },
+    {
+      "id": "PLAN-E-AGR-1",
+      "semestreId": "2026-II",
+      "escuelaId": "E-AGR",
+      "problematica": "Repitencia en cursos de especialidad del quinto ciclo.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Ingeniería Agronómica.",
+      "actividad": "Taller de técnicas de estudio",
+      "meta": "80% de los estudiantes del ciclo participan en el taller",
+      "fechaInicio": "2026-09-10",
+      "fechaFin": "2026-12-05",
+      "responsable": "Coordinación de tutoría de la escuela",
+      "evidencia": "Acta y lista de asistencia",
+      "avance": 100,
+      "estado": "culminada",
+      "aprobacion": "Resolución de aprobación del plan tutorial AGR · 2026-II"
+    },
+    {
+      "id": "PLAN-E-AGR-2",
+      "semestreId": "2026-II",
+      "escuelaId": "E-AGR",
+      "problematica": "Repitencia en cursos de especialidad del quinto ciclo.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Ingeniería Agronómica.",
+      "actividad": "Jornada de orientación para la matrícula",
+      "meta": "100% de ingresantes orientados antes del cierre de matrícula",
+      "fechaInicio": "2026-09-13",
+      "fechaFin": "2026-12-09",
+      "responsable": "Tutores de la escuela",
+      "evidencia": "Informe del tutor (formato 02)",
+      "avance": 100,
+      "estado": "culminada",
+      "aprobacion": "Resolución de aprobación del plan tutorial AGR · 2026-II"
+    },
+    {
+      "id": "PLAN-E-AGR-3",
+      "semestreId": "2026-II",
+      "escuelaId": "E-AGR",
+      "problematica": "Repitencia en cursos de especialidad del quinto ciclo.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Ingeniería Agronómica.",
+      "actividad": "Feria de servicios de Bienestar Universitario",
+      "meta": "Difundir los servicios de salud, psicología y servicio social",
+      "fechaInicio": "2026-09-16",
+      "fechaFin": "2026-12-13",
+      "responsable": "Comisión de tutoría",
+      "evidencia": "Acta y lista de asistencia",
+      "avance": 100,
+      "estado": "culminada",
+      "aprobacion": "Resolución de aprobación del plan tutorial AGR · 2026-II"
+    },
+    {
+      "id": "PLAN-E-AGR-4",
+      "semestreId": "2026-II",
+      "escuelaId": "E-AGR",
+      "problematica": "Repitencia en cursos de especialidad del quinto ciclo.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Ingeniería Agronómica.",
+      "actividad": "Acompañamiento focalizado a estudiantes en riesgo",
+      "meta": "Reducir a 10% los estudiantes con promedio menor a 12",
+      "fechaInicio": "2026-09-19",
+      "fechaFin": "2026-12-17",
+      "responsable": "Tutor y coordinación",
+      "evidencia": "Informe del tutor (formato 02)",
+      "avance": 100,
+      "estado": "culminada",
+      "aprobacion": "Resolución de aprobación del plan tutorial AGR · 2026-II"
+    },
+    {
+      "id": "PLAN-E-FOR-1",
+      "semestreId": "2026-II",
+      "escuelaId": "E-FOR",
+      "problematica": "Escasa participación en actividades grupales de tutoría.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Ingeniería Forestal.",
+      "actividad": "Taller de técnicas de estudio",
+      "meta": "80% de los estudiantes del ciclo participan en el taller",
+      "fechaInicio": "2026-09-10",
+      "fechaFin": "2026-12-05",
+      "responsable": "Coordinación de tutoría de la escuela",
+      "evidencia": "Acta y lista de asistencia",
+      "avance": 65,
+      "estado": "en-ejecucion",
+      "aprobacion": "Resolución de aprobación del plan tutorial FOR · 2026-II"
+    },
+    {
+      "id": "PLAN-E-FOR-2",
+      "semestreId": "2026-II",
+      "escuelaId": "E-FOR",
+      "problematica": "Escasa participación en actividades grupales de tutoría.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Ingeniería Forestal.",
+      "actividad": "Jornada de orientación para la matrícula",
+      "meta": "100% de ingresantes orientados antes del cierre de matrícula",
+      "fechaInicio": "2026-09-13",
+      "fechaFin": "2026-12-09",
+      "responsable": "Tutores de la escuela",
+      "evidencia": "Informe del tutor (formato 02)",
+      "avance": 65,
+      "estado": "en-ejecucion",
+      "aprobacion": "Resolución de aprobación del plan tutorial FOR · 2026-II"
+    },
+    {
+      "id": "PLAN-E-FOR-3",
+      "semestreId": "2026-II",
+      "escuelaId": "E-FOR",
+      "problematica": "Escasa participación en actividades grupales de tutoría.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Ingeniería Forestal.",
+      "actividad": "Feria de servicios de Bienestar Universitario",
+      "meta": "Difundir los servicios de salud, psicología y servicio social",
+      "fechaInicio": "2026-09-16",
+      "fechaFin": "2026-12-13",
+      "responsable": "Comisión de tutoría",
+      "evidencia": "Acta y lista de asistencia",
+      "avance": 65,
+      "estado": "en-ejecucion",
+      "aprobacion": "Resolución de aprobación del plan tutorial FOR · 2026-II"
+    },
+    {
+      "id": "PLAN-E-FOR-4",
+      "semestreId": "2026-II",
+      "escuelaId": "E-FOR",
+      "problematica": "Escasa participación en actividades grupales de tutoría.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Ingeniería Forestal.",
+      "actividad": "Acompañamiento focalizado a estudiantes en riesgo",
+      "meta": "Reducir a 10% los estudiantes con promedio menor a 12",
+      "fechaInicio": "2026-09-19",
+      "fechaFin": "2026-12-17",
+      "responsable": "Tutor y coordinación",
+      "evidencia": "Informe del tutor (formato 02)",
+      "avance": 65,
+      "estado": "en-ejecucion",
+      "aprobacion": "Resolución de aprobación del plan tutorial FOR · 2026-II"
+    },
+    {
+      "id": "PLAN-E-ZOO-1",
+      "semestreId": "2026-II",
+      "escuelaId": "E-ZOO",
+      "problematica": "Estudiantes con necesidades socioeconómicas que afectan la continuidad de estudios.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Zootecnia.",
+      "actividad": "Taller de técnicas de estudio",
+      "meta": "80% de los estudiantes del ciclo participan en el taller",
+      "fechaInicio": "2026-09-10",
+      "fechaFin": "2026-12-05",
+      "responsable": "Coordinación de tutoría de la escuela",
+      "evidencia": "Acta y lista de asistencia",
+      "avance": 40,
+      "estado": "en-ejecucion",
+      "aprobacion": "Resolución de aprobación del plan tutorial ZOO · 2026-II"
+    },
+    {
+      "id": "PLAN-E-ZOO-2",
+      "semestreId": "2026-II",
+      "escuelaId": "E-ZOO",
+      "problematica": "Estudiantes con necesidades socioeconómicas que afectan la continuidad de estudios.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Zootecnia.",
+      "actividad": "Jornada de orientación para la matrícula",
+      "meta": "100% de ingresantes orientados antes del cierre de matrícula",
+      "fechaInicio": "2026-09-13",
+      "fechaFin": "2026-12-09",
+      "responsable": "Tutores de la escuela",
+      "evidencia": "Informe del tutor (formato 02)",
+      "avance": 100,
+      "estado": "culminada",
+      "aprobacion": "Resolución de aprobación del plan tutorial ZOO · 2026-II"
+    },
+    {
+      "id": "PLAN-E-ZOO-3",
+      "semestreId": "2026-II",
+      "escuelaId": "E-ZOO",
+      "problematica": "Estudiantes con necesidades socioeconómicas que afectan la continuidad de estudios.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Zootecnia.",
+      "actividad": "Feria de servicios de Bienestar Universitario",
+      "meta": "Difundir los servicios de salud, psicología y servicio social",
+      "fechaInicio": "2026-09-16",
+      "fechaFin": "2026-12-13",
+      "responsable": "Comisión de tutoría",
+      "evidencia": "Acta y lista de asistencia",
+      "avance": 40,
+      "estado": "en-ejecucion",
+      "aprobacion": "Resolución de aprobación del plan tutorial ZOO · 2026-II"
+    },
+    {
+      "id": "PLAN-E-ZOO-4",
+      "semestreId": "2026-II",
+      "escuelaId": "E-ZOO",
+      "problematica": "Estudiantes con necesidades socioeconómicas que afectan la continuidad de estudios.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Zootecnia.",
+      "actividad": "Acompañamiento focalizado a estudiantes en riesgo",
+      "meta": "Reducir a 10% los estudiantes con promedio menor a 12",
+      "fechaInicio": "2026-09-19",
+      "fechaFin": "2026-12-17",
+      "responsable": "Tutor y coordinación",
+      "evidencia": "Informe del tutor (formato 02)",
+      "avance": 100,
+      "estado": "culminada",
+      "aprobacion": "Resolución de aprobación del plan tutorial ZOO · 2026-II"
+    },
+    {
+      "id": "PLAN-E-BIO-1",
+      "semestreId": "2026-II",
+      "escuelaId": "E-BIO",
+      "problematica": "Bajo avance en el trabajo de tesis de los ciclos finales.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Biología.",
+      "actividad": "Taller de técnicas de estudio",
+      "meta": "80% de los estudiantes del ciclo participan en el taller",
+      "fechaInicio": "2026-09-10",
+      "fechaFin": "2026-12-05",
+      "responsable": "Coordinación de tutoría de la escuela",
+      "evidencia": "Acta y lista de asistencia",
+      "avance": 100,
+      "estado": "culminada",
+      "aprobacion": "Resolución de aprobación del plan tutorial BIO · 2026-II"
+    },
+    {
+      "id": "PLAN-E-BIO-2",
+      "semestreId": "2026-II",
+      "escuelaId": "E-BIO",
+      "problematica": "Bajo avance en el trabajo de tesis de los ciclos finales.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Biología.",
+      "actividad": "Jornada de orientación para la matrícula",
+      "meta": "100% de ingresantes orientados antes del cierre de matrícula",
+      "fechaInicio": "2026-09-13",
+      "fechaFin": "2026-12-09",
+      "responsable": "Tutores de la escuela",
+      "evidencia": "Informe del tutor (formato 02)",
+      "avance": 100,
+      "estado": "culminada",
+      "aprobacion": "Resolución de aprobación del plan tutorial BIO · 2026-II"
+    },
+    {
+      "id": "PLAN-E-BIO-3",
+      "semestreId": "2026-II",
+      "escuelaId": "E-BIO",
+      "problematica": "Bajo avance en el trabajo de tesis de los ciclos finales.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Biología.",
+      "actividad": "Feria de servicios de Bienestar Universitario",
+      "meta": "Difundir los servicios de salud, psicología y servicio social",
+      "fechaInicio": "2026-09-16",
+      "fechaFin": "2026-12-13",
+      "responsable": "Comisión de tutoría",
+      "evidencia": "Acta y lista de asistencia",
+      "avance": 100,
+      "estado": "culminada",
+      "aprobacion": "Resolución de aprobación del plan tutorial BIO · 2026-II"
+    },
+    {
+      "id": "PLAN-E-BIO-4",
+      "semestreId": "2026-II",
+      "escuelaId": "E-BIO",
+      "problematica": "Bajo avance en el trabajo de tesis de los ciclos finales.",
+      "objetivo": "Mejorar el acompañamiento tutorial en Biología.",
+      "actividad": "Acompañamiento focalizado a estudiantes en riesgo",
+      "meta": "Reducir a 10% los estudiantes con promedio menor a 12",
+      "fechaInicio": "2026-09-19",
+      "fechaFin": "2026-12-17",
+      "responsable": "Tutor y coordinación",
+      "evidencia": "Informe del tutor (formato 02)",
+      "avance": 100,
+      "estado": "culminada",
+      "aprobacion": "Resolución de aprobación del plan tutorial BIO · 2026-II"
+    }
+  ],
+  "avisos": [
+    {
+      "id": "AV-001",
+      "asunto": "Recordatorio: sesión de tutoría programada",
+      "cuerpo": "Se le recuerda que tiene una sesión de tutoría individual programada. Confirme su asistencia desde el sistema o comuníquese con su docente tutor.",
+      "destinatarios": [
+        "2023010456@unas.edu.pe",
+        "2023010457@unas.edu.pe"
+      ],
+      "canal": "correo",
+      "enviado": "2026-10-13T07:30:00",
+      "estado": "enviado",
+      "plantilla": "recordatorio-sesion",
+      "relacionadoCon": "SES-ASG-2023010456-3"
+    },
+    {
+      "id": "AV-002",
+      "asunto": "Instrumento pendiente de llenado",
+      "cuerpo": "La entrevista inicial correspondiente a su etapa académica se encuentra pendiente. Complete el formulario antes del cierre del periodo.",
+      "destinatarios": [
+        "2023010461@unas.edu.pe",
+        "2023010481@unas.edu.pe",
+        "2023010501@unas.edu.pe"
+      ],
+      "canal": "correo",
+      "enviado": "2026-10-12T09:00:00",
+      "estado": "enviado",
+      "plantilla": "instrumento-pendiente",
+      "relacionadoCon": "INST-F04-2023010461"
+    },
+    {
+      "id": "AV-003",
+      "asunto": "Derivación registrada y derivada al área",
+      "cuerpo": "Su ficha de derivación fue registrada y remitida al área correspondiente. Puede consultar el estado desde la sección de derivaciones.",
+      "destinatarios": [
+        "2023010481@unas.edu.pe"
+      ],
+      "canal": "correo",
+      "enviado": "2026-10-10T11:15:00",
+      "estado": "enviado",
+      "plantilla": "derivacion-registrada",
+      "relacionadoCon": "DER-2023010481"
+    },
+    {
+      "id": "AV-004",
+      "asunto": "Cierre de semestre: informe de actividades del tutor",
+      "cuerpo": "Se encuentra habilitado el formato 02 para el registro del informe de actividades del semestre 2026-II. La fecha límite de presentación es el 15 de diciembre.",
+      "destinatarios": [
+        "lvela@unas.edu.pe",
+        "mparedes@unas.edu.pe",
+        "crios@unas.edu.pe"
+      ],
+      "canal": "correo",
+      "enviado": "2026-10-11T08:00:00",
+      "estado": "enviado",
+      "plantilla": "cierre-informe-tutor",
+      "relacionadoCon": null
+    },
+    {
+      "id": "AV-005",
+      "asunto": "Observación registrada en el registro de asistencia",
+      "cuerpo": "El registro de asistencia de la tutoría grupal presenta una observación de la coordinación. Ingrese al sistema para revisarla y subsanarla.",
+      "destinatarios": [
+        "lvela@unas.edu.pe"
+      ],
+      "canal": "correo",
+      "enviado": "2026-10-09T16:40:00",
+      "estado": "enviado",
+      "plantilla": "instrumento-observado",
+      "relacionadoCon": "INST-F07-SESG-E-IIS-2"
+    },
+    {
+      "id": "AV-006",
+      "asunto": "Resumen semanal de tutoría",
+      "cuerpo": "Se envía el resumen de cobertura semanal del proceso tutorial: sesiones realizadas, estudiantes atendidos e instrumentos pendientes.",
+      "destinatarios": [
+        "tutoria@unas.edu.pe"
+      ],
+      "canal": "correo",
+      "enviado": "2026-10-13T18:00:00",
+      "estado": "programado",
+      "plantilla": "resumen-semanal",
+      "relacionadoCon": null
+    },
+    {
+      "id": "AV-007",
+      "asunto": "Recordatorio de confirmación de cita en Psicología",
+      "cuerpo": "Se le recuerda la cita programada por el Servicio de Psicología. Si no puede asistir, comuníquelo con anticipación.",
+      "destinatarios": [
+        "2023010520@unas.edu.pe"
+      ],
+      "canal": "correo",
+      "enviado": "2026-10-14T07:00:00",
+      "estado": "borrador",
+      "plantilla": "recordatorio-cita",
+      "relacionadoCon": "DER-2023010520"
+    }
+  ]
+}

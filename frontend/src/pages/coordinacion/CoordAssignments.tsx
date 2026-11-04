@@ -1,7 +1,15 @@
+import { SolicitudesCambioPendientes } from '../../components/panels/GestionCoordinacion';
 import type { FormEvent } from 'react';
 import { useCallback, useId, useMemo, useState } from 'react';
 import type { DefinicionSelect } from '../../components/panels/PanelFiltros';
-import { PanelFiltros, useFiltro } from '../../components/panels/PanelFiltros';
+import { useFiltro } from '../../components/panels/PanelFiltros';
+import {
+  DirectoryPage,
+  DirectorySummary,
+  DirectoryViews,
+  DirectoryDisclosure,
+} from '../../components/ui/DirectoryPage';
+import { DirectoryToolbar } from '../../components/ui/DirectoryToolbar';
 import { Alert } from '../../components/ui/Alert';
 import { Card, CardBody, CardFoot, CardHead } from '../../components/ui/Card';
 import type { Column } from '../../components/ui/DataTable';
@@ -9,20 +17,18 @@ import { DataTable } from '../../components/ui/DataTable';
 import {
   ArrowLeftRight,
   BadgeCheck,
-  CircleAlert,
   Download,
-  Network,
   Plus,
   Save,
   TriangleAlert,
   UserPlus,
-  Users,
+  Presentation,
+  UserCheck,
 } from '../../components/ui/icons';
 import { PageHeading } from '../../components/ui/PageHeading';
 import { PersonCell } from '../../components/ui/PersonCell';
 import { Progress } from '../../components/ui/Progress';
 import { Sheet } from '../../components/ui/Sheet';
-import { Stat } from '../../components/ui/Stat';
 import { Badge, StatusBadge } from '../../components/ui/StatusBadge';
 import { escuelas, semestreActual } from '../../data/catalogos';
 import {
@@ -35,6 +41,8 @@ import {
 } from '../../data/personas';
 import { asignaciones } from '../../data/tutoria';
 import { usePortal } from '../../hooks/usePortal';
+import { API_MODE } from '../../services/apiConfig';
+import { asignarTutorApi } from '../../services/apiTutoria';
 import type { Asignacion, CambioTutor, Estudiante } from '../../types/domain';
 import { downloadCsv } from '../../utils/csv';
 import { HOY_ISO, formatFecha } from '../../utils/fechas';
@@ -84,13 +92,17 @@ export function CoordAssignments() {
   const portal = usePortal();
   const idFormulario = useId();
 
-  const [registros, setRegistros] = useState<Asignacion[]>(() =>
+  const [registrosLocales, setRegistros] = useState<Asignacion[]>(() =>
     asignaciones.map((asignacion) => ({ ...asignacion, historial: [...asignacion.historial] })),
   );
+  const registros = API_MODE ? portal.tutorados : registrosLocales;
+  const [error, setError] = useState('');
+  const [guardando, setGuardando] = useState(false);
   const [cambios, setCambios] = useState<CambioRegistrado[]>([]);
   const [aviso, setAviso] = useState<string | null>(null);
   const [altaAbierta, setAltaAbierta] = useState(false);
   const [cambioAbierto, setCambioAbierto] = useState<Asignacion | null>(null);
+  const [detalle, setDetalle] = useState<Asignacion | null>(null);
 
   // —— Formulario de alta ——
   const [nuevoEstudiante, setNuevoEstudiante] = useState('');
@@ -212,9 +224,32 @@ export function CoordAssignments() {
       )
     : [];
 
-  function registrarAsignacion(evento: FormEvent<HTMLFormElement>) {
+  async function registrarAsignacion(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
-    if (!estudianteElegido || !nuevoTutor || !puedeRegistrar) return;
+    if (!estudianteElegido || !nuevoTutor || !puedeRegistrar || guardando) return;
+    if (API_MODE) {
+      setError('');
+      setGuardando(true);
+      try {
+        await asignarTutorApi({
+          estudianteId: estudianteElegido.id,
+          tutorId: nuevoTutor,
+          grupo: nuevoGrupo.trim() || null,
+          referencia: nuevaReferencia.trim(),
+        });
+        setAltaAbierta(false);
+        setAviso('Asignación guardada.');
+        setNuevoEstudiante('');
+        setNuevoTutor('');
+        setNuevoGrupo('');
+        setNuevaReferencia('');
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'No se pudo asignar el tutor.');
+      } finally {
+        setGuardando(false);
+      }
+      return;
+    }
     const tutor = docentePorId(nuevoTutor);
     const asignacion: Asignacion = {
       id: `ASG-${estudianteElegido.codigo}-${registros.length + 1}`,
@@ -252,9 +287,31 @@ export function CoordAssignments() {
     setNuevaReferencia('');
   }
 
-  function registrarCambio(evento: FormEvent<HTMLFormElement>) {
+  async function registrarCambio(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
-    if (!asignacionEnCambio || !tutorDestino || !motivoCambio.trim()) return;
+    if (!asignacionEnCambio || !tutorDestino || !motivoCambio.trim() || guardando) return;
+    if (API_MODE) {
+      setError('');
+      setGuardando(true);
+      try {
+        await asignarTutorApi({
+          estudianteId: asignacionEnCambio.estudianteId,
+          tutorId: tutorDestino,
+          grupo: asignacionEnCambio.grupo,
+          referencia: motivoCambio.trim(),
+          version: asignacionEnCambio.version,
+        });
+        setCambioAbierto(null);
+        setTutorDestino('');
+        setMotivoCambio('');
+        setAviso('Cambio de tutor guardado.');
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'No se pudo cambiar el tutor.');
+      } finally {
+        setGuardando(false);
+      }
+      return;
+    }
     const nuevo = docentePorId(tutorDestino);
     const registro: CambioRegistrado = {
       id: `CAM-${asignacionEnCambio.id}-${cambios.length + 1}`,
@@ -337,7 +394,7 @@ export function CoordAssignments() {
           <PersonCell
             nombres={estudiante.nombres}
             apellidos={estudiante.apellidos}
-            detalle={`${estudiante.codigo} · ciclo ${estudiante.ciclo}`}
+            detalle={`${estudiante.codigo} · ${abreviaturaEscuela(asignacion.escuelaId)}`}
             iniciales={iniciales(estudiante)}
           />
         ) : (
@@ -356,19 +413,10 @@ export function CoordAssignments() {
         return (
           <span className="stack" style={{ gap: 1 }}>
             <strong className="cell-strong">{`${tutor.apellidos}, ${tutor.nombres}`}</strong>
-            <span className="cell-note">
-              {tutor.categoria} · cupos {tutor.aforoMaximo}
-            </span>
+            <span className="cell-note">{tutor.codigo}</span>
           </span>
         );
       },
-    },
-    {
-      key: 'escuela',
-      header: 'Escuela',
-      sortable: true,
-      sortValue: (asignacion) => abreviaturaEscuela(asignacion.escuelaId),
-      render: (asignacion) => <Badge tone="info">{abreviaturaEscuela(asignacion.escuelaId)}</Badge>,
     },
     {
       key: 'grupo',
@@ -385,16 +433,8 @@ export function CoordAssignments() {
       render: (asignacion) => (
         <span className="stack" style={{ gap: 1 }}>
           <span>{etiquetaCriterio(asignacion.criterio)}</span>
-          <span className="cell-note">{asignacion.referenciaAprobacion}</span>
         </span>
       ),
-    },
-    {
-      key: 'vigencia',
-      header: 'Vigencia',
-      sortable: true,
-      sortValue: (asignacion) => asignacion.fechaInicio,
-      render: (asignacion) => <span className="nowrap cell-mono">{vigenciaDe(asignacion)}</span>,
     },
     {
       key: 'estado',
@@ -418,15 +458,10 @@ export function CoordAssignments() {
           <button
             type="button"
             className="btn btn-falcon-default btn-sm"
-            aria-label={`Cambiar tutor de la asignación ${asignacion.id}`}
-            disabled={asignacion.estado !== 'activa'}
-            onClick={() => {
-              setCambioAbierto(asignacion);
-              setTutorDestino('');
-              setMotivoCambio('');
-            }}
+            aria-label={`Ver detalle de la asignación ${asignacion.id}`}
+            onClick={() => setDetalle(asignacion)}
           >
-            <ArrowLeftRight aria-hidden="true" /> Cambiar tutor
+            Ver ficha <i className="fa-solid fa-arrow-up-right-from-square" aria-hidden="true" />
           </button>
         </span>
       ),
@@ -434,15 +469,15 @@ export function CoordAssignments() {
   ];
 
   return (
-    <>
+    <DirectoryPage>
       <PageHeading
         eyebrow={`Coordinación de tutoría · ${abreviaturaEscuela(portal.escuelaId)} · Semestre ${semestreActual}`}
         title="Asignar tutores"
-        description="Asigna un tutor a cada estudiante y revisa los cupos disponibles."
+        description="Organiza las asignaciones y la cobertura del semestre."
         actions={
           <>
             <button type="button" className="btn btn-falcon-default" onClick={exportarAsignaciones}>
-              <Download aria-hidden="true" /> Descargar tabla (CSV)
+              <Download aria-hidden="true" /> Exportar CSV
             </button>
             <button
               type="button"
@@ -460,62 +495,85 @@ export function CoordAssignments() {
 
       {aviso && (
         <Alert tone="ok" title="Cambio guardado en esta prueba">
-          {aviso} El registro se conserva solo en esta sesión del navegador.
+          {aviso} {!API_MODE && 'El registro se conserva solo en esta sesión del navegador.'}
         </Alert>
       )}
 
-      <div className="grid grid--4">
-        <Stat
-          label="Asignaciones activas"
-          value={activas.length}
-          note={`${registros.length} registros históricos del semestre`}
-          icon={<Network aria-hidden="true" />}
-        />
-        <Stat
-          label="Docentes tutores con estudiantes"
-          value={tutoresConTutorados}
-          note={`${tutoresDisponibles.length} docentes habilitados en el padrón`}
-          icon={<Users aria-hidden="true" />}
-          tone="info"
-        />
-        <Stat
-          label="Estudiantes sin asignación"
-          value={sinTutor}
-          note={sinTutor ? 'Requieren asignación de tutor' : 'Todo el padrón está asignado'}
-          icon={<CircleAlert aria-hidden="true" />}
-          tone={sinTutor ? 'alerta' : 'verde'}
-        />
-        <Stat
-          label="Cambios de tutor"
-          value={cambios.length}
-          note="Registrados en esta sesión con su motivo"
-          icon={<ArrowLeftRight aria-hidden="true" />}
-          tone="violeta"
-        />
-      </div>
+      <DirectorySummary
+        label="Cobertura tutorial"
+        icon={<UserCheck aria-hidden="true" />}
+        value={`${estudiantes.length - sinTutor} / ${estudiantes.length}`}
+        percent={
+          estudiantes.length
+            ? Math.round(((estudiantes.length - sinTutor) / estudiantes.length) * 100)
+            : 0
+        }
+        note="con tutor asignado"
+        metrics={[
+          {
+            label: 'Pendientes de asignar',
+            value: sinTutor,
+            note: sinTutor ? 'Sin tutor vigente' : 'Cobertura completa',
+            tone: sinTutor ? 'warning' : 'default',
+            icon: <UserPlus aria-hidden="true" />,
+          },
+          {
+            label: 'Tutores con estudiantes',
+            value: tutoresConTutorados,
+            note: `${tutoresDisponibles.length} habilitados`,
+            icon: <Presentation aria-hidden="true" />,
+          },
+          {
+            label: 'Cambios de tutor',
+            value: cambios.length,
+            note: 'En esta sesión',
+            icon: <ArrowLeftRight aria-hidden="true" />,
+          },
+        ]}
+      />
 
       <Card>
         <CardHead
-          title="Estudiantes con tutor asignado"
-          description="Busca por escuela, tutor o estado de la asignación."
-          actions={<Badge tone="info">{semestreActual}</Badge>}
+          title="Asignaciones del semestre"
+          actions={<span className="directory-result">Semestre {semestreActual}</span>}
         />
         <CardBody>
           <div className="stack">
-            <PanelFiltros<Asignacion>
+            <DirectoryToolbar
               busqueda={filtro.busqueda}
               onBusqueda={filtro.setBusqueda}
               selects={selects}
               valores={filtro.valores}
-              onValor={(id, valor) =>
-                filtro.setValores((actuales) => ({ ...actuales, [id]: valor }))
-              }
+              onValores={filtro.setValores}
               mostrados={filtro.filtrados.length}
               total={registros.length}
-              activos={filtro.activos}
               onLimpiar={filtro.limpiar}
               etiqueta="Filtros de asignaciones"
               placeholder="Buscar por estudiante, código o tutor…"
+              views={
+                <DirectoryViews
+                  views={[
+                    {
+                      label: 'Todas',
+                      count: registros.length,
+                      active: !filtro.valores.estado,
+                      onClick: () => filtro.setValores((v) => ({ ...v, estado: '' })),
+                    },
+                    {
+                      label: 'Activas',
+                      count: activas.length,
+                      active: filtro.valores.estado === 'activa',
+                      onClick: () => filtro.setValores((v) => ({ ...v, estado: 'activa' })),
+                    },
+                    {
+                      label: 'Finalizadas',
+                      count: registros.filter((a) => a.estado === 'finalizada').length,
+                      active: filtro.valores.estado === 'finalizada',
+                      onClick: () => filtro.setValores((v) => ({ ...v, estado: 'finalizada' })),
+                    },
+                  ]}
+                />
+              }
             />
             <DataTable<Asignacion>
               rows={filtro.filtrados}
@@ -523,6 +581,9 @@ export function CoordAssignments() {
               caption={`Asignaciones tutor–estudiante del semestre ${semestreActual}`}
               rowKey={(asignacion) => asignacion.id}
               pageSize={10}
+              pagination="auto"
+              paginationPosition="bottom"
+              inlineActions
               initialSort={{ key: 'estudiante', direction: 'asc' }}
               emptyTitle="Sin asignaciones con estos filtros"
               emptyDescription="Ajusta la escuela, el tutor o el criterio de búsqueda."
@@ -531,18 +592,100 @@ export function CoordAssignments() {
         </CardBody>
         <CardFoot>
           <span>
-            Referencia normativa: acta de audiencia FIIS del 7 de octubre de 2026, punto PRIMERO
-            (cupos y criterio de asignación propuestos).
+            Acta FIIS · 7 oct. 2026 · criterios y cupos propuestos. La exportación respeta los
+            filtros.
           </span>
-          <button
-            type="button"
-            className="btn btn-falcon-default btn-sm"
-            onClick={exportarAsignaciones}
-          >
-            <Download aria-hidden="true" /> Exportar lo filtrado
-          </button>
         </CardFoot>
       </Card>
+
+      {detalle && (
+        <Sheet
+          title="Detalle de asignación"
+          description={detalle.id}
+          onClose={() => setDetalle(null)}
+          footer={
+            <>
+              <button
+                type="button"
+                className="btn btn-falcon-default"
+                onClick={() => setDetalle(null)}
+              >
+                Cerrar ficha
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                disabled={detalle.estado !== 'activa'}
+                onClick={() => {
+                  setCambioAbierto(detalle);
+                  setDetalle(null);
+                  setTutorDestino('');
+                  setMotivoCambio('');
+                }}
+              >
+                <ArrowLeftRight aria-hidden="true" /> Cambiar tutor
+              </button>
+            </>
+          }
+        >
+          <dl className="def-list">
+            <div>
+              <dt>Estudiante</dt>
+              <dd>
+                {(() => {
+                  const e = estudiantes.find((item) => item.id === detalle.estudianteId);
+                  return e ? nombreCompleto(e) : 'Sin datos del estudiante';
+                })()}
+              </dd>
+            </div>
+            <div>
+              <dt>Docente tutor</dt>
+              <dd>
+                {(() => {
+                  const d = docentePorId(detalle.tutorId);
+                  return d ? nombreCompleto(d) : 'Sin tutor';
+                })()}
+              </dd>
+            </div>
+            <div>
+              <dt>Escuela / grupo</dt>
+              <dd>
+                {abreviaturaEscuela(detalle.escuelaId)} · {detalle.grupo ?? 'Sin grupo'}
+              </dd>
+            </div>
+            <div>
+              <dt>Criterio</dt>
+              <dd>{etiquetaCriterio(detalle.criterio)}</dd>
+            </div>
+            <div>
+              <dt>Vigencia</dt>
+              <dd>{vigenciaDe(detalle)}</dd>
+            </div>
+            <div>
+              <dt>Estado</dt>
+              <dd>
+                <StatusBadge estado={detalle.estado} etiqueta={etiquetaEstado(detalle.estado)} />
+              </dd>
+            </div>
+            <div>
+              <dt>Referencia de aprobación</dt>
+              <dd>{detalle.referenciaAprobacion}</dd>
+            </div>
+          </dl>
+          <h3 className="directory-detail-title">Historial de la asignación</h3>
+          <ul className="list">
+            {detalle.historial.map((cambio, index) => (
+              <li className="list__item" key={`${cambio.fecha}-${index}`}>
+                <span className="list__body">
+                  <strong>{formatFecha(cambio.fecha)}</strong>
+                  <p>{cambio.motivo}</p>
+                  <span className="list__meta">{cambio.responsable}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </Sheet>
+      )}
 
       {cambios.length > 0 && (
         <Card>
@@ -601,7 +744,7 @@ export function CoordAssignments() {
                 type="submit"
                 form={idFormulario}
                 className="btn btn-primary"
-                disabled={!puedeRegistrar}
+                disabled={guardando || !puedeRegistrar}
               >
                 <Save aria-hidden="true" /> Registrar asignación
               </button>
@@ -609,6 +752,11 @@ export function CoordAssignments() {
           }
         >
           <form id={idFormulario} className="stack" onSubmit={registrarAsignacion}>
+            {error && (
+              <Alert tone="riesgo" title="No se guardó la asignación">
+                {error}
+              </Alert>
+            )}
             <div className="field-grid">
               <div className="field">
                 <label htmlFor={`${idFormulario}-estudiante`}>
@@ -624,7 +772,7 @@ export function CoordAssignments() {
                   {estudiantesSinAsignar.map((estudiante: Estudiante) => (
                     <option key={estudiante.id} value={estudiante.id}>
                       {estudiante.apellidos}, {estudiante.nombres} · {estudiante.codigo} · ciclo{' '}
-                      {estudiante.ciclo}
+                      {estudiante.ciclo ?? 'Sin informar'}
                     </option>
                   ))}
                 </select>
@@ -750,12 +898,12 @@ export function CoordAssignments() {
                   <dt>Escuela y ciclo</dt>
                   <dd>
                     {abreviaturaEscuela(estudianteElegido.escuelaId)} · ciclo{' '}
-                    {estudianteElegido.ciclo} · {estudianteElegido.etapa}
+                    {estudianteElegido.ciclo ?? 'Sin informar'} · {estudianteElegido.etapa}
                   </dd>
                 </div>
                 <div>
                   <dt>Promedio ponderado</dt>
-                  <dd>{estudianteElegido.promedioPonderado.toFixed(1)}</dd>
+                  <dd>{estudianteElegido.promedioPonderado?.toFixed(1) ?? 'Sin informar'}</dd>
                 </div>
                 <div>
                   <dt>Señales registradas</dt>
@@ -794,7 +942,7 @@ export function CoordAssignments() {
                 type="submit"
                 form={`${idFormulario}-cambio`}
                 className="btn btn-primary"
-                disabled={!tutorDestino || !motivoCambio.trim()}
+                disabled={guardando || !tutorDestino || !motivoCambio.trim()}
               >
                 <UserPlus aria-hidden="true" /> Registrar cambio
               </button>
@@ -802,6 +950,11 @@ export function CoordAssignments() {
           }
         >
           <form id={`${idFormulario}-cambio`} className="stack" onSubmit={registrarCambio}>
+            {error && (
+              <Alert tone="riesgo" title="No se guardó el cambio">
+                {error}
+              </Alert>
+            )}
             <dl className="def-list">
               <div>
                 <dt>Tutor actual</dt>
@@ -883,43 +1036,42 @@ export function CoordAssignments() {
         </Sheet>
       )}
 
-      <Card flat>
-        <CardHead
-          title="Reglas para asignar tutores"
-          description="Consulta las reglas de asignación."
-        />
-        <CardBody>
-          <div className="grid grid--2">
-            <dl className="def-list">
-              <div>
-                <dt>Criterio de asignación</dt>
-                <dd>
-                  Asignación directiva por la comisión; afinidad de curso como criterio
-                  complementario.
-                </dd>
-              </div>
-              <div>
-                <dt>Cupos por docente tutor</dt>
-                <dd>Propuesta: entre 10 y 14 estudiantes según la escuela (estado: propuesta).</dd>
-              </div>
-              <div>
-                <dt>Referencia de aprobación</dt>
-                <dd>Acta de la comisión de tutoría de la escuela por semestre académico.</dd>
-              </div>
-            </dl>
-            <div className="stack stack--sm">
-              <Alert tone="info" title="Cómo se calcula la atención">
-                El sistema separa estudiantes únicos atendidos, atenciones acumuladas y sesiones
-                realizadas. La asignación no cambia el conteo histórico del semestre.
-              </Alert>
-              <Alert tone="ok" title="Datos de prueba">
-                <BadgeCheck aria-hidden="true" /> Las personas, códigos y actas son ficticios y
-                están listos para sustituirse por la consulta a la DIAA y a los decanatos.
-              </Alert>
+      <DirectoryDisclosure title="Criterios, cupos y referencias de asignación">
+        <div className="grid grid--2">
+          <dl className="def-list">
+            <div>
+              <dt>Criterio de asignación</dt>
+              <dd>
+                Asignación directiva por la comisión; afinidad de curso como criterio
+                complementario.
+              </dd>
             </div>
+            <div>
+              <dt>Cupos por docente tutor</dt>
+              <dd>Propuesta: entre 10 y 14 estudiantes según la escuela (estado: propuesta).</dd>
+            </div>
+            <div>
+              <dt>Referencia de aprobación</dt>
+              <dd>Acta de la comisión de tutoría de la escuela por semestre académico.</dd>
+            </div>
+          </dl>
+          <div className="stack stack--sm">
+            <Alert tone="info" title="Cómo se calcula la atención">
+              El sistema separa estudiantes únicos atendidos, atenciones acumuladas y sesiones
+              realizadas. La asignación no cambia el conteo histórico del semestre.
+            </Alert>
+            <Alert tone="ok" title="Datos de prueba">
+              <BadgeCheck aria-hidden="true" /> Las personas, códigos y actas son ficticios y están
+              listos para sustituirse por la consulta a la DIAA y a los decanatos.
+            </Alert>
           </div>
-        </CardBody>
-      </Card>
-    </>
+        </div>
+      </DirectoryDisclosure>
+      {API_MODE && (
+        <DirectoryDisclosure title="Solicitudes de cambio de tutor">
+          <SolicitudesCambioPendientes />
+        </DirectoryDisclosure>
+      )}
+    </DirectoryPage>
   );
 }

@@ -4,7 +4,6 @@ import { Bell, ChevronRight, LogOut, Menu, Search, Settings2, UserRound, X } fro
 import { useAuth } from '../../hooks/useAuth';
 import { usePortal } from '../../hooks/usePortal';
 import { navigation } from '../../data/navegacion';
-import { notificaciones } from '../../data/institucional';
 import { estudiantePorId, estudiantes, iniciales } from '../../data/personas';
 import { roleDetails } from '../../utils/roles';
 import { formatFechaHora } from '../../utils/fechas';
@@ -132,7 +131,7 @@ export function Topbar({ menuOpen, menuExpanded, onToggleMenu }: TopbarProps) {
       .map((estudiante) => ({
         id: estudiante!.id,
         titulo: `${estudiante!.nombres} ${estudiante!.apellidos}`,
-        detalle: `${estudiante!.codigo} · Ciclo ${estudiante!.ciclo}`,
+        detalle: `${estudiante!.codigo} · Ciclo ${estudiante!.ciclo ?? 'sin informar'}`,
         destino:
           user.role === 'tutor'
             ? `/tutor/tutorados/${estudiante!.id}`
@@ -146,7 +145,10 @@ export function Topbar({ menuOpen, menuExpanded, onToggleMenu }: TopbarProps) {
   const nombreCorto = user.name.split(' ').slice(0, 2).join(' ');
   const avisos =
     user.role === 'estudiante'
-      ? notificaciones.map((aviso) => ({ ...aviso, destino: aviso.enlace ?? '/estudiante/avisos' }))
+      ? portal.notificaciones.map((aviso) => ({
+          ...aviso,
+          destino: aviso.enlace ?? '/estudiante/avisos',
+        }))
       : [
           {
             id: 'agenda',

@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { API_MODE } from './apiConfig';
+import { snapshotApi } from './apiTutoria';
 import type { Instrumento, Sesion } from '../types/domain';
 import type { DemoUser } from '../types/auth';
 import { asignaciones, sesiones } from '../data/tutoria';
@@ -70,6 +72,7 @@ export function resolverSesiones(
   programadas: Sesion[],
   asistencias = leerRegistros(localStorage.getItem(ATTENDANCE_KEY)),
 ): Sesion[] {
+  if (API_MODE) return snapshotApi().datos?.sesiones ?? [];
   const unicas = new Map(
     [...sesiones, ...programadas, ...sesionesDesdeInstrumentos(registros)].map((s) => [s.id, s]),
   );
@@ -85,6 +88,7 @@ export function programarSesion(
   entrada: ProgramacionSesion,
   registros: Instrumento[],
 ): Sesion {
+  if (API_MODE) throw new Error('La sesión debe programarse en el servidor.');
   if (actor.role !== 'tutor') throw new Error('Solo un docente tutor puede programar sesiones.');
   const resultado = entradaSchema.safeParse(entrada);
   if (!resultado.success)

@@ -1,3 +1,6 @@
+import { CompactPage, SecondaryPanel } from '../../components/ui/CompactPage';
+import { API_MODE } from '../../services/apiConfig';
+import { RespuestaInsumo } from '../../components/panels/GestionCoordinacion';
 import { useCallback, useMemo, useState } from 'react';
 import type { DefinicionSelect } from '../../components/panels/PanelFiltros';
 import { PanelFiltros, useFiltro } from '../../components/panels/PanelFiltros';
@@ -12,6 +15,7 @@ import {
   Lock,
   ShieldCheck,
   Waypoints,
+  Clock,
 } from '../../components/ui/icons';
 import { PageHeading } from '../../components/ui/PageHeading';
 import { Sheet } from '../../components/ui/Sheet';
@@ -223,7 +227,7 @@ export function CoordIntegrations() {
   ];
 
   return (
-    <>
+    <CompactPage>
       <PageHeading
         eyebrow={`Gestión institucional · Integraciones de datos · ${abreviaturaEscuela(portal.escuelaId)}`}
         title="Datos de otras áreas"
@@ -237,62 +241,6 @@ export function CoordIntegrations() {
           </>
         }
       />
-
-      <div className="grid grid--4">
-        <Stat
-          label="Entregados"
-          value={conteo('entregado')}
-          note="Insumos incorporados al sistema"
-          icon={<Database aria-hidden="true" />}
-          tone="verde"
-        />
-        <Stat
-          label="Entrega parcial"
-          value={conteo('parcial')}
-          note="Falta completar o confirmar reglas de uso"
-          icon={<Waypoints aria-hidden="true" />}
-          tone="alerta"
-        />
-        <Stat
-          label="Pendientes"
-          value={conteo('pendiente')}
-          note="Requieren reiteración del pedido"
-          icon={<ClipboardList aria-hidden="true" />}
-          tone="info"
-        />
-        <Stat
-          label="No autorizados"
-          value={conteo('no-autorizado')}
-          note="Se debe registrar una alternativa de tratamiento"
-          icon={<Lock aria-hidden="true" />}
-          tone={conteo('no-autorizado') ? 'riesgo' : 'verde'}
-        />
-      </div>
-
-      <Alert tone="info" title="Datos académicos: solo consulta">
-        <ShieldCheck aria-hidden="true" /> Aquí solo se consultan los datos académicos. Mientras se
-        habilita la conexión con la universidad, se usarán archivos autorizados y se registrará
-        quién los cargó y cuándo.
-      </Alert>
-
-      <Alert
-        tone="alerta"
-        title="Bienestar requiere un plan de trabajo antes de autorizar el acceso"
-      >
-        La carta 001026-2026-DIBU solicita precisar finalidad, usuarios autorizados, datos mínimos y
-        modalidad de consulta. El acceso sigue en evaluación. La propuesta comprende código
-        universitario, identificador de atención, servicio, fecha, estado y fecha de corte. Las
-        pautas académicas requieren autorización y vigencia explícitas. Los diagnósticos, motivos
-        confidenciales, historias clínicas e informes profesionales quedan fuera.
-      </Alert>
-
-      {conteo('no-autorizado') > 0 && (
-        <Alert tone="riesgo" title="Hay datos que aún no se pueden usar">
-          Ningún dato se incorpora sin autorización. Registra la alternativa institucional (por
-          ejemplo, reporte agregado sin datos personales) y déjela constancia en la observación de
-          la solicitud correspondiente.
-        </Alert>
-      )}
 
       <Card>
         <CardHead
@@ -323,7 +271,9 @@ export function CoordIntegrations() {
             />
             <DataTable<InsumoSolicitud>
               rows={filtro.filtrados}
-              columns={columnas}
+              columns={columnas.filter((c) =>
+                ['area', 'estado', 'respuesta', 'acciones'].includes(c.key),
+              )}
               caption="Solicitudes de datos a las áreas institucionales"
               rowKey={(insumo) => insumo.id}
               pageSize={9}
@@ -340,147 +290,211 @@ export function CoordIntegrations() {
         </CardFoot>
       </Card>
 
-      <div className="grid grid--sidebar">
-        <Card>
-          <CardHead
-            title="Historial de solicitudes"
-            description="Envío de solicitudes y respuestas de las áreas, en orden cronológico."
-          />
-          <CardBody>
-            <Timeline
-              etiqueta="Línea de tiempo de las solicitudes de datos"
-              hitos={hitos.map((hito) => ({
-                titulo: hito.titulo,
-                descripcion: hito.descripcion,
-                fecha: formatFecha(hito.fecha),
-                tono: hito.tono,
-              }))}
+      <div className="compact-toolbar">
+        <SecondaryPanel title="Resumen y condiciones">
+          <div className="grid grid--4">
+            <Stat
+              label="Entregados"
+              value={conteo('entregado')}
+              note="Insumos incorporados al sistema"
+              icon={<Database aria-hidden="true" />}
+              tone="verde"
             />
-          </CardBody>
-          <CardFoot>
-            <span>{hitos.length} eventos registrados entre solicitudes y respuestas.</span>
-          </CardFoot>
-        </Card>
+            <Stat
+              label="Entrega parcial"
+              value={conteo('parcial')}
+              note="Falta completar o confirmar reglas de uso"
+              icon={<Waypoints aria-hidden="true" />}
+              tone="alerta"
+            />
+            <Stat
+              label="Pendientes"
+              value={conteo('pendiente')}
+              note="Requieren reiteración del pedido"
+              icon={<ClipboardList aria-hidden="true" />}
+              tone="info"
+            />
+            <Stat
+              label="No autorizados"
+              value={conteo('no-autorizado')}
+              note="Se debe registrar una alternativa de tratamiento"
+              icon={<Lock aria-hidden="true" />}
+              tone={conteo('no-autorizado') ? 'riesgo' : 'verde'}
+            />
+          </div>
 
-        <div className="stack">
-          <Card accent>
+          <Alert tone="info" title="Datos académicos: solo consulta">
+            <ShieldCheck aria-hidden="true" /> Aquí solo se consultan los datos académicos. Mientras
+            se habilita la conexión con la universidad, se usarán archivos autorizados y se
+            registrará quién los cargó y cuándo.
+          </Alert>
+
+          <Alert
+            tone="alerta"
+            title="Bienestar requiere un plan de trabajo antes de autorizar el acceso"
+          >
+            La carta 001026-2026-DIBU solicita precisar finalidad, usuarios autorizados, datos
+            mínimos y modalidad de consulta. El acceso sigue en evaluación. La propuesta comprende
+            código universitario, identificador de atención, servicio, fecha, estado y fecha de
+            corte. Las pautas académicas requieren autorización y vigencia explícitas. Los
+            diagnósticos, motivos confidenciales, historias clínicas e informes profesionales quedan
+            fuera.
+          </Alert>
+
+          {conteo('no-autorizado') > 0 && (
+            <Alert tone="riesgo" title="Hay datos que aún no se pueden usar">
+              Ningún dato se incorpora sin autorización. Registra la alternativa institucional (por
+              ejemplo, reporte agregado sin datos personales) y déjela constancia en la observación
+              de la solicitud correspondiente.
+            </Alert>
+          )}
+        </SecondaryPanel>
+        <SecondaryPanel title="Historial y requisitos">
+          <div className="grid grid--sidebar">
+            <Card>
+              <CardHead
+                title="Historial de solicitudes"
+                description="Envío de solicitudes y respuestas de las áreas, en orden cronológico."
+              />
+              <CardBody>
+                <Timeline
+                  etiqueta="Línea de tiempo de las solicitudes de datos"
+                  hitos={hitos.map((hito) => ({
+                    titulo: hito.titulo,
+                    descripcion: hito.descripcion,
+                    fecha: formatFecha(hito.fecha),
+                    tono: hito.tono,
+                  }))}
+                />
+              </CardBody>
+              <CardFoot>
+                <span>{hitos.length} eventos registrados entre solicitudes y respuestas.</span>
+              </CardFoot>
+            </Card>
+
+            <div className="stack">
+              <Card accent>
+                <CardHead
+                  title="Requisitos para usar los datos"
+                  description="Permisos y condiciones que debe confirmar cada área."
+                />
+                <CardBody>
+                  <dl className="def-list">
+                    <div>
+                      <dt>Modo de acceso</dt>
+                      <dd>Consulta de datos académicos. No permite modificarlos.</dd>
+                    </div>
+                    <div>
+                      <dt>Mientras se habilita la conexión</dt>
+                      <dd>Carga de archivo CSV autorizado, con registro de responsable y fecha.</dd>
+                    </div>
+                    <div>
+                      <dt>Datos mínimos</dt>
+                      <dd>
+                        Registro y matrícula, cursos y notas, promedio ponderado, avance curricular
+                        y horarios del estudiante.
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Datos excluidos</dt>
+                      <dd>
+                        Historia clínica, diagnósticos y detalles de atención de salud o psicología.
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Responsable técnico</dt>
+                      <dd>Área de tecnología de la universidad (solicitud INS-05).</dd>
+                    </div>
+                    <div>
+                      <dt>Frecuencia prevista</dt>
+                      <dd>Actualización por corte académico informada por la DIAA.</dd>
+                    </div>
+                  </dl>
+                </CardBody>
+                <CardFoot>
+                  <span>
+                    El área de tecnología debe habilitar el correo y la conexión con los datos
+                    oficiales.
+                  </span>
+                </CardFoot>
+              </Card>
+
+              <Card>
+                <CardHead
+                  title="Para qué se usa cada dato"
+                  description="Para qué usa el sistema cada dato recibido"
+                />
+                <CardBody flush>
+                  <ul className="list">
+                    {insumosInstitucionales.slice(0, 5).map((insumo) => (
+                      <li className="list__item" key={`${insumo.id}-aplicacion`}>
+                        <span className="list__body">
+                          <strong>{insumo.aplicacion}</strong>
+                          <p>
+                            {insumo.id} · {insumo.area}
+                          </p>
+                        </span>
+                        <span className="list__aside">
+                          <StatusBadge
+                            estado={insumo.estado}
+                            etiqueta={etiquetaEstado(insumo.estado)}
+                          />
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardBody>
+                <CardFoot>
+                  <span>
+                    <Info aria-hidden="true" /> Las áreas de apoyo se corresponden con las rutas de
+                    solicitud de apoyo del formato 12.
+                  </span>
+                </CardFoot>
+              </Card>
+            </div>
+          </div>
+        </SecondaryPanel>
+        <SecondaryPanel title="Áreas y contactos">
+          <Card flat>
             <CardHead
-              title="Requisitos para usar los datos"
-              description="Permisos y condiciones que debe confirmar cada área."
+              title="Rutas de solicitud de apoyo relacionadas"
+              description="Áreas institucionales que reciben fichas de solicitud de apoyo (formato 12)"
             />
             <CardBody>
-              <dl className="def-list">
-                <div>
-                  <dt>Modo de acceso</dt>
-                  <dd>Consulta de datos académicos. No permite modificarlos.</dd>
-                </div>
-                <div>
-                  <dt>Mientras se habilita la conexión</dt>
-                  <dd>Carga de archivo CSV autorizado, con registro de responsable y fecha.</dd>
-                </div>
-                <div>
-                  <dt>Datos mínimos</dt>
-                  <dd>
-                    Registro y matrícula, cursos y notas, promedio ponderado, avance curricular y
-                    horarios del estudiante.
-                  </dd>
-                </div>
-                <div>
-                  <dt>Datos excluidos</dt>
-                  <dd>
-                    Historia clínica, diagnósticos y detalles de atención de salud o psicología.
-                  </dd>
-                </div>
-                <div>
-                  <dt>Responsable técnico</dt>
-                  <dd>Área de tecnología de la universidad (solicitud INS-05).</dd>
-                </div>
-                <div>
-                  <dt>Frecuencia prevista</dt>
-                  <dd>Actualización por corte académico informada por la DIAA.</dd>
-                </div>
-              </dl>
+              <div className="grid grid--2">
+                <dl className="def-list">
+                  {areasDerivacion.slice(0, 3).map((area) => (
+                    <div key={area.id}>
+                      <dt>{area.nombre}</dt>
+                      <dd>
+                        {area.responsable} · {area.correo} · respuesta estimada{' '}
+                        {area.tiempoRespuesta}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+                <dl className="def-list">
+                  {areasDerivacion.slice(3).map((area) => (
+                    <div key={area.id}>
+                      <dt>{area.nombre}</dt>
+                      <dd>
+                        {area.responsable} · {area.correo} · respuesta estimada{' '}
+                        {area.tiempoRespuesta}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
             </CardBody>
             <CardFoot>
               <span>
-                El área de tecnología debe habilitar el correo y la conexión con los datos
-                oficiales.
+                El sistema conserva el estado de la atención y la recomendación autorizada; nunca el
+                diagnóstico.
               </span>
             </CardFoot>
           </Card>
-
-          <Card>
-            <CardHead
-              title="Para qué se usa cada dato"
-              description="Para qué usa el sistema cada dato recibido"
-            />
-            <CardBody flush>
-              <ul className="list">
-                {insumosInstitucionales.slice(0, 5).map((insumo) => (
-                  <li className="list__item" key={`${insumo.id}-aplicacion`}>
-                    <span className="list__body">
-                      <strong>{insumo.aplicacion}</strong>
-                      <p>
-                        {insumo.id} · {insumo.area}
-                      </p>
-                    </span>
-                    <span className="list__aside">
-                      <StatusBadge
-                        estado={insumo.estado}
-                        etiqueta={etiquetaEstado(insumo.estado)}
-                      />
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </CardBody>
-            <CardFoot>
-              <span>
-                <Info aria-hidden="true" /> Las áreas de apoyo se corresponden con las rutas de
-                solicitud de apoyo del formato 12.
-              </span>
-            </CardFoot>
-          </Card>
-        </div>
+        </SecondaryPanel>
       </div>
-
-      <Card flat>
-        <CardHead
-          title="Rutas de solicitud de apoyo relacionadas"
-          description="Áreas institucionales que reciben fichas de solicitud de apoyo (formato 12)"
-        />
-        <CardBody>
-          <div className="grid grid--2">
-            <dl className="def-list">
-              {areasDerivacion.slice(0, 3).map((area) => (
-                <div key={area.id}>
-                  <dt>{area.nombre}</dt>
-                  <dd>
-                    {area.responsable} · {area.correo} · respuesta estimada {area.tiempoRespuesta}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-            <dl className="def-list">
-              {areasDerivacion.slice(3).map((area) => (
-                <div key={area.id}>
-                  <dt>{area.nombre}</dt>
-                  <dd>
-                    {area.responsable} · {area.correo} · respuesta estimada {area.tiempoRespuesta}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        </CardBody>
-        <CardFoot>
-          <span>
-            El sistema conserva el estado de la atención y la recomendación autorizada; nunca el
-            diagnóstico.
-          </span>
-        </CardFoot>
-      </Card>
-
       {detalle && (
         <Sheet
           wide
@@ -502,6 +516,7 @@ export function CoordIntegrations() {
             <div className="grid grid--3">
               <Stat
                 label="Estado de la solicitud"
+                icon={<Info />}
                 value={etiquetaEstado(detalle.estado)}
                 note={
                   detalle.fechaRespuesta
@@ -520,12 +535,14 @@ export function CoordIntegrations() {
               />
               <Stat
                 label="Días transcurridos"
+                icon={<Clock />}
                 value={diasDesde(detalle.fechaSolicitud, detalle.fechaRespuesta)}
                 note="Desde la solicitud hasta la respuesta o hasta hoy"
                 tone="info"
               />
               <Stat
                 label="Insumos solicitados"
+                icon={<ClipboardList />}
                 value={detalle.insumoPrioritario.split(',').length}
                 note="Componentes del insumo prioritario"
                 tone="violeta"
@@ -575,9 +592,10 @@ export function CoordIntegrations() {
               en la auditoría.
             </Alert>
           </div>
+          {API_MODE && <RespuestaInsumo insumoId={detalle.id} alGuardar={() => setDetalle(null)} />}
         </Sheet>
       )}
-    </>
+    </CompactPage>
   );
 }
 

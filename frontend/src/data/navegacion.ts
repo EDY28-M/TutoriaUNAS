@@ -213,6 +213,7 @@ export const navigation: Record<Role, NavigationGroup[]> = {
         },
         { path: 'permisos', label: 'Accesos y permisos', icon: ShieldCheck },
         { path: 'integraciones', label: 'Datos de otras áreas', icon: Plug },
+        { path: 'padron', label: 'Padrón importado', icon: Database },
         { path: 'semestres', label: 'Semestres y fechas', icon: CalendarRange },
         { path: 'auditoria', label: 'Historial de cambios', icon: ScrollText },
       ],

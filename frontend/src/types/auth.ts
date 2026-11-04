@@ -7,6 +7,7 @@ export interface DemoUser {
   name: string;
   identifier: string;
   email: string;
+  personaId?: string;
 }
 
 export interface LoginCredentials {

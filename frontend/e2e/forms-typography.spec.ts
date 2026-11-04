@@ -42,7 +42,7 @@ for (const cuenta of [
         page.getByRole('heading', { name: 'Mis formularios', exact: true }),
       ).toBeVisible();
       if (cuenta.rol === 'estudiante')
-        await page.getByLabel('Momento del semestre').selectOption('inicio');
+        await expect(page.getByLabel('Momento del semestre')).toHaveCount(0);
       expect(await tipografia(page.locator('.forms-panel__header h1'))).toEqual(titulo);
       expect(
         await tipografia(
@@ -78,7 +78,9 @@ for (const cuenta of [
           .getByRole('button', { name: 'Continuar', exact: true })
           .click();
       } else {
-        await page.getByRole('button', { name: 'Comenzar · Formato 03', exact: true }).click();
+        await page
+          .getByRole('button', { name: /^(Comenzar|Continuar|Ver preguntas) · Formato 03$/ })
+          .click();
       }
       expect(
         await tipografia(page.getByRole('dialog').locator('.tutoring-field .input')),

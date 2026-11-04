@@ -28,6 +28,19 @@ public sealed class ApiIntegrationTests : IClassFixture<ApiTestFactory>
         Assert.False(status.DatabaseEnabled);
         Assert.Equal("Healthy", await client.GetStringAsync("/health"));
     }
+    [Fact]
+    public async Task ProductionDoesNotExposeDevelopmentPasswordLogin()
+    {
+        using var client = CreateClient("Production");
+        var response = await client.PostAsJsonAsync("/api/auth/login", new { identifier = "DOC-0421", password = "tutoria2026", role = "tutor" });
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+    [Fact]
+    public async Task ReadinessRequiresConfiguredPostgres()
+    {
+        using var client = CreateClient();
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, (await client.GetAsync("/health/ready")).StatusCode);
+    }
 
     [Fact]
     public async Task DemoOverviewIsClearlyLabeled()

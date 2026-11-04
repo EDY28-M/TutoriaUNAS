@@ -1,3 +1,5 @@
+import { API_MODE } from '../../services/apiConfig';
+import { InscripcionCampana } from '../../components/panels/AccionesTutoria';
 import { useState } from 'react';
 import { PageHeading } from '../../components/ui/PageHeading';
 import { Card, CardBody, CardHead } from '../../components/ui/Card';
@@ -390,7 +392,13 @@ export function StudentHealth() {
             </div>
             <div>
               <dt>Inscripción</dt>
-              <dd>Coordina tu inscripción con el servicio organizador de la actividad.</dd>
+              <dd>
+                {API_MODE ? (
+                  <InscripcionCampana campana={campana} />
+                ) : (
+                  'Coordina tu inscripción con el servicio organizador de la actividad.'
+                )}
+              </dd>
             </div>
           </dl>
         </Sheet>

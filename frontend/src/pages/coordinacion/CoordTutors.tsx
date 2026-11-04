@@ -1,11 +1,12 @@
 import { useCallback, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   BookOpen,
   CalendarClock,
-  GraduationCap,
-  MailCheck,
-  Presentation,
   Users,
+  Presentation,
+  GraduationCap,
+  CalendarCheck,
 } from '../../components/ui/icons';
 import { PageHeading } from '../../components/ui/PageHeading';
 import { Card, CardBody, CardFoot, CardHead } from '../../components/ui/Card';
@@ -18,16 +19,23 @@ import type { Column } from '../../components/ui/DataTable';
 import { PersonCell } from '../../components/ui/PersonCell';
 import { Sheet } from '../../components/ui/Sheet';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { PanelFiltros, useFiltro } from '../../components/panels/PanelFiltros';
+import { useFiltro } from '../../components/panels/PanelFiltros';
+import {
+  DirectoryPage,
+  DirectorySummary,
+  DirectoryViews,
+  DirectoryDisclosure,
+} from '../../components/ui/DirectoryPage';
+import { DirectoryToolbar } from '../../components/ui/DirectoryToolbar';
 import type { DefinicionSelect } from '../../components/panels/PanelFiltros';
 import { usePortal } from '../../hooks/usePortal';
+import { usePersonasPortal } from '../../hooks/usePersonasPortal';
+import { AccionesCuentas } from '../../components/panels/AccionesCuentas';
 import type { Docente } from '../../types/domain';
 import {
   abreviaturaEscuela,
   comisionTutoria,
-  docentes,
   escuelaDe,
-  estudiantes,
   iniciales,
   nombreCompleto,
 } from '../../data/personas';
@@ -76,6 +84,7 @@ function diaLargo(dia: number): string {
  */
 export function CoordTutors() {
   const portal = usePortal();
+  const { estudiantes, docentes } = usePersonasPortal();
   const [detalle, setDetalle] = useState<Docente | null>(null);
 
   const filas = useMemo<FilaTutor[]>(
@@ -83,7 +92,7 @@ export function CoordTutors() {
       docentes
         .map((docente) => filaDeTutor(docente))
         .sort((a, b) => a.docente.apellidos.localeCompare(b.docente.apellidos, 'es')),
-    [],
+    [docentes],
   );
 
   const buscarEn = useCallback(
@@ -117,6 +126,18 @@ export function CoordTutors() {
         valorDe: (fila) => (fila.docente.activo ? 'activo' : 'inactivo'),
       },
       {
+        id: 'disponibilidad',
+        etiqueta: 'Disponibilidad',
+        opciones: [
+          { valor: 'con-cupos', etiqueta: 'Con cupos disponibles' },
+          { valor: 'sin-cupos', etiqueta: 'Sin cupos disponibles' },
+        ],
+        valorDe: (fila) =>
+          fila.docente.activo && (fila.docente.aforoMaximo ?? 0) > fila.tutorados
+            ? 'con-cupos'
+            : 'sin-cupos',
+      },
+      {
         id: 'dedicacion',
         etiqueta: 'Dedicación',
         opciones: [
@@ -124,7 +145,7 @@ export function CoordTutors() {
           { valor: 'Dedicación exclusiva', etiqueta: 'Dedicación exclusiva' },
           { valor: 'Tiempo parcial', etiqueta: 'Tiempo parcial' },
         ],
-        valorDe: (fila) => fila.docente.dedicacion,
+        valorDe: (fila) => fila.docente.dedicacion ?? '',
       },
     ],
     [],
@@ -133,9 +154,8 @@ export function CoordTutors() {
   const filtro = useFiltro(filas, buscarEn, selects);
 
   const activos = filas.filter((fila) => fila.docente.activo);
-  const conTutorados = filas.filter((fila) => fila.tutorados > 0);
   const sinTutorados = filas.filter((fila) => fila.docente.activo && fila.tutorados === 0);
-  const aforoTotal = activos.reduce((total, fila) => total + fila.docente.aforoMaximo, 0);
+  const aforoTotal = activos.reduce((total, fila) => total + (fila.docente.aforoMaximo ?? 0), 0);
   const aforoUsado = filas.reduce((total, fila) => total + fila.tutorados, 0);
   const ocupacionGlobal = aforoTotal ? Math.round((aforoUsado / aforoTotal) * 100) : 0;
   const sinHorario = activos.filter((fila) => fila.bloques === 0);
@@ -161,49 +181,20 @@ export function CoordTutors() {
         <PersonCell
           nombres={fila.docente.nombres}
           apellidos={fila.docente.apellidos}
-          detalle={`${fila.docente.codigo} · ${fila.docente.categoria}`}
+          detalle={`${fila.docente.codigo} · ${abreviaturaEscuela(fila.docente.escuelaId)}`}
           iniciales={iniciales(fila.docente)}
         />
       ),
     },
     {
-      key: 'escuela',
-      header: 'Escuela',
-      sortable: true,
-      sortValue: (fila) => abreviaturaEscuela(fila.docente.escuelaId),
-      render: (fila) => (
-        <span className="stack" style={{ gap: 1 }}>
-          <Badge tone="info">{abreviaturaEscuela(fila.docente.escuelaId)}</Badge>
-          <span className="cell-note">{escuelaDe(fila.docente.escuelaId)}</span>
-        </span>
-      ),
-    },
-    {
-      key: 'departamento',
-      header: 'Departamento',
-      sortable: true,
-      sortValue: (fila) => fila.docente.departamento,
-      render: (fila) => <span className="cell-note">{fila.docente.departamento}</span>,
-    },
-    {
       key: 'dedicacion',
-      header: 'Categoría y dedicación',
+      header: 'Dedicación',
       sortable: true,
       sortValue: (fila) => fila.docente.categoria,
       render: (fila) => (
         <span className="stack" style={{ gap: 1 }}>
-          <span>{fila.docente.categoria}</span>
-          <span className="cell-note">{fila.docente.dedicacion}</span>
-        </span>
-      ),
-    },
-    {
-      key: 'correo',
-      header: 'Contacto',
-      render: (fila) => (
-        <span className="stack" style={{ gap: 1 }}>
-          <a href={`mailto:${fila.docente.correo}`}>{fila.docente.correo}</a>
-          <span className="cell-note">{fila.docente.telefono}</span>
+          <span>{fila.docente.categoria ?? 'Sin informar'}</span>
+          <span className="cell-note">{fila.docente.dedicacion ?? 'Sin informar'}</span>
         </span>
       ),
     },
@@ -213,29 +204,22 @@ export function CoordTutors() {
       sortable: true,
       sortValue: (fila) => fila.docente.aforoMaximo,
       render: (fila) => (
-        <span className="stack" style={{ gap: 2 }}>
-          <span className="num">
-            {fila.tutorados} / {fila.docente.aforoMaximo}
+        <span className="directory-capacity">
+          <span>
+            {fila.tutorados} / {fila.docente.aforoMaximo ?? 'Por confirmar'}
           </span>
-          <span className="cell-note">{fila.ocupacion}% de ocupación</span>
-        </span>
-      ),
-    },
-    {
-      key: 'sesiones',
-      header: 'Sesiones del semestre',
-      sortable: true,
-      sortValue: (fila) => fila.sesionesRealizadas,
-      render: (fila) => (
-        <span className="stack" style={{ gap: 1 }}>
-          <span className="num">{fila.sesionesRealizadas} realizadas</span>
-          <span className="cell-note">{fila.sesionesProgramadas} programadas</span>
+          <meter
+            min={0}
+            max={Math.max(1, fila.docente.aforoMaximo ?? 0)}
+            value={fila.tutorados}
+            aria-label={`Cupos ocupados de ${nombreCompleto(fila.docente)}`}
+          />
         </span>
       ),
     },
     {
       key: 'horario',
-      header: 'Bloques de atención',
+      header: 'Horario',
       sortable: true,
       sortValue: (fila) => fila.bloques,
       render: (fila) =>
@@ -276,44 +260,106 @@ export function CoordTutors() {
   ];
 
   return (
-    <>
+    <DirectoryPage>
       <PageHeading
         eyebrow={`Coordinación de tutoría · ${abreviaturaEscuela(portal.escuelaId)} · Semestre ${semestreActual}`}
         title="Tutores"
-        description="Consulta los datos, los estudiantes asignados y los horarios de cada tutor."
+        description="Equipo docente, disponibilidad y atención tutorial."
         actions={
           <>
-            <Badge tone="info">{activos.length} habilitados</Badge>
-            <Badge tone={sinHorario.length ? 'alerta' : 'ok'}>
-              {sinHorario.length
-                ? `${sinHorario.length} sin horario publicado`
-                : 'Horarios publicados'}
-            </Badge>
+            <AccionesCuentas rol="tutor" />
+            <Link className="btn btn-falcon-default" to="/coordinacion/padron?hoja=docentes">
+              <i className="fa-solid fa-file-csv" aria-hidden="true" /> Padrón docente
+            </Link>
           </>
         }
       />
 
+      <DirectorySummary
+        label="Ocupación de cupos"
+        icon={<Users aria-hidden="true" />}
+        value={`${aforoUsado} / ${aforoTotal}`}
+        percent={ocupacionGlobal}
+        note="cupos ocupados"
+        metrics={[
+          {
+            label: 'Tutores habilitados',
+            value: activos.length,
+            note: `${docentes.length} docentes en el padrón`,
+            icon: <Presentation aria-hidden="true" />,
+          },
+          {
+            label: 'Cupos disponibles',
+            value: activos.reduce(
+              (total, fila) =>
+                total + Math.max(0, (fila.docente.aforoMaximo ?? 0) - fila.tutorados),
+              0,
+            ),
+            note: `${sinTutorados.length} tutores sin estudiantes`,
+            icon: <GraduationCap aria-hidden="true" />,
+          },
+          {
+            label: 'Horario publicado',
+            value: `${activos.length - sinHorario.length} / ${activos.length}`,
+            note: sinHorario.length
+              ? `${sinHorario.length} pendientes de publicar`
+              : 'Todo el equipo con horario',
+            icon: <CalendarCheck aria-hidden="true" />,
+          },
+        ]}
+      />
+
       <Card>
         <CardHead
-          title="Lista de tutores"
-          description="Busca un tutor para consultar sus datos y su disponibilidad."
+          title="Directorio de tutores"
+          actions={<span className="directory-result">Semestre {semestreActual}</span>}
         />
         <CardBody>
           <div className="stack">
-            <PanelFiltros<FilaTutor>
+            <DirectoryToolbar
               busqueda={filtro.busqueda}
               onBusqueda={filtro.setBusqueda}
               selects={selects}
               valores={filtro.valores}
-              onValor={(id, valor) =>
-                filtro.setValores((actuales) => ({ ...actuales, [id]: valor }))
-              }
+              onValores={filtro.setValores}
               mostrados={filtro.filtrados.length}
               total={filas.length}
-              activos={filtro.activos}
               onLimpiar={filtro.limpiar}
               etiqueta="Filtros del registro docente"
               placeholder="Buscar por nombre, código o correo…"
+              views={
+                <DirectoryViews
+                  views={[
+                    {
+                      label: 'Todos',
+                      count: filas.length,
+                      active: !filtro.valores.estado && !filtro.valores.disponibilidad,
+                      onClick: () =>
+                        filtro.setValores((v) => ({ ...v, estado: '', disponibilidad: '' })),
+                    },
+                    {
+                      label: 'Habilitados',
+                      count: activos.length,
+                      active: filtro.valores.estado === 'activo' && !filtro.valores.disponibilidad,
+                      onClick: () =>
+                        filtro.setValores((v) => ({ ...v, estado: 'activo', disponibilidad: '' })),
+                    },
+                    {
+                      label: 'Con cupos',
+                      count: activos.filter(
+                        (fila) => (fila.docente.aforoMaximo ?? 0) > fila.tutorados,
+                      ).length,
+                      active: filtro.valores.disponibilidad === 'con-cupos',
+                      onClick: () =>
+                        filtro.setValores((v) => ({
+                          ...v,
+                          estado: '',
+                          disponibilidad: 'con-cupos',
+                        })),
+                    },
+                  ]}
+                />
+              }
             />
             <DataTable<FilaTutor>
               rows={filtro.filtrados}
@@ -321,6 +367,9 @@ export function CoordTutors() {
               caption={`Registro de docentes tutores · semestre ${semestreActual}`}
               rowKey={(fila) => fila.docente.id}
               pageSize={10}
+              pagination="auto"
+              paginationPosition="bottom"
+              inlineActions
               initialSort={{ key: 'docente', direction: 'asc' }}
               emptyTitle="Sin docentes con estos filtros"
               emptyDescription="Revisa la escuela, la dedicación o el estado seleccionado."
@@ -328,115 +377,80 @@ export function CoordTutors() {
           </div>
         </CardBody>
         <CardFoot>
-          <span>
-            Fuente: registro docente validado con Recursos Humanos (solicitud INS-04) y
-            designaciones de la comisión.
-          </span>
-          <span className="ui-row ui-row--tight">
-            <MailCheck aria-hidden="true" /> Los correos institucionales se usan para los avisos del
-            sistema.
-          </span>
+          <span>Fuente: Recursos Humanos · INS-04 y designaciones de la comisión.</span>
         </CardFoot>
       </Card>
 
-      <div className="grid grid--4">
-        <Stat
-          label="Docentes tutores activos"
-          value={activos.length}
-          note={`${docentes.length} registros en el padrón docente`}
-          icon={<Presentation aria-hidden="true" />}
-        />
-        <Stat
-          label="Con estudiantes asignados"
-          value={conTutorados.length}
-          note={`${sinTutorados.length} docentes activos sin asignación`}
-          icon={<Users aria-hidden="true" />}
-          tone="info"
-        />
-        <Stat
-          label="Cupos ocupados"
-          value={`${ocupacionGlobal}%`}
-          note={`${aforoUsado} estudiantes de ${aforoTotal} cupos declarados`}
-          icon={<GraduationCap aria-hidden="true" />}
-          tone={ocupacionGlobal >= 90 ? 'alerta' : 'verde'}
-        />
-        <Stat
-          label="Promedio de estudiantes"
-          value={conTutorados.length ? (aforoUsado / conTutorados.length).toFixed(1) : '0'}
-          note="Estudiantes por docente con asignación vigente"
-          icon={<Users aria-hidden="true" />}
-          tone="dorado"
-        />
-      </div>
+      <DirectoryDisclosure title="Comisión, horarios y criterios de cupos">
+        <Alert tone="info" title="Cupos por confirmar">
+          El acta del 7 de octubre de 2026 propone entre 10 y 14 estudiantes por docente según la
+          escuela. El sistema muestra los cupos registrados y alerta cuando se supera, pero no
+          impide la asignación: la regla cupos-tutor permanece con estado «propuesta».
+        </Alert>
 
-      <Alert tone="info" title="Cupos por confirmar">
-        El acta del 7 de octubre de 2026 propone entre 10 y 14 estudiantes por docente según la
-        escuela. El sistema muestra los cupos registrados y alerta cuando se supera, pero no impide
-        la asignación: la regla cupos-tutor permanece con estado «propuesta».
-      </Alert>
-
-      <div className="grid grid--sidebar">
-        <Card>
-          <CardHead
-            title="Comisión de tutoría y responsables"
-            description="Designaciones vigentes para el periodo 2026"
-          />
-          <CardBody flush>
-            <ul className="list">
-              {comisionTutoria.map((miembro) => (
-                <li className="list__item" key={miembro.id}>
-                  <span className="list__icon list__icon--gold" aria-hidden="true">
-                    <Users />
-                  </span>
-                  <span className="list__body">
-                    <strong>{miembro.nombres}</strong>
-                    <p>
-                      {miembro.cargoTutorial} · {miembro.ambito}
-                    </p>
-                    <span className="list__meta">
-                      <span>{miembro.correo}</span>
-                      <span>
-                        Vigencia {formatFecha(miembro.vigenciaInicio)} →{' '}
-                        {formatFecha(miembro.vigenciaFin)}
+        <div className="grid grid--sidebar">
+          <Card>
+            <CardHead
+              title="Comisión de tutoría y responsables"
+              description="Designaciones vigentes para el periodo 2026"
+            />
+            <CardBody flush>
+              <ul className="list">
+                {comisionTutoria.map((miembro) => (
+                  <li className="list__item" key={miembro.id}>
+                    <span className="list__icon list__icon--gold" aria-hidden="true">
+                      <Users />
+                    </span>
+                    <span className="list__body">
+                      <strong>{miembro.nombres}</strong>
+                      <p>
+                        {miembro.cargoTutorial} · {miembro.ambito}
+                      </p>
+                      <span className="list__meta">
+                        <span>{miembro.correo}</span>
+                        <span>
+                          Vigencia {formatFecha(miembro.vigenciaInicio)} →{' '}
+                          {formatFecha(miembro.vigenciaFin)}
+                        </span>
                       </span>
                     </span>
-                  </span>
-                  <span className="list__aside">
-                    <Badge tone="dorado">{miembro.actaDesignacion}</Badge>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </CardBody>
-        </Card>
+                    <span className="list__aside">
+                      <Badge tone="dorado">{miembro.actaDesignacion}</Badge>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </CardBody>
+          </Card>
 
-        <Card accent>
-          <CardHead
-            title="Estado del horario de atención"
-            description="Bloques publicados por los tutores"
-          />
-          <CardBody>
-            <div className="stack">
-              {activos.slice(0, 8).map((fila) => (
-                <div className="ui-row ui-row--between ui-row--wrap" key={fila.docente.id}>
-                  <span className="small">
-                    <strong>{nombreCompleto(fila.docente)}</strong>
-                    <span className="muted"> · {abreviaturaEscuela(fila.docente.escuelaId)}</span>
-                  </span>
-                  {fila.bloques ? (
-                    <Badge tone="ok">{fila.bloques} bloque(s)</Badge>
-                  ) : (
-                    <Badge tone="alerta">Sin publicar</Badge>
-                  )}
-                </div>
-              ))}
-            </div>
-          </CardBody>
-          <CardFoot>
-            <span>Los bloques se administran desde «Horarios de tutoría».</span>
-          </CardFoot>
-        </Card>
-      </div>
+          <Card accent>
+            <CardHead
+              title="Estado del horario de atención"
+              description="Bloques publicados por los tutores"
+            />
+            <CardBody>
+              <div className="stack">
+                {activos.slice(0, 8).map((fila) => (
+                  <div className="ui-row ui-row--between ui-row--wrap" key={fila.docente.id}>
+                    <span className="small">
+                      <strong>{nombreCompleto(fila.docente)}</strong>
+                      <span className="muted"> · {abreviaturaEscuela(fila.docente.escuelaId)}</span>
+                    </span>
+                    {fila.bloques ? (
+                      <Badge tone="ok">{fila.bloques} bloque(s)</Badge>
+                    ) : (
+                      <Badge tone="alerta">Sin publicar</Badge>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CardBody>
+            <CardFoot>
+              <span>Los bloques se administran desde «Horarios de tutoría».</span>
+            </CardFoot>
+          </Card>
+        </div>
+      </DirectoryDisclosure>
 
       {detalle && detalleFila && (
         <Sheet
@@ -458,17 +472,20 @@ export function CoordTutors() {
             <div className="grid grid--3">
               <Stat
                 label="Estudiantes asignados"
+                icon={<Users />}
                 value={detalleFila.tutorados}
                 note={`Límite de estudiantes ${detalle.aforoMaximo}`}
               />
               <Stat
                 label="Sesiones realizadas"
+                icon={<CalendarCheck />}
                 value={detalleFila.sesionesRealizadas}
                 note={`${detalleFila.sesionesProgramadas} programadas`}
                 tone="info"
               />
               <Stat
                 label="Bloques de atención"
+                icon={<CalendarClock />}
                 value={detalleFila.bloques}
                 note={`${clasesDelDetalle.length} bloques de clase registrados`}
                 tone="violeta"
@@ -551,7 +568,7 @@ export function CoordTutors() {
                           </strong>
                           <p>
                             {estudiante.codigo} · ciclo {estudiante.ciclo} · {estudiante.etapa} ·
-                            promedio {estudiante.promedioPonderado.toFixed(1)}
+                            promedio {estudiante.promedioPonderado?.toFixed(1) ?? 'Sin informar'}
                           </p>
                           <span className="list__meta">
                             <span>Grupo {asignacion.grupo ?? 'sin grupo'}</span>
@@ -654,6 +671,6 @@ export function CoordTutors() {
           </div>
         </Sheet>
       )}
-    </>
+    </DirectoryPage>
   );
 }

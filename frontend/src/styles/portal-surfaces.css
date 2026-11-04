@@ -1,0 +1,191 @@
+/* Superficies de los tres portales: referencia visual de Reportes. */
+.app-shell .workspace {
+  --portal-row-line: #e3eae5;
+  --falcon-danger-rgb: 141, 37, 37;
+}
+
+.portal-metrics-region {
+  container: portal-metrics / inline-size;
+  min-width: 0;
+}
+.portal-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  min-width: 0;
+}
+.portal-metrics[data-count='1'] {
+  grid-template-columns: minmax(0, 1fr);
+}
+@container portal-metrics (min-width: 660px) {
+  .portal-metrics[data-count='3'] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@container portal-metrics (min-width: 880px) {
+  .portal-metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .portal-metrics[data-count='2'] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.app-shell .workspace .card {
+  border: 0;
+  border-radius: var(--r-md);
+  box-shadow: none;
+  background: var(--surface);
+}
+
+.app-shell
+  .workspace
+  :is(
+    .studies-summary,
+    .profile-identity,
+    .tutees-metrics,
+    .referral-metrics,
+    .report-metrics,
+    .notice-metrics,
+    .form-tile,
+    .teacher-task,
+    .teacher-register__list,
+    .profile-security li,
+    .referral-states li,
+    .referral-directory article,
+    .tutees-group,
+    .tutorial-calendar,
+    .health-page__sis
+  ) {
+  border: 0;
+  border-radius: var(--r-md);
+  box-shadow: none;
+  background: var(--surface);
+}
+
+.app-shell
+  .workspace
+  :is(.tutees-metrics, .referral-metrics, .report-metrics, .notice-metrics)
+  > div
+  + div {
+  border-left: 0;
+}
+
+.app-shell .workspace :is(.form-tile__icon, .student-notices__message-icon) {
+  background: transparent;
+  border-radius: 0;
+  color: var(--ink-700);
+}
+
+.app-shell .workspace :is(.teacher-task__icon, .form-tile__icon) {
+  width: 42px;
+  height: 42px;
+  color: var(--ink-700);
+  background: transparent;
+}
+
+.app-shell .workspace :is(.teacher-task__icon, .form-tile__icon) > .portal-icon {
+  width: 36px;
+  height: 36px;
+  font-size: 36px;
+}
+
+.app-shell .workspace :is(.empty-state, .forms-panel__empty, .forms-panel__stage-note, .def-list) {
+  border: 0;
+  box-shadow: none;
+}
+
+.app-shell .workspace .card__head,
+.app-shell .workspace .card__foot {
+  border: 0;
+  background: transparent;
+}
+
+.app-shell .workspace .stat__body {
+  position: static;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 5px 12px;
+  padding: 16px;
+}
+
+.app-shell .workspace .stat__label {
+  margin: 0 0 4px;
+  color: var(--ink-900);
+  font: 400 0.8333rem var(--font-heading);
+}
+
+.app-shell .workspace .stat__value {
+  color: var(--ink-900);
+  font: 500 1.75rem/1.15 var(--font-body);
+  letter-spacing: -0.02em;
+}
+
+.app-shell .workspace .stat__visual {
+  width: 48px;
+  height: 48px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink-700);
+  box-shadow: none;
+}
+
+.app-shell .workspace .stat__visual > .portal-icon {
+  width: 48px;
+  height: 48px;
+  font-size: 48px;
+}
+
+.app-shell .workspace .stat__note {
+  margin-top: 2px;
+  color: var(--ink-600);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.app-shell .workspace :is(.table-wrap, .data-table-panel__scroll) {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.app-shell .workspace .data-table {
+  border: 0;
+  background: transparent;
+}
+
+.app-shell .workspace .data-table :is(th, td) {
+  border: 0;
+  border-bottom: 1px solid var(--portal-row-line);
+}
+
+.app-shell .workspace .data-table th {
+  background: transparent;
+}
+
+.app-shell .workspace table.data-table tbody tr {
+  border: 0;
+  box-shadow: none;
+}
+
+.app-shell .workspace .data-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.app-shell .workspace .table-pagination {
+  background: transparent;
+}
+
+.app-shell .workspace .analytics-card-head > div:first-child {
+  flex: 1 1 180px;
+}
+
+@media (max-width: 479px) {
+  .app-shell .workspace :is(.dashboard-metrics, .grid--4, .directory-summary, .portal-metrics) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

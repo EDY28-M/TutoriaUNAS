@@ -38,12 +38,19 @@ export interface Curso {
   id: string;
   codigo: string;
   nombre: string;
-  creditos: number;
-  ciclo: number;
+  creditos: number | null;
+  ciclo: number | null;
   escuelaId: string;
 }
 
 export type EtapaAcademica = 'ingresante' | 'intermedio' | 'final';
+
+export interface OrigenPadron {
+  archivo: string;
+  sha256: string;
+  hoja: string;
+  filas?: number[];
+}
 
 export type EstadoAcademico =
   'regular' | 'observado' | 'reserva' | 'retirado' | 'egresado' | 'ingresante';
@@ -58,16 +65,18 @@ export interface Estudiante {
   apellidos: string;
   nombres: string;
   escuelaId: string;
-  ciclo: number;
-  etapa: EtapaAcademica;
+  ciclo: number | null;
+  etapa: EtapaAcademica | 'sin-informar';
   estado: EstadoAcademico;
   correo: string;
   telefono: string;
   ingreso: string;
-  promedioPonderado: number;
-  creditosAprobados: number;
-  creditosTotales: number;
+  promedioPonderado: number | null;
+  creditosAprobados: number | null;
+  creditosTotales: number | null;
   alertas: AlertaAcademica[];
+  estadoFuente?: string;
+  origen?: OrigenPadron;
 }
 
 export type NivelAlerta = 'alta' | 'media' | 'baja';
@@ -87,13 +96,14 @@ export interface Docente {
   nombres: string;
   escuelaId: string;
   departamento: string;
-  categoria: 'Principal' | 'Asociado' | 'Auxiliar' | 'Jefe de Práctica';
-  dedicacion: 'Tiempo completo' | 'Dedicación exclusiva' | 'Tiempo parcial';
+  categoria: 'Principal' | 'Asociado' | 'Auxiliar' | 'Jefe de Práctica' | null;
+  dedicacion: 'Tiempo completo' | 'Dedicación exclusiva' | 'Tiempo parcial' | null;
   correo: string;
   telefono: string;
   activo: boolean;
-  aforoMaximo: number;
+  aforoMaximo: number | null;
   cursosAsignados: string[];
+  origen?: OrigenPadron;
 }
 
 export interface MiembroComision {
@@ -117,6 +127,7 @@ export interface MiembroComision {
    ========================================================================== */
 
 export interface Asignacion {
+  version?: number;
   id: string;
   estudianteId: string;
   tutorId: string;
@@ -175,6 +186,7 @@ export type ModalidadSesion = 'individual' | 'grupal';
 export type EstadoSesion = 'programada' | 'realizada' | 'reprogramada' | 'cancelada';
 
 export interface Sesion {
+  version?: number;
   id: string;
   codigo: string;
   tipo: ModalidadSesion;
@@ -194,6 +206,8 @@ export interface Sesion {
   observacion: string | null;
   /** Confirmación del tutor; no equivale a la convocatoria de una sesión programada. */
   asistenciaConfirmada?: boolean;
+  totalConvocados?: number;
+  totalAsistentes?: number;
 }
 
 export interface AsistenciaSesion {
@@ -359,45 +373,36 @@ export interface Matricula {
   fecha: string;
   estado: 'matriculado' | 'reserva' | 'retiro' | 'no-matriculado';
   planEstudios: string;
-  ciclo: number;
+  ciclo: number | null;
   cursos: MatriculaCurso[];
+  origen?: OrigenPadron;
 }
 
 export interface MatriculaCurso {
   cursoId: string;
   seccion: string;
-  creditos: number;
+  creditos: number | null;
   docente: string;
   horario: string;
-}
-
-export interface ResultadoAcademico {
-  id: string;
-  estudianteId: string;
-  semestreId: string;
-  cursoId: string;
-  notaFinal: number | null;
-  estado: 'aprobado' | 'desaprobado' | 'en-curso' | 'retirado';
-  creditos: number;
-  vecesCursado: number;
-  evaluaciones: EvaluacionCurso[];
-}
-
-export interface EvaluacionCurso {
-  nombre: string;
-  peso: number;
-  nota: number | null;
+  horariosOriginales?: Array<{
+    fila: number;
+    dia: string;
+    horas: string;
+    duracion: string;
+    aula: string;
+    codigoAula: string;
+    esHoraTeorica: string;
+    docente: string;
+  }>;
 }
 
 export interface ResumenAcademico {
   estudianteId: string;
   semestreId: string;
-  promedioSemestre: number | null;
-  promedioPonderado: number;
-  creditosMatriculados: number;
-  creditosAprobados: number;
-  cursosDesaprobados: number;
-  avanceCurricular: number;
+  promedioPonderado: number | null;
+  creditosMatriculados: number | null;
+  creditosAprobados: number | null;
+  avanceCurricular: number | null;
   posicion: number | null;
   fuente: string;
   fechaCorte: string;

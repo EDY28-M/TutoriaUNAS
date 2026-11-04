@@ -1,16 +1,10 @@
-import type {
-  BloqueHorario,
-  EvaluacionCurso,
-  Matricula,
-  ResumenAcademico,
-  ResultadoAcademico,
-} from '../types/domain';
+import type { BloqueHorario, Matricula, ResumenAcademico } from '../types/domain';
 import { cursos, cursosDeEscuela, semestreActual } from './catalogos';
 import { estudiantes } from './personas';
 
 /**
  * Expediente académico de demostración con la procedencia que exige la
- * solicitud a la DIAA: matrícula, cursos, evaluaciones, promedio ponderado,
+ * solicitud a la DIAA: matrícula, cursos, promedio ponderado,
  * avance curricular y horarios. La consulta es de solo lectura.
  */
 
@@ -34,19 +28,6 @@ function entre(seed: number, min: number, max: number, paso = 1): number {
 
 const SECCIONES = ['A', 'B', 'C'];
 const HORAS = ['07:00', '08:00', '09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:00'];
-
-function evaluacionesDe(codigo: string, nota: number | null): EvaluacionCurso[] {
-  const seed = semilla(codigo);
-  const base = nota ?? 0;
-  const ajuste = (indice: number) =>
-    Math.round(Math.max(0, Math.min(20, base + entre(seed + indice * 31, -2, 2))) * 10) / 10;
-  return [
-    { nombre: 'Práctica calificada 1', peso: 20, nota: nota === null ? null : ajuste(1) },
-    { nombre: 'Examen parcial', peso: 30, nota: nota === null ? null : ajuste(2) },
-    { nombre: 'Práctica calificada 2', peso: 20, nota: nota === null ? null : ajuste(3) },
-    { nombre: 'Examen final', peso: 30, nota: nota === null ? null : ajuste(4) },
-  ];
-}
 
 export const matriculas: Matricula[] = estudiantes.map((estudiante) => {
   const seed = semilla(estudiante.codigo);
@@ -76,79 +57,23 @@ export const matriculas: Matricula[] = estudiantes.map((estudiante) => {
   };
 });
 
-export const resultadosAcademicos: ResultadoAcademico[] = estudiantes.flatMap((estudiante) => {
-  const seed = semilla(estudiante.codigo);
-  const disponibles = cursosDeEscuela(estudiante.escuelaId);
-  const delCiclo = disponibles.filter((curso) => curso.ciclo === estudiante.ciclo);
-  const previos = disponibles.filter((curso) => curso.ciclo < estudiante.ciclo);
-  const enCurso = delCiclo.slice(0, 6);
-  const cerrrados = previos.slice(-4);
-  const filas: ResultadoAcademico[] = [];
-  for (const curso of cerrrados) {
-    const nota = Math.max(
-      4,
-      Math.min(
-        20,
-        Math.round((estudiante.promedioPonderado + entre(seed + curso.ciclo, -4, 3)) * 10) / 10,
-      ),
-    );
-    filas.push({
-      id: `RA-${estudiante.codigo}-${curso.id}-2026I`,
-      estudianteId: estudiante.id,
-      semestreId: '2026-I',
-      cursoId: curso.id,
-      notaFinal: nota,
-      estado: nota >= 11 ? 'aprobado' : 'desaprobado',
-      creditos: curso.creditos,
-      vecesCursado: nota >= 11 ? 1 : entre(seed + curso.ciclo, 2, 3),
-      evaluaciones: evaluacionesDe(`${estudiante.codigo}${curso.id}I`, nota),
-    });
-  }
-  for (const curso of enCurso) {
-    filas.push({
-      id: `RA-${estudiante.codigo}-${curso.id}-2026II`,
-      estudianteId: estudiante.id,
-      semestreId: semestreActual,
-      cursoId: curso.id,
-      notaFinal: null,
-      estado: 'en-curso',
-      creditos: curso.creditos,
-      vecesCursado: 1,
-      evaluaciones: evaluacionesDe(`${estudiante.codigo}${curso.id}II`, null),
-    });
-  }
-  return filas;
-});
-
-export const resumenesAcademicos: ResumenAcademico[] = estudiantes.map((estudiante) => {
-  const seed = semilla(`resumen${estudiante.codigo}`);
-  const propios = resultadosAcademicos.filter((fila) => fila.estudianteId === estudiante.id);
-  const cerrados = propios.filter(
-    (fila) => fila.semestreId !== semestreActual && fila.notaFinal !== null,
-  );
-  const promedioSemestre = cerrados.length
-    ? Math.round(
-        (cerrados.reduce((total, fila) => total + (fila.notaFinal ?? 0) * fila.creditos, 0) /
-          cerrados.reduce((total, fila) => total + fila.creditos, 0)) *
-          10,
-      ) / 10
-    : null;
-  const enCurso = propios.filter((fila) => fila.semestreId === semestreActual);
-  return {
-    estudianteId: estudiante.id,
-    semestreId: semestreActual,
-    promedioSemestre,
-    promedioPonderado: estudiante.promedioPonderado,
-    creditosMatriculados: enCurso.reduce((total, fila) => total + fila.creditos, 0),
-    creditosAprobados: estudiante.creditosAprobados,
-    cursosDesaprobados: propios.filter((fila) => fila.estado === 'desaprobado').length,
-    avanceCurricular:
-      Math.round((estudiante.creditosAprobados / estudiante.creditosTotales) * 1000) / 10,
-    posicion: entre(seed, 1, 40),
-    fuente: FUENTE_ACADEMICA,
-    fechaCorte: FECHA_CORTE_ACADEMICA,
-  };
-});
+export const resumenesAcademicos: ResumenAcademico[] = estudiantes.map((estudiante) => ({
+  estudianteId: estudiante.id,
+  semestreId: semestreActual,
+  promedioPonderado: estudiante.promedioPonderado,
+  creditosMatriculados:
+    matriculas
+      .find((m) => m.estudianteId === estudiante.id)
+      ?.cursos.reduce((total, c) => total + (c.creditos ?? 0), 0) ?? null,
+  creditosAprobados: estudiante.creditosAprobados,
+  avanceCurricular:
+    estudiante.creditosTotales && estudiante.creditosAprobados !== null
+      ? Math.round((estudiante.creditosAprobados / estudiante.creditosTotales) * 1000) / 10
+      : null,
+  posicion: null,
+  fuente: FUENTE_ACADEMICA,
+  fechaCorte: FECHA_CORTE_ACADEMICA,
+}));
 
 /* ==========================================================================
    Horarios (fuente DIAA)
@@ -191,7 +116,7 @@ function horarioDeCurso(seed: number, cursoId: string): string {
   const dia = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'][seed % 5] ?? 'Lun';
   const inicio = HORAS[seed % HORAS.length] ?? '08:00';
   const curso = cursos.find((item) => item.id === cursoId);
-  const fin = `${String(Number(inicio.slice(0, 2)) + (curso ? Math.max(2, curso.creditos - 1) : 2)).padStart(2, '0')}:00`;
+  const fin = `${String(Number(inicio.slice(0, 2)) + (curso ? Math.max(2, (curso.creditos ?? 3) - 1) : 2)).padStart(2, '0')}:00`;
   return `${dia} ${inicio}–${fin}`;
 }
 
@@ -203,7 +128,7 @@ export const horariosAcademicos: BloqueHorario[] = matriculas.flatMap((matricula
     const seed = semilla(`${matricula.estudianteId}${inscrito.cursoId}`);
     const dia = ((seed + indice) % 5) + 1;
     const hora = HORAS[(seed + indice * 3) % HORAS.length] ?? '08:00';
-    const duracion = Math.max(2, curso.creditos - 1);
+    const duracion = Math.max(2, (curso.creditos ?? 3) - 1);
     return [
       {
         id: `HB-${matricula.estudianteId}-${inscrito.cursoId}`,
@@ -294,10 +219,6 @@ export function matriculaDe(estudianteId: string): Matricula | undefined {
 
 export function resumenDe(estudianteId: string): ResumenAcademico | undefined {
   return resumenesAcademicos.find((resumen) => resumen.estudianteId === estudianteId);
-}
-
-export function resultadosDe(estudianteId: string): ResultadoAcademico[] {
-  return resultadosAcademicos.filter((fila) => fila.estudianteId === estudianteId);
 }
 
 export function horarioDe(estudianteId: string): BloqueHorario[] {

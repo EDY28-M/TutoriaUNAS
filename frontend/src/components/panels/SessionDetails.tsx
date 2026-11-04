@@ -31,7 +31,9 @@ export function SessionDetails({ sesion }: { sesion: Sesion }) {
         <div>
           <dt>{sesion.estado === 'realizada' ? 'Asistentes' : 'Convocados'}</dt>
           <dd>
-            {sesion.estado === 'realizada' ? cantidadAsistentes(sesion) : sesion.asistentes.length}{' '}
+            {sesion.estado === 'realizada'
+              ? cantidadAsistentes(sesion)
+              : (sesion.totalConvocados ?? sesion.asistentes.length)}{' '}
             estudiantes
           </dd>
         </div>

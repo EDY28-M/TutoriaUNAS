@@ -1,6 +1,8 @@
-import { useId } from 'react';
+import { useId, useState } from 'react';
 import type { ReactNode } from 'react';
 import { cambiarMomento } from '../../services/instrumentWorkspace';
+import { API_MODE } from '../../services/apiConfig';
+import { cambiarMomentoApi, snapshotApi } from '../../services/apiTutoria';
 import type { MomentoTutoria } from '../../utils/instrumentos';
 import { Info } from './icons';
 import '../../styles/forms-panel.css';
@@ -34,7 +36,7 @@ export function FormsPanel({
       {children}
       <footer className="forms-panel__demo">
         <span>
-          <Info aria-hidden="true" /> Modo demostración
+          <Info aria-hidden="true" /> {API_MODE ? 'Formularios de tutoría' : 'Modo demostración'}
         </span>
         {!etapaEnFiltros && <EtapaSelector momento={momento} />}
       </footer>
@@ -45,6 +47,20 @@ export function FormsPanel({
 /** Selector de la etapa del semestre que gobierna qué formularios se pueden enviar. */
 export function EtapaSelector({ momento }: { momento: MomentoTutoria }) {
   const id = useId();
+  const [error, setError] = useState('');
+  const [guardando, setGuardando] = useState(false);
+  async function cambiar(value: MomentoTutoria) {
+    setError('');
+    setGuardando(true);
+    try {
+      if (API_MODE) await cambiarMomentoApi(value);
+      else cambiarMomento(value);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'No se pudo cambiar el momento.');
+    } finally {
+      setGuardando(false);
+    }
+  }
   return (
     <label className="forms-panel__etapa" htmlFor={`${id}-moment`}>
       Etapa
@@ -53,12 +69,14 @@ export function EtapaSelector({ momento }: { momento: MomentoTutoria }) {
         id={`${id}-moment`}
         aria-label="Momento del semestre"
         value={momento}
-        onChange={(e) => cambiarMomento(e.target.value as MomentoTutoria)}
+        disabled={guardando || (API_MODE && snapshotApi().datos?.usuario.role !== 'coordinacion')}
+        onChange={(e) => void cambiar(e.target.value as MomentoTutoria)}
       >
         <option value="inicio">Inicio</option>
         <option value="durante">Durante el semestre</option>
         <option value="cierre">Cierre</option>
       </select>
+      {error && <span role="alert">{error}</span>}
     </label>
   );
 }

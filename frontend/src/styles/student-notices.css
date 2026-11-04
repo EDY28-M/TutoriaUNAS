@@ -1,0 +1,295 @@
+.student-notices {
+  --forms-line: var(--ink-200);
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  container: student-notices / inline-size;
+}
+.student-notices .page-head {
+  margin: 0;
+}
+.student-notices .page-head__actions {
+  gap: 12px;
+}
+.student-notices__settings.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  border: 1px solid var(--forms-line);
+  border-radius: 9px;
+  background: var(--surface);
+  box-shadow: none;
+  font-size: var(--text-ui-small);
+}
+.student-notices__settings i {
+  color: var(--green);
+}
+.student-notices__search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 210px;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--forms-line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink-500);
+}
+.student-notices__search > i {
+  font-size: 0.8rem;
+}
+.student-notices__search:focus-within {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+.student-notices__search input {
+  min-width: 0;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: var(--text-ui-small);
+}
+.student-notices__search input::placeholder {
+  color: var(--ink-500);
+  opacity: 1;
+}
+.student-notices__inbox.card {
+  overflow: hidden;
+  border: 1px solid var(--forms-line);
+  border-radius: 16px;
+  box-shadow: 0 3px 12px rgb(20 50 30 / 2%);
+}
+.student-notices__messages {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.student-notices__messages li + li {
+  border-top: 1px solid var(--forms-line);
+}
+.student-notices__message {
+  position: relative;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  min-height: 106px;
+  padding: 22px 28px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+.student-notices__message--unread::before {
+  position: absolute;
+  top: 24px;
+  bottom: 24px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--green);
+  content: '';
+}
+.student-notices__message:hover {
+  background: var(--ink-50);
+}
+.student-notices__message:focus-visible {
+  outline-offset: -4px;
+}
+.student-notices__message-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--ink-100);
+  color: var(--green);
+  font-size: 1rem;
+}
+.student-notices__message-body {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.student-notices__message-body > strong {
+  color: var(--ink-900);
+  font-size: var(--text-ui-list-title);
+  font-weight: 500;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.student-notices__message--unread .student-notices__message-body > strong {
+  font-weight: 650;
+}
+.student-notices__message-body > span {
+  color: var(--ink-500);
+  font-size: var(--text-ui-small);
+  line-height: 1.5;
+}
+.student-notices__message-end {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: var(--green);
+  font-size: 0.7rem;
+}
+.student-notices__unread-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+}
+.student-notices__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  color: var(--ink-500);
+  font-size: var(--text-ui-small);
+}
+.student-notices__text-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--green);
+  font: 500 var(--text-ui-small)/1.5 var(--font-body);
+}
+.student-notices__text-button:hover:not(:disabled) {
+  text-decoration: underline;
+}
+.student-notices__text-button:disabled {
+  color: var(--ink-500);
+  cursor: default;
+}
+.student-notices-detail {
+  --forms-line: var(--ink-200);
+}
+.student-notices-detail > p {
+  line-height: 1.8;
+}
+.student-notices__preference-list {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.student-notices__preference {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 68px;
+  margin: 0;
+  cursor: pointer;
+}
+.student-notices__preference + .student-notices__preference {
+  border-top: 1px solid var(--forms-line);
+}
+.student-notices__preference > i {
+  width: 20px;
+  color: var(--green);
+  font-size: 1rem;
+  text-align: center;
+}
+.student-notices__preference > span {
+  flex: 1;
+  min-width: 0;
+  color: var(--ink-700);
+  font-size: var(--text-ui-secondary);
+}
+.student-notices__preference input {
+  position: relative;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.student-notices__preference input::before {
+  position: absolute;
+  inset: 12px 4px;
+  border-radius: 20px;
+  background: var(--ink-400);
+  content: '';
+}
+.student-notices__preference input::after {
+  position: absolute;
+  top: 15px;
+  left: 7px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: white;
+  content: '';
+}
+.student-notices__preference input:checked::before {
+  background: var(--green);
+}
+.student-notices__preference input:checked::after {
+  left: 23px;
+}
+.student-notices-detail .student-notices__local-note {
+  margin-top: 16px;
+  color: var(--ink-500);
+  font-size: var(--text-ui-small);
+}
+@container student-notices (max-width: 680px) {
+  .student-notices .forms-panel__filters-actions {
+    flex: 1 1 100%;
+    margin: 8px 0 0;
+  }
+  .student-notices__search {
+    width: 100%;
+  }
+}
+@container student-notices (max-width: 440px) {
+  .student-notices .page-head__actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .student-notices .forms-panel__filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .student-notices .forms-panel__filters-actions {
+    grid-column: 1 / -1;
+  }
+  .student-notices__message {
+    grid-template-columns: 34px minmax(0, 1fr) 10px;
+    gap: 12px;
+    padding: 20px 16px;
+  }
+  .student-notices__message-icon {
+    width: 34px;
+    height: 38px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+  }
+  .student-notices__message-end {
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+@media (forced-colors: active) {
+  .student-notices__preference input {
+    appearance: auto;
+  }
+  .student-notices__preference input::before,
+  .student-notices__preference input::after {
+    display: none;
+  }
+}

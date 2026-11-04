@@ -1,13 +1,10 @@
 import type { AriaAttributes, CSSProperties, ComponentType } from 'react';
 import { fontAwesomeIcons } from '../../assets/vendor/fontawesome-icons';
-import { fluentColorArt } from '../../assets/vendor/fluent-color';
 
 /**
  * Iconografía del sistema.
  *
- * Personas, objetos y módulos usan ilustraciones SVG oficiales de Microsoft
- * Fluent Color. Flechas, cierre, búsqueda y controles compactos conservan
- * Font Awesome Free. Ambas colecciones se sirven localmente con su licencia.
+ * Todos los controles y módulos usan Font Awesome Free 6.5.1 vendorizado.
  *
  * Cada componente se exporta con un nombre semántico y acepta las propiedades
  * que los componentes de interfaz ya usan (`aria-hidden`, `className`, `style`
@@ -28,7 +25,6 @@ function crearIcono(nombre: string, estilo: EstiloIcono = 'solid'): ComponentTyp
   const candidate = fontAwesomeIcons[`${estilo}:${nombre}`];
   if (!candidate) throw new Error(`Icono no disponible: ${estilo}:${nombre}`);
   const glyph = candidate;
-  const illustration = fluentColorArt[nombre];
 
   function Icono({ className, size, style, title, ...resto }: IconProps) {
     const clases = ['portal-icon', className].filter(Boolean).join(' ');
@@ -36,20 +32,6 @@ function crearIcono(nombre: string, estilo: EstiloIcono = 'solid'): ComponentTyp
       size === undefined
         ? style
         : { fontSize: typeof size === 'number' ? `${size}px` : size, ...style };
-    if (illustration) {
-      return (
-        <img
-          src={illustration}
-          className={[clases, 'portal-art'].join(' ')}
-          alt={title ?? ''}
-          title={title}
-          style={estilos}
-          draggable={false}
-          aria-hidden={title ? undefined : true}
-          {...resto}
-        />
-      );
-    }
     return (
       <svg
         className={clases}
@@ -195,21 +177,6 @@ export type Icono = ComponentType<IconProps>;
 export function IconoBase({ nombre, className, size, ...resto }: IconProps & { nombre: string }) {
   const estilos =
     size === undefined ? undefined : { fontSize: typeof size === 'number' ? `${size}px` : size };
-  const symbol = nombre.split(/\s+/).find((token) => fluentColorArt[token.replace(/^fa-/, '')]);
-  const illustration = symbol && fluentColorArt[symbol.replace(/^fa-/, '')];
-  if (illustration) {
-    return (
-      <img
-        src={illustration}
-        className={['portal-icon', 'portal-art', className].filter(Boolean).join(' ')}
-        alt={resto.title ?? ''}
-        style={estilos}
-        draggable={false}
-        aria-hidden="true"
-        {...resto}
-      />
-    );
-  }
   return (
     <i
       className={[nombre, className].filter(Boolean).join(' ')}

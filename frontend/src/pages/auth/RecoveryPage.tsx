@@ -4,6 +4,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { FormField } from '../../components/forms/FormField';
+import { API_MODE } from '../../services/apiConfig';
+import { AccountSetupPage } from './AccountSetupPage';
 
 const schema = z.object({
   email: z.email('Ingresa un correo válido.').max(254, 'El correo es demasiado largo.'),
@@ -15,6 +17,9 @@ const RESEND_PAUSE = 700;
 const RESEND_RESET = 3000;
 
 export function RecoveryPage() {
+  return API_MODE ? <AccountSetupPage modo="recuperacion" /> : <DemoRecoveryPage />;
+}
+function DemoRecoveryPage() {
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [resendLabel, setResendLabel] = useState('Reenviar enlace');

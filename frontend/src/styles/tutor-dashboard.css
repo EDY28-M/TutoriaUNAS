@@ -102,11 +102,10 @@
 }
 
 .tutor-dashboard-charts .chart-card--instruments .portal-chart {
-  height: 290px;
-}
-
-.tutor-dashboard-charts .chart-card--formats .portal-chart {
   height: 320px;
+}
+.tutor-dashboard-charts .chart-card--instruments .portal-chart-stage {
+  min-height: 320px;
 }
 
 .tutor-dashboard-charts .portal-chart__data,

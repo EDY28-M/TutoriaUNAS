@@ -1,3 +1,5 @@
+import { CompactPage, SecondaryPanel } from '../../components/ui/CompactPage';
+import { SeguimientosCoordinacion } from '../../components/panels/GestionCoordinacion';
 import { useCallback, useId, useMemo, useState } from 'react';
 import {
   ClipboardCheck,
@@ -25,7 +27,8 @@ import { PanelFiltros, useFiltro } from '../../components/panels/PanelFiltros';
 import type { DefinicionSelect } from '../../components/panels/PanelFiltros';
 import { usePortal } from '../../hooks/usePortal';
 import { useAuth } from '../../hooks/useAuth';
-import { revisarInstrumento } from '../../services/instrumentWorkspace';
+import { persistirRevision } from '../../services/mutacionesTutoria';
+import { API_MODE } from '../../services/apiConfig';
 import type { CodigoFormato, DefinicionFormato, Docente, Instrumento } from '../../types/domain';
 import { abreviaturaEscuela, docentePorId, escuelaDe } from '../../data/personas';
 import { escuelas, semestreActual } from '../../data/catalogos';
@@ -87,6 +90,7 @@ export function CoordReviews() {
   const [pestana, setPestana] = useState<EstadoRevision | 'todos'>('pendiente');
   const [comentario, setComentario] = useState('');
   const [avisoInterno, setAvisoInterno] = useState<string | null>(null);
+  const [guardando, setGuardando] = useState(false);
 
   const filas = useMemo<FilaRevision[]>(
     () =>
@@ -188,30 +192,34 @@ export function CoordReviews() {
     : null;
   const detalleFormato = seleccionado ? definicionPorCodigo(seleccionado.formato) : undefined;
 
-  function registrarDecision(estado: EstadoRevision) {
-    if (!seleccionado || !user || estado === 'pendiente') return;
+  async function registrarDecision(estado: EstadoRevision) {
+    if (!seleccionado || !user || estado === 'pendiente' || guardando) return;
+    setGuardando(true);
     try {
-      revisarInstrumento(seleccionado.id, user, estado, comentario);
+      await persistirRevision(seleccionado, user, estado, comentario);
     } catch (error) {
       setAvisoInterno(error instanceof Error ? error.message : 'No se pudo registrar la revisión.');
       return;
+    } finally {
+      setGuardando(false);
     }
     const revisor = portal.docente
       ? `${portal.docente.nombres} ${portal.docente.apellidos}`
       : 'Coordinación de tutoría';
-    setDecisiones((actuales) => ({
-      ...actuales,
-      [seleccionado.id]: {
-        estado,
-        comentario:
-          comentario.trim() ||
-          (estado === 'aprobado'
-            ? 'Informe revisado y conforme. Se aprueba para su descarga y consolidación.'
-            : 'Se registra la observación para que el tutor subsane el informe.'),
-        revisor,
-        fecha: HOY_ISO,
-      },
-    }));
+    if (!API_MODE)
+      setDecisiones((actuales) => ({
+        ...actuales,
+        [seleccionado.id]: {
+          estado,
+          comentario:
+            comentario.trim() ||
+            (estado === 'aprobado'
+              ? 'Informe revisado y conforme. Se aprueba para su descarga y consolidación.'
+              : 'Se registra la observación para que el tutor subsane el informe.'),
+          revisor,
+          fecha: HOY_ISO,
+        },
+      }));
     setAvisoInterno(
       estado === 'aprobado'
         ? 'Informe aprobado. El tutor podrá descargar la constancia y el informe consolidado procede.'
@@ -333,7 +341,7 @@ export function CoordReviews() {
   ];
 
   return (
-    <>
+    <CompactPage>
       <PageHeading
         eyebrow={`Coordinación de tutoría · Revisión de informes · Semestre ${semestreActual}`}
         title="Revisar informes"
@@ -377,12 +385,6 @@ export function CoordReviews() {
           tone="verde"
         />
       </div>
-
-      <Alert tone="info" title="Cómo se revisa un informe">
-        El tutor envía el informe 02 y la comisión el informe 01; la coordinación revisa y registra
-        la aprobación o la observación. Un informe observado vuelve al tutor con el plazo de
-        subsanación. La descarga se habilita al aprobarse.
-      </Alert>
 
       <Card>
         <CardHead
@@ -447,85 +449,93 @@ export function CoordReviews() {
         </CardFoot>
       </Card>
 
-      <div className="grid grid--sidebar">
-        <Card>
-          <CardHead
-            title="Contenido del informe"
-            description="Secciones y campos oficiales que respaldan la revisión"
-          />
-          <CardBody flush>
-            <ul className="list">
-              {FORMATOS_INFORME.map((codigo) => {
-                const definicion = definicionPorCodigo(codigo);
-                if (!definicion) return null;
-                const totalCampos = definicion.secciones.reduce(
-                  (total, seccion) => total + seccion.campos.length,
-                  0,
-                );
-                return (
-                  <li className="list__item" key={codigo}>
-                    <span className="list__icon" aria-hidden="true">
-                      <FileText />
-                    </span>
-                    <span className="list__body">
-                      <strong>
-                        Formato {definicion.numero} · {definicion.nombre}
-                      </strong>
-                      <p>{definicion.proposito}</p>
-                      <span className="list__meta">
-                        <span>{definicion.secciones.length} secciones</span>
-                        <span>{totalCampos} campos</span>
-                        <span>Responde: {definicion.actorEtiqueta}</span>
-                      </span>
-                    </span>
-                    <span className="list__aside">
-                      <Badge tone={definicion.obligatorio ? 'ok' : 'neutro'}>
-                        {definicion.obligatorio ? 'Obligatorio' : 'Opcional'}
-                      </Badge>
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          </CardBody>
-          <CardFoot>
-            <span>Vigencia de los formatos pendiente de confirmación por el área usuaria.</span>
-          </CardFoot>
-        </Card>
+      <SecondaryPanel title="Guía de revisión">
+        <Alert tone="info" title="Cómo se revisa un informe">
+          El tutor envía el informe 02 y la comisión el informe 01; la coordinación revisa y
+          registra la aprobación o la observación. Un informe observado vuelve al tutor con el plazo
+          de subsanación. La descarga se habilita al aprobarse.
+        </Alert>
 
-        <Card accent>
-          <CardHead title="Pasos de revisión" description="Historial de la revisión." />
-          <CardBody>
-            <Timeline
-              etiqueta="Circuito de revisión de informes"
-              hitos={[
-                {
-                  titulo: 'Registro del informe',
-                  descripcion: 'El tutor o la comisión completa el formato y lo envía al sistema.',
-                  tono: 'info',
-                },
-                {
-                  titulo: 'Revisión de la coordinación',
-                  descripcion: 'Se verifican la cobertura, las actividades y las evidencias.',
-                  tono: 'info',
-                },
-                {
-                  titulo: 'Observación o aprobación',
-                  descripcion:
-                    'La observación vuelve al responsable; la aprobación habilita la descarga.',
-                  tono: 'alerta',
-                },
-                {
-                  titulo: 'Consolidación final',
-                  descripcion: 'El informe 01 reúne la información aprobada de la escuela.',
-                  tono: 'ok',
-                },
-              ]}
+        <div className="grid grid--sidebar">
+          <Card>
+            <CardHead
+              title="Contenido del informe"
+              description="Secciones y campos oficiales que respaldan la revisión"
             />
-          </CardBody>
-        </Card>
-      </div>
+            <CardBody flush>
+              <ul className="list">
+                {FORMATOS_INFORME.map((codigo) => {
+                  const definicion = definicionPorCodigo(codigo);
+                  if (!definicion) return null;
+                  const totalCampos = definicion.secciones.reduce(
+                    (total, seccion) => total + seccion.campos.length,
+                    0,
+                  );
+                  return (
+                    <li className="list__item" key={codigo}>
+                      <span className="list__icon" aria-hidden="true">
+                        <FileText />
+                      </span>
+                      <span className="list__body">
+                        <strong>
+                          Formato {definicion.numero} · {definicion.nombre}
+                        </strong>
+                        <p>{definicion.proposito}</p>
+                        <span className="list__meta">
+                          <span>{definicion.secciones.length} secciones</span>
+                          <span>{totalCampos} campos</span>
+                          <span>Responde: {definicion.actorEtiqueta}</span>
+                        </span>
+                      </span>
+                      <span className="list__aside">
+                        <Badge tone={definicion.obligatorio ? 'ok' : 'neutro'}>
+                          {definicion.obligatorio ? 'Obligatorio' : 'Opcional'}
+                        </Badge>
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </CardBody>
+            <CardFoot>
+              <span>Vigencia de los formatos pendiente de confirmación por el área usuaria.</span>
+            </CardFoot>
+          </Card>
 
+          <Card accent>
+            <CardHead title="Pasos de revisión" description="Historial de la revisión." />
+            <CardBody>
+              <Timeline
+                etiqueta="Circuito de revisión de informes"
+                hitos={[
+                  {
+                    titulo: 'Registro del informe',
+                    descripcion:
+                      'El tutor o la comisión completa el formato y lo envía al sistema.',
+                    tono: 'info',
+                  },
+                  {
+                    titulo: 'Revisión de la coordinación',
+                    descripcion: 'Se verifican la cobertura, las actividades y las evidencias.',
+                    tono: 'info',
+                  },
+                  {
+                    titulo: 'Observación o aprobación',
+                    descripcion:
+                      'La observación vuelve al responsable; la aprobación habilita la descarga.',
+                    tono: 'alerta',
+                  },
+                  {
+                    titulo: 'Consolidación final',
+                    descripcion: 'El informe 01 reúne la información aprobada de la escuela.',
+                    tono: 'ok',
+                  },
+                ]}
+              />
+            </CardBody>
+          </Card>
+        </div>
+      </SecondaryPanel>
       {seleccionado && detalleFila && (
         <Sheet
           wide
@@ -550,7 +560,7 @@ export function CoordReviews() {
               <button
                 type="button"
                 className="btn btn-outline-danger"
-                disabled={!detalleFila.puedeRevisarse}
+                disabled={guardando || !detalleFila.puedeRevisarse}
                 onClick={() => registrarDecision('observado')}
               >
                 <ClipboardCheck aria-hidden="true" /> Registrar observación
@@ -558,7 +568,7 @@ export function CoordReviews() {
               <button
                 type="button"
                 className="btn btn-primary"
-                disabled={!detalleFila.puedeRevisarse}
+                disabled={guardando || !detalleFila.puedeRevisarse}
                 onClick={() => registrarDecision('aprobado')}
               >
                 <FileCheck aria-hidden="true" /> Aprobar informe
@@ -750,6 +760,7 @@ export function CoordReviews() {
           </div>
         </Sheet>
       )}
-    </>
+      {API_MODE && <SeguimientosCoordinacion />}
+    </CompactPage>
   );
 }

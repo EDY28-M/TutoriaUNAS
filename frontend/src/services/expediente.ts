@@ -1,4 +1,6 @@
 import type { Instrumento } from '../types/domain';
+import { API_MODE } from './apiConfig';
+import { snapshotApi } from './apiTutoria';
 import { definicionPorCodigo } from '../data/formatos';
 
 /**
@@ -23,7 +25,7 @@ const VERSION = 2;
 export type AlcanceExpediente = `estudiante:${string}` | `tutor:${string}` | `escuela:${string}`;
 
 /**
- * Campos reutilizables. La trayectoria escolar se conserva entre semestres;
+ * Campos reutilizables. La trayectoria y el perfil estable se conservan entre semestres;
  * el contexto actual se reutiliza dentro del mismo semestre y se revisa al enviar.
  *
  * Quedan fuera, a propósito, los datos propios de un registro: fechas y horas de
@@ -90,7 +92,19 @@ export const CAMPOS_REUTILIZABLES: readonly string[] = [
 ];
 
 const REUTILIZABLES = new Set(CAMPOS_REUTILIZABLES);
-const PERMANENTES = new Set(['colegio', 'promedioSecundaria', 'materiasSecundaria']);
+/** Datos de perfil actualizables, sin volver a transcribirlos en cada semestre. */
+export const CAMPOS_ESTABLES = [
+  'colegio',
+  'promedioSecundaria',
+  'materiasSecundaria',
+  'apoderado',
+  'cualidades',
+  'habilidades',
+  'aficiones',
+  'valores',
+  'antivalores',
+] as const;
+const PERMANENTES = new Set<string>(CAMPOS_ESTABLES);
 
 interface DatoRecordado {
   valor: string;
@@ -225,6 +239,7 @@ export function recordarRespuestas(
   instrumento: Instrumento,
   respuestas: Record<string, string>,
 ): void {
+  if (API_MODE) return;
   const alcance = alcanceDe(instrumento);
   if (!alcance) return;
   const nuevos = datosReutilizables(instrumento, respuestas);
@@ -251,6 +266,12 @@ export function respuestasRecordadas(
   instrumento: Instrumento,
   fuentes: readonly Instrumento[] = [],
 ): Record<string, string> {
+  if (API_MODE)
+    return (
+      snapshotApi().datos?.precargas[
+        `${instrumento.estudianteId ?? instrumento.tutorId}|${instrumento.semestreId}|${instrumento.formato}`
+      ] ?? {}
+    );
   const alcance = alcanceDe(instrumento);
   if (!alcance) return {};
   // Las respuestas enviadas también son fuente, aunque precedan a la caché.
@@ -260,6 +281,7 @@ export function respuestasRecordadas(
     .filter(
       (r) =>
         r.id !== instrumento.id &&
+        r.semestreId <= instrumento.semestreId &&
         alcanceDe(r) === alcance &&
         ['enviado', 'aprobado'].includes(r.estado),
     )
@@ -269,7 +291,19 @@ export function respuestasRecordadas(
   datos = { ...datos, ...leerEstado().registros[alcance]?.respuestas };
   const respuestas: Record<string, string> = {};
   for (const codigo of CAMPOS_REUTILIZABLES) {
-    const clave = claveDato(codigo, instrumento);
+    let clave = claveDato(codigo, instrumento);
+    // Compatibilidad con expedientes v2 que guardaron el perfil por semestre.
+    if (!(clave in datos) && PERMANENTES.has(codigo)) {
+      const anterior = Object.entries(datos)
+        .filter(
+          ([key, d]) =>
+            key.endsWith(`:${significado(codigo, instrumento.formato)}`) &&
+            d.semestre <= instrumento.semestreId,
+        )
+        .sort((a, b) => a[1].semestre.localeCompare(b[1].semestre))
+        .at(-1);
+      if (anterior) clave = anterior[0];
+    }
     const dato = datos[clave];
     if (!dato || !dato.valor.trim()) continue;
     respuestas[codigo] = dato.valor;

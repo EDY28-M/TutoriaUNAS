@@ -1,4 +1,5 @@
 import { instrumentos } from '../data/instrumentos';
+import { API_MODE } from './apiConfig';
 import { definicionPorCodigo } from '../data/formatos';
 import { asignaciones } from '../data/tutoria';
 import { docentePorId, estudiantePorId, escuelaDe, nombreCompleto } from '../data/personas';
@@ -86,6 +87,7 @@ export function suscribirWorkspace(escuchar: () => void) {
   };
 }
 export function cambiarMomento(momento: MomentoTutoria) {
+  if (API_MODE) throw new Error('El momento del semestre debe guardarse en el servidor.');
   estado = { ...estado, momento };
   publicar();
 }
@@ -96,6 +98,7 @@ export function guardarInstrumento(
   usuario: DemoUser,
   enviar = false,
 ): Instrumento {
+  if (API_MODE) throw new Error('El formulario debe guardarse en el servidor.');
   const existente = estado.registros.find((r) => r.id === instrumento.id);
   const registro = existente ?? instrumento;
   const definicion = definicionPorCodigo(registro.formato);
@@ -157,11 +160,7 @@ export function guardarInstrumento(
     );
   }
   if (enviar && !puedeEnviarFormato(registro.formato, estado.momento))
-    throw new Error(
-      ['F03', 'F04', 'F05'].includes(registro.formato)
-        ? 'La entrevista inicial se completa al inicio del semestre. Puedes guardar un borrador.'
-        : 'Este formato se envía al finalizar el semestre. Puedes guardar un borrador.',
-    );
+    throw new Error('Este formato se envía al finalizar el semestre. Puedes guardar un borrador.');
   const contexto = contextualizarDefinicion(definicion, registro);
   const valores = respuestasVisibles(contexto, { ...respuestas, ...respuestasSesion });
   if (enviar && Object.keys(erroresInstrumento(contexto, valores)).length)
@@ -272,6 +271,7 @@ export function revisarInstrumento(
   decision: 'aprobado' | 'observado',
   comentario: string,
 ): void {
+  if (API_MODE) throw new Error('La revisión debe guardarse en el servidor.');
   const registro = estado.registros.find((r) => r.id === id);
   if (!registro || registro.estado !== 'enviado')
     throw new Error('Solo se revisan formularios enviados.');

@@ -4,6 +4,7 @@ import { AuthLayout } from '../components/layout/AuthLayout';
 import { PageLoading } from '../components/ui/PageLoading';
 import { LoginPage } from '../pages/auth/LoginPage';
 import { RecoveryPage } from '../pages/auth/RecoveryPage';
+import { AccountSetupPage } from '../pages/auth/AccountSetupPage';
 import { UnauthorizedPage } from '../pages/auth/UnauthorizedPage';
 import { NotFoundPage } from '../pages/not-found/NotFoundPage';
 import { ProtectedRoute } from './ProtectedRoute';
@@ -58,6 +59,9 @@ import {
 const AppLayout = lazy(() =>
   import('../components/layout/AppLayout').then((m) => ({ default: m.AppLayout })),
 );
+const CoordPadron = lazy(() =>
+  import('../pages/coordinacion/CoordPadron').then((m) => ({ default: m.CoordPadron })),
+);
 
 function HomeRedirect() {
   const { user } = useAuth();
@@ -72,6 +76,8 @@ export function AppRoutes() {
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/recuperar-clave" element={<RecoveryPage />} />
+          <Route path="/crear-cuenta" element={<AccountSetupPage modo="registro" />} />
+          <Route path="/verificar-cuenta" element={<AccountSetupPage modo="activacion" />} />
         </Route>
 
         <Route element={<ProtectedRoute role="estudiante" />}>
@@ -129,6 +135,7 @@ export function AppRoutes() {
             <Route path="/coordinacion/asignaciones" element={<CoordAssignments />} />
             <Route path="/coordinacion/tutores" element={<CoordTutors />} />
             <Route path="/coordinacion/tutorados" element={<CoordTutees />} />
+            <Route path="/coordinacion/padron" element={<CoordPadron />} />
             <Route path="/coordinacion/plan" element={<CoordPlan />} />
             <Route path="/coordinacion/revisiones" element={<CoordReviews />} />
             <Route path="/coordinacion/reportes" element={<CoordReports />} />

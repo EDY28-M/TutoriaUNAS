@@ -1,6 +1,10 @@
+import { promedioDe } from '../../utils/datosAcademicos';
+import { etiquetaEtapa } from '../../utils/datosAcademicos';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ClipboardList, GraduationCap } from '../../components/ui/icons';
+import { ClipboardList, GraduationCap, Users, CircleAlert } from '../../components/ui/icons';
+import { MetricGroup } from '../../components/ui/MetricGroup';
+import { Stat } from '../../components/ui/Stat';
 import { PageHeading } from '../../components/ui/PageHeading';
 import { Card, CardBody, CardFoot, CardHead } from '../../components/ui/Card';
 import { Badge, StatusBadge } from '../../components/ui/StatusBadge';
@@ -10,14 +14,14 @@ import { PersonCell } from '../../components/ui/PersonCell';
 import { PanelFiltros, useFiltro } from '../../components/panels/PanelFiltros';
 import type { DefinicionSelect } from '../../components/panels/PanelFiltros';
 import { usePortal } from '../../hooks/usePortal';
-import { etapaAcademica, semestreActual } from '../../data/catalogos';
+import { semestreActual } from '../../data/catalogos';
 import {
   abreviaturaEscuela,
   estudiantePorId,
   iniciales,
   nombreCompleto,
 } from '../../data/personas';
-import { resultadosDe, resumenDe } from '../../data/academico';
+import { resumenDe } from '../../data/academico';
 import type { Asignacion, Estudiante, Instrumento, NivelAlerta, Sesion } from '../../types/domain';
 import { formatFecha } from '../../utils/fechas';
 import '../../assets/vendor/fontawesome.min.css';
@@ -38,7 +42,6 @@ interface FilaTutorado {
   sesionesRealizadas: number;
   sesionesProgramadas: number;
   instrumentosPendientes: number;
-  cursosDesaprobados: number;
   alertaMaxima: NivelAlerta | null;
 }
 
@@ -106,9 +109,6 @@ function construirFilas(
             instrumento.estudianteId === estudiante.id &&
             ['no-iniciado', 'borrador', 'observado'].includes(instrumento.estado),
         ).length,
-        cursosDesaprobados: resultadosDe(estudiante.id).filter(
-          (resultado) => resultado.estado === 'desaprobado',
-        ).length,
         alertaMaxima,
       },
     ];
@@ -123,14 +123,19 @@ export function TutorTutees() {
 
   const filas = construirFilas(tutorados, sesiones, instrumentos);
 
-  const ciclos = [...new Set(filas.map((fila) => fila.estudiante.ciclo))].sort((a, b) => a - b);
+  const ciclos = [...new Set(filas.map((fila) => fila.estudiante.ciclo))].sort(
+    (a, b) => (a ?? Infinity) - (b ?? Infinity),
+  );
   const estados = [...new Set(filas.map((fila) => fila.estudiante.estado))].sort();
 
   const selects: DefinicionSelect<FilaTutorado>[] = [
     {
       id: 'ciclo',
       etiqueta: 'Ciclo',
-      opciones: ciclos.map((ciclo) => ({ valor: String(ciclo), etiqueta: `Ciclo ${ciclo}` })),
+      opciones: ciclos.map((ciclo) => ({
+        valor: String(ciclo),
+        etiqueta: ciclo === null ? 'Sin ciclo informado' : `Ciclo ${ciclo}`,
+      })),
       valorDe: (fila) => String(fila.estudiante.ciclo),
     },
     {
@@ -207,9 +212,9 @@ export function TutorTutees() {
       sortValue: (fila) => fila.estudiante.ciclo,
       render: (fila) => (
         <>
-          <span className="cell-strong">Ciclo {fila.estudiante.ciclo}</span>
+          <span className="cell-strong">Ciclo {fila.estudiante.ciclo ?? 'Sin informar'}</span>
           <span className="cell-note">
-            {etapaAcademica[fila.estudiante.etapa]?.etiqueta ?? 'Etapa por definir'}
+            {etiquetaEtapa(fila.estudiante.etapa) ?? 'Etapa por definir'}
           </span>
         </>
       ),
@@ -239,18 +244,19 @@ export function TutorTutees() {
         <>
           <span
             className={
-              fila.estudiante.promedioPonderado < 11
+              (fila.estudiante.promedioPonderado ?? Infinity) < 11
                 ? 'cell-strong text-danger'
-                : fila.estudiante.promedioPonderado < 13
+                : (fila.estudiante.promedioPonderado ?? Infinity) < 13
                   ? 'cell-strong text-warn'
                   : 'cell-strong'
             }
           >
-            {fila.estudiante.promedioPonderado.toFixed(1)}
+            {fila.estudiante.promedioPonderado?.toFixed(1) ?? 'Sin informar'}
           </span>
-          <span className="cell-note">{fila.cursosDesaprobados} desaprobado(s)</span>
           <span className="cell-note">
-            {resumenDe(fila.estudiante.id)?.avanceCurricular ?? 0}% de avance
+            {resumenDe(fila.estudiante.id)?.avanceCurricular == null
+              ? 'Avance no informado'
+              : `${resumenDe(fila.estudiante.id)?.avanceCurricular}% de avance`}
           </span>
         </>
       ),
@@ -331,13 +337,13 @@ export function TutorTutees() {
       render: (fila) => (
         <>
           <span
-            className={`cell-strong${fila.estudiante.promedioPonderado < 11 ? ' text-danger' : fila.estudiante.promedioPonderado < 13 ? ' text-warn' : ''}`}
+            className={`cell-strong${(fila.estudiante.promedioPonderado ?? Infinity) < 11 ? ' text-danger' : (fila.estudiante.promedioPonderado ?? Infinity) < 13 ? ' text-warn' : ''}`}
           >
-            {fila.estudiante.promedioPonderado.toFixed(1)}{' '}
+            {fila.estudiante.promedioPonderado?.toFixed(1) ?? 'Sin informar'}{' '}
             <small className="tutee-grade-label">promedio</small>
           </span>
           <span className="cell-note">
-            Ciclo {fila.estudiante.ciclo} · {fila.asignacion.grupo ?? 'Sin grupo'}
+            Ciclo {fila.estudiante.ciclo ?? 'Sin informar'} · {fila.asignacion.grupo ?? 'Sin grupo'}
           </span>
         </>
       ),
@@ -355,9 +361,7 @@ export function TutorTutees() {
     );
   }
 
-  const promedioGrupo = filas.length
-    ? filas.reduce((total, fila) => total + fila.estudiante.promedioPonderado, 0) / filas.length
-    : 0;
+  const promedioGrupo = promedioDe(filas.map((fila) => fila.estudiante));
   const conAlertas = filas.filter((fila) => fila.alertaMaxima !== null).length;
   const pendientesTotales = filas.reduce((total, fila) => total + fila.instrumentosPendientes, 0);
   const grupos = [...new Set(filas.map((fila) => fila.asignacion.grupo ?? 'Sin grupo'))].sort();
@@ -380,42 +384,32 @@ export function TutorTutees() {
         }
       />
 
-      <dl className="tutees-metrics" aria-label="Resumen de estudiantes">
-        <div>
-          <dt>Estudiantes</dt>
-          <dd>
-            <strong>
-              {filas.length}
-              <span> / {docente.aforoMaximo}</span>
-            </strong>
-            <small>{grupos.length} grupo(s) asignado(s)</small>
-          </dd>
-        </div>
-        <div>
-          <dt>Con alertas</dt>
-          <dd>
-            <strong>{conAlertas}</strong>
-            <small>Requieren acompañamiento</small>
-          </dd>
-        </div>
-        <div>
-          <dt>Promedio del grupo</dt>
-          <dd>
-            <strong>
-              {promedioGrupo.toFixed(1)}
-              <span> / 20</span>
-            </strong>
-            <small>Mínimo aprobatorio: 11</small>
-          </dd>
-        </div>
-        <div>
-          <dt>Formularios pendientes</dt>
-          <dd>
-            <strong>{pendientesTotales}</strong>
-            <small>Formatos 03, 04, 05, 10 y 11</small>
-          </dd>
-        </div>
-      </dl>
+      <MetricGroup label="Resumen de estudiantes">
+        <Stat
+          label="Estudiantes"
+          value={filas.length}
+          note={`${grupos.length} grupos · cupo ${docente.aforoMaximo ?? 'por confirmar'}`}
+          icon={<Users />}
+        />
+        <Stat
+          label="Con alertas"
+          value={conAlertas}
+          note="Requieren acompañamiento"
+          icon={<CircleAlert />}
+        />
+        <Stat
+          label="Promedio del grupo"
+          value={promedioGrupo?.toFixed(1) ?? '—'}
+          note="Escala 0–20 · mínimo aprobatorio: 11"
+          icon={<GraduationCap />}
+        />
+        <Stat
+          label="Formularios pendientes"
+          value={pendientesTotales}
+          note="Formatos 03, 04, 05, 10 y 11"
+          icon={<ClipboardList />}
+        />
+      </MetricGroup>
 
       <Card className={`tutor-tutees-list${tablaCompleta ? '' : ' tutor-tutees-list--summary'}`}>
         <CardHead
@@ -507,10 +501,7 @@ export function TutorTutees() {
               (fila) => (fila.asignacion.grupo ?? 'Sin grupo') === grupo,
             );
             const conAlertaGrupo = delGrupo.filter((fila) => fila.alertaMaxima !== null).length;
-            const promedio = delGrupo.length
-              ? delGrupo.reduce((total, fila) => total + fila.estudiante.promedioPonderado, 0) /
-                delGrupo.length
-              : 0;
+            const promedio = promedioDe(delGrupo.map((fila) => fila.estudiante));
             return (
               <article className="tutees-group" key={grupo}>
                 <header>
@@ -533,7 +524,7 @@ export function TutorTutees() {
                   </div>
                   <div>
                     <dt>Promedio</dt>
-                    <dd>{promedio.toFixed(1)}</dd>
+                    <dd>{promedio?.toFixed(1) ?? 'Sin informar'}</dd>
                   </div>
                   <div>
                     <dt>Con alertas</dt>

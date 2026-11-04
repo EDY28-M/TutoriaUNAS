@@ -16,6 +16,7 @@ export {
 import type { CodigoFormato, DefinicionFormato, Instrumento, Sesion } from '../types/domain';
 import { definicionPorCodigo } from '../data/formatos';
 import { asignaciones, planDeEscuela, sesiones } from '../data/tutoria';
+import { esEntrevista } from './entrevistas';
 import {
   comisionTutoria,
   docentePorId,
@@ -121,12 +122,14 @@ export function etapaDeFormato(codigo: CodigoFormato): MomentoTutoria {
 
 /**
  * Indica si el formato se puede enviar en la etapa seleccionada.
- * Las entrevistas iniciales solo al inicio; los informes solo al cierre.
+ * El inicio es el momento recomendado de la entrevista, no un bloqueo de recuperación.
+ * Los informes se envían al cierre.
  * F10/F11 requieren además sesión finalizada y asistencia confirmada.
  * Los registros del tutor (06, 07, 08 y 12) se completan durante todo
  * el semestre, cuando ocurre la atención.
  */
 export function puedeEnviarFormato(codigo: CodigoFormato, momento: MomentoTutoria): boolean {
+  if (esEntrevista(codigo)) return true;
   const etapa = etapaDeFormato(codigo);
   return etapa === 'durante' || etapa === momento;
 }
@@ -247,7 +250,7 @@ export function precargarInstrumentoConOrigen(
   ];
   const ciclosDe = (tipo: Sesion['tipo']) =>
     [...new Set(asistentesDe(tipo).map((id) => estudiantePorId(id)?.ciclo))]
-      .filter((ciclo): ciclo is number => ciclo !== undefined)
+      .filter((ciclo): ciclo is number => ciclo != null)
       .sort((a, b) => a - b)
       .join(', ') || 'Sin atenciones';
   const identidad: Record<string, string> = {
@@ -261,7 +264,7 @@ export function precargarInstrumentoConOrigen(
           codigo: estudiante.codigo,
           correo: estudiante.correo,
           telefono: estudiante.telefono,
-          ciclo: String(estudiante.ciclo),
+          ciclo: String(estudiante.ciclo ?? ''),
           escuela: escuelaDe(estudiante.escuelaId),
           grupo,
         }

@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PageHeading } from '../../components/ui/PageHeading';
+import { MetricGroup } from '../../components/ui/MetricGroup';
+import { Stat } from '../../components/ui/Stat';
+import { UserCheck, Users, CalendarCheck, ClipboardList } from '../../components/ui/icons';
 import { Badge, StatusBadge } from '../../components/ui/StatusBadge';
 import { DataTable } from '../../components/ui/DataTable';
 import type { Column } from '../../components/ui/DataTable';
@@ -65,7 +68,7 @@ const barra = {
 type Modalidad = Sesion['modalidad'];
 
 interface FilaCiclo {
-  ciclo: number;
+  ciclo: number | null;
   asignados: number;
   atendidos: number;
   atenciones: number;
@@ -127,7 +130,7 @@ export function TutorReports() {
     return estudiante ? [estudiante] : [];
   });
   const ciclos = [...new Set(tutoradosResueltos.map((estudiante) => estudiante.ciclo))].sort(
-    (a, b) => a - b,
+    (a, b) => (a ?? Infinity) - (b ?? Infinity),
   );
 
   const filasCiclo: FilaCiclo[] = ciclos.map((ciclo) => {
@@ -411,38 +414,32 @@ export function TutorReports() {
         }
       />
 
-      <dl className="report-metrics" aria-label="Indicadores de tutoría">
-        <div>
-          <dt>Cobertura</dt>
-          <dd>
-            {coberturaTotal}
-            <span>%</span>
-          </dd>
-          <dd className="report-metrics__note">
-            {estudiantesAtendidos.size} de {totalAsignados} estudiantes atendidos
-          </dd>
-        </div>
-        <div>
-          <dt>Asistencias</dt>
-          <dd>{atenciones.length}</dd>
-          <dd className="report-metrics__note">En sesiones realizadas</dd>
-        </div>
-        <div>
-          <dt>Sesiones realizadas</dt>
-          <dd>{realizadas.length}</dd>
-          <dd className="report-metrics__note">
-            {realizadas.filter((sesion) => sesion.tipo === 'individual').length} individuales ·{' '}
-            {realizadas.filter((sesion) => sesion.tipo === 'grupal').length} grupales
-          </dd>
-        </div>
-        <div>
-          <dt>Formularios</dt>
-          <dd>{instrumentos.length}</dd>
-          <dd className="report-metrics__note">
-            {instrumentos.filter((item) => item.estado === 'aprobado').length} aprobados
-          </dd>
-        </div>
-      </dl>
+      <MetricGroup label="Indicadores de tutoría">
+        <Stat
+          label="Cobertura"
+          value={`${coberturaTotal}%`}
+          note={`${estudiantesAtendidos.size} de ${totalAsignados} estudiantes atendidos`}
+          icon={<UserCheck />}
+        />
+        <Stat
+          label="Asistencias"
+          value={atenciones.length}
+          note="En sesiones realizadas"
+          icon={<Users />}
+        />
+        <Stat
+          label="Sesiones realizadas"
+          value={realizadas.length}
+          note={`${realizadas.filter((s) => s.tipo === 'individual').length} individuales · ${realizadas.filter((s) => s.tipo === 'grupal').length} grupales`}
+          icon={<CalendarCheck />}
+        />
+        <Stat
+          label="Formularios"
+          value={instrumentos.length}
+          note={`${instrumentos.filter((item) => item.estado === 'aprobado').length} aprobados`}
+          icon={<ClipboardList />}
+        />
+      </MetricGroup>
 
       <div className="report-charts">
         <Grafica
@@ -527,7 +524,7 @@ export function TutorReports() {
           tabla={{
             columnas: ['Ciclo', 'Asignados', 'Atendidos', 'Asistencias', 'Cobertura'],
             filas: filasCiclo.map((fila) => [
-              fila.ciclo,
+              fila.ciclo ?? 'Sin informar',
               fila.asignados,
               fila.atendidos,
               fila.atenciones,
@@ -678,22 +675,26 @@ export function TutorReports() {
           }
         >
           <div className="stack">
-            <dl className="report-preview-totals">
-              <div>
-                <dt>Estudiantes atendidos</dt>
-                <dd>
-                  {estudiantesAtendidos.size} / {totalAsignados}
-                </dd>
-              </div>
-              <div>
-                <dt>Asistencias</dt>
-                <dd>{atenciones.length}</dd>
-              </div>
-              <div>
-                <dt>Sesiones</dt>
-                <dd>{realizadas.length}</dd>
-              </div>
-            </dl>
+            <MetricGroup label="Resumen de la vista previa">
+              <Stat
+                label="Estudiantes atendidos"
+                value={estudiantesAtendidos.size}
+                note={`De ${totalAsignados} asignados`}
+                icon={<UserCheck />}
+              />
+              <Stat
+                label="Asistencias"
+                value={atenciones.length}
+                note="En sesiones realizadas"
+                icon={<Users />}
+              />
+              <Stat
+                label="Sesiones"
+                value={realizadas.length}
+                note="Realizadas en el periodo"
+                icon={<CalendarCheck />}
+              />
+            </MetricGroup>
             <DataTable
               rows={filasCiclo}
               columns={columnas}

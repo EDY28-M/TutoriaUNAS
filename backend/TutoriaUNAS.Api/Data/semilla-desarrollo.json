@@ -1,0 +1,3717 @@
+{
+  "aviso": "Datos enteramente ficticios. Solo se cargan con permiso explícito en Development.",
+  "semestreId": "2026-II",
+  "escuelas": [
+    {
+      "id": "E-ADM",
+      "nombre": "Administración",
+      "abreviatura": "ADM",
+      "facultadId": "FCEA"
+    },
+    {
+      "id": "E-CON",
+      "nombre": "Contabilidad",
+      "abreviatura": "CON",
+      "facultadId": "FCEA"
+    },
+    {
+      "id": "E-ECO",
+      "nombre": "Economía",
+      "abreviatura": "ECO",
+      "facultadId": "FCEA"
+    },
+    {
+      "id": "E-IIS",
+      "nombre": "Ingeniería en Informática y Sistemas",
+      "abreviatura": "IIS",
+      "facultadId": "FIIS"
+    },
+    {
+      "id": "E-AGR",
+      "nombre": "Ingeniería Agronómica",
+      "abreviatura": "AGR",
+      "facultadId": "FIA"
+    },
+    {
+      "id": "E-FOR",
+      "nombre": "Ingeniería Forestal",
+      "abreviatura": "FOR",
+      "facultadId": "FRNR"
+    },
+    {
+      "id": "E-ZOO",
+      "nombre": "Zootecnia",
+      "abreviatura": "ZOO",
+      "facultadId": "FZ"
+    },
+    {
+      "id": "E-BIO",
+      "nombre": "Biología",
+      "abreviatura": "BIO",
+      "facultadId": "FC"
+    }
+  ],
+  "estudiantes": [
+    {
+      "id": "EST-2023010456",
+      "codigo": "2023010456",
+      "apellidos": "Quispe Rojas",
+      "nombres": "Ana Lucía",
+      "escuelaId": "E-IIS",
+      "ciclo": 3,
+      "etapa": "ingresante",
+      "estado": "regular",
+      "correo": "2023010456@unas.edu.pe",
+      "telefono": "+51 936 226 927",
+      "ingreso": "2023-03-27",
+      "promedioPonderado": 15.4,
+      "creditosAprobados": 62,
+      "creditosTotales": 210,
+      "alertas": []
+    },
+    {
+      "id": "EST-2023010457",
+      "codigo": "2023010457",
+      "apellidos": "Vásquez Paredes",
+      "nombres": "Diego Alonso",
+      "escuelaId": "E-IIS",
+      "ciclo": 3,
+      "etapa": "ingresante",
+      "estado": "observado",
+      "correo": "2023010457@unas.edu.pe",
+      "telefono": "+51 949 329 419",
+      "ingreso": "2023-03-27",
+      "promedioPonderado": 11.8,
+      "creditosAprobados": 48,
+      "creditosTotales": 210,
+      "alertas": [
+        {
+          "id": "AL-001",
+          "tipo": "riesgo-academico",
+          "nivel": "alta",
+          "detalle": "Promedio por debajo de 12 y dos cursos en riesgo.",
+          "detectada": "2026-10-09"
+        },
+        {
+          "id": "AL-002",
+          "tipo": "inasistencia-tutoria",
+          "nivel": "media",
+          "detalle": "No asistió a las dos últimas sesiones programadas.",
+          "detectada": "2026-10-12"
+        }
+      ]
+    },
+    {
+      "id": "EST-2023010458",
+      "codigo": "2023010458",
+      "apellidos": "Ríos Campos",
+      "nombres": "Rosa Melina",
+      "escuelaId": "E-IIS",
+      "ciclo": 5,
+      "etapa": "intermedio",
+      "estado": "regular",
+      "correo": "2023010458@unas.edu.pe",
+      "telefono": "+51 964 448 801",
+      "ingreso": "2022-03-28",
+      "promedioPonderado": 16.9,
+      "creditosAprobados": 108,
+      "creditosTotales": 210,
+      "alertas": []
+    },
+    {
+      "id": "EST-2023010459",
+      "codigo": "2023010459",
+      "apellidos": "Tuanama Fachín",
+      "nombres": "Luis Fernando",
+      "escuelaId": "E-IIS",
+      "ciclo": 5,
+      "etapa": "intermedio",
+      "estado": "regular",
+      "correo": "2023010459@unas.edu.pe",
+      "telefono": "+51 977 551 293",
+      "ingreso": "2022-03-28",
+      "promedioPonderado": 13.2,
+      "creditosAprobados": 96,
+      "creditosTotales": 210,
+      "alertas": [
+        {
+          "id": "AL-003",
+          "tipo": "repitencia",
+          "nivel": "media",
+          "detalle": "Segunda vez en Base de Datos I.",
+          "detectada": "2026-10-08"
+        }
+      ]
+    },
+    {
+      "id": "EST-2023010460",
+      "codigo": "2023010460",
+      "apellidos": "Bardales Ruiz",
+      "nombres": "Katherine",
+      "escuelaId": "E-IIS",
+      "ciclo": 7,
+      "etapa": "intermedio",
+      "estado": "regular",
+      "correo": "2023010460@unas.edu.pe",
+      "telefono": "+51 922 670 675",
+      "ingreso": "2021-03-29",
+      "promedioPonderado": 14.7,
+      "creditosAprobados": 152,
+      "creditosTotales": 210,
+      "alertas": []
+    },
+    {
+      "id": "EST-2023010461",
+      "codigo": "2023010461",
+      "apellidos": "Sangama Pérez",
+      "nombres": "Jhonatan",
+      "escuelaId": "E-IIS",
+      "ciclo": 7,
+      "etapa": "intermedio",
+      "estado": "regular",
+      "correo": "2023010461@unas.edu.pe",
+      "telefono": "+51 935 773 167",
+      "ingreso": "2021-03-29",
+      "promedioPonderado": 12.4,
+      "creditosAprobados": 138,
+      "creditosTotales": 210,
+      "alertas": [
+        {
+          "id": "AL-004",
+          "tipo": "carga-creditos",
+          "nivel": "baja",
+          "detalle": "Carga de 22 créditos por encima del promedio de su ciclo.",
+          "detectada": "2026-10-05"
+        }
+      ]
+    },
+    {
+      "id": "EST-2023010462",
+      "codigo": "2023010462",
+      "apellidos": "Meléndez Acuña",
+      "nombres": "Fiorella",
+      "escuelaId": "E-IIS",
+      "ciclo": 9,
+      "etapa": "final",
+      "estado": "regular",
+      "correo": "2023010462@unas.edu.pe",
+      "telefono": "+51 950 891 549",
+      "ingreso": "2020-03-30",
+      "promedioPonderado": 16.1,
+      "creditosAprobados": 186,
+      "creditosTotales": 210,
+      "alertas": []
+    },
+    {
+      "id": "EST-2026010012",
+      "codigo": "2026010012",
+      "apellidos": "Chávez Dávila",
+      "nombres": "María Fernanda",
+      "escuelaId": "E-IIS",
+      "ciclo": 1,
+      "etapa": "ingresante",
+      "estado": "ingresante",
+      "correo": "2026010012@unas.edu.pe",
+      "telefono": "+51 955 931 976",
+      "ingreso": "2026-03-30",
+      "promedioPonderado": 14.2,
+      "creditosAprobados": 0,
+      "creditosTotales": 210,
+      "alertas": []
+    },
+    {
+      "id": "EST-2026010013",
+      "codigo": "2026010013",
+      "apellidos": "Pinedo Salas",
+      "nombres": "Álvaro Jesús",
+      "escuelaId": "E-IIS",
+      "ciclo": 1,
+      "etapa": "ingresante",
+      "estado": "ingresante",
+      "correo": "2026010013@unas.edu.pe",
+      "telefono": "+51 968 134 468",
+      "ingreso": "2026-03-30",
+      "promedioPonderado": 12.9,
+      "creditosAprobados": 0,
+      "creditosTotales": 210,
+      "alertas": [
+        {
+          "id": "AL-005",
+          "tipo": "bienestar",
+          "nivel": "media",
+          "detalle": "Declaró dificultad de conectividad en la entrevista inicial.",
+          "detectada": "2026-10-06"
+        }
+      ]
+    },
+    {
+      "id": "EST-2023010470",
+      "codigo": "2023010470",
+      "apellidos": "Zevallos Ibarra",
+      "nombres": "Carla Beatriz",
+      "escuelaId": "E-ADM",
+      "ciclo": 3,
+      "etapa": "ingresante",
+      "estado": "regular",
+      "correo": "2023010470@unas.edu.pe",
+      "telefono": "+51 983 253 850",
+      "ingreso": "2023-03-27",
+      "promedioPonderado": 15.9,
+      "creditosAprobados": 64,
+      "creditosTotales": 210,
+      "alertas": []
+    },
+    {
+      "id": "EST-2023010471",
+      "codigo": "2023010471",
+      "apellidos": "Huamán García",
+      "nombres": "José Carlos",
+      "escuelaId": "E-ADM",
+      "ciclo": 3,
+      "etapa": "ingresante",
+      "estado": "observado",
+      "correo": "2023010471@unas.edu.pe",
+      "telefono": "+51 926 356 342",
+      "ingreso": "2023-03-27",
+      "promedioPonderado": 12.1,
+      "creditosAprobados": 45,
+      "creditosTotales": 210,
+      "alertas": [
+        {
+          "id": "AL-006",
+          "tipo": "riesgo-academico",
+          "nivel": "media",
+          "detalle": "Desaprobó Contabilidad General en el semestre anterior.",
+          "detectada": "2026-10-07"
+        }
+      ]
+    },
+    {
+      "id": "EST-2023010472",
+      "codigo": "2023010472",
+      "apellidos": "Ayala Rengifo",
+      "nombres": "Melissa",
+      "escuelaId": "E-ADM",
+      "ciclo": 5,
+      "etapa": "intermedio",
+      "estado": "regular",
+      "correo": "2023010472@unas.edu.pe",
+      "telefono": "+51 941 474 724",
+      "ingreso": "2022-03-28",
+      "promedioPonderado": 16.4,
+      "creditosAprobados": 112,
+      "creditosTotales": 210,
+      "alertas": []
+    },
+    {
+      "id": "EST-2023010473",
+      "codigo": "2023010473",
+      "apellidos": "Cárdenas Pizango",
+      "nombres": "Bryan",
+      "escuelaId": "E-ADM",
+      "ciclo": 7,
+      "etapa": "intermedio",
+      "estado": "regular",
+      "correo": "2023010473@unas.edu.pe",
+      "telefono": "+51 956 593 207",
+      "ingreso": "2021-03-29",
+      "promedioPonderado": 13.7,
+      "creditosAprobados": 148,
+      "creditosTotales": 210,
+      "alertas": []
+    },
+    {
+      "id": "EST-2023010480",
+      "codigo": "2023010480",
+      "apellidos": "Flores Amasifuén",
+      "nombres": "Diana Carolina",
+      "escuelaId": "E-CON",
+      "ciclo": 1,
+      "etapa": "ingresante",
+      "estado": "regular",
+      "correo": "2023010480@unas.edu.pe",
+      "telefono": "+51 963 649 625",
+      "ingreso": "2026-03-30",
+      "promedioPonderado": 15.1,
+      "creditosAprobados": 20,
+      "creditosTotales": 210,
+      "alertas": []
+    },
+    {
+      "id": "EST-2023010481",
+      "codigo": "2023010481",
+      "apellidos": "Núñez Tello",
+      "nombres": "Pablo Andrés",
+      "escuelaId": "E-CON",
+      "ciclo": 3,
+      "etapa": "ingresante",
+      "estado": "observado",
+      "correo": "2023010481@unas.edu.pe",
+      "telefono": "+51 978 767 108",
+      "ingreso": "2023-03-27",
+      "promedioPonderado": 11.4,
+      "creditosAprobados": 42,
+      "creditosTotales": 210,
+      "alertas": [
+        {
+          "id": "AL-007",
+          "tipo": "riesgo-academico",
+          "nivel": "alta",
+          "detalle": "Tres cursos desaprobados en el semestre 2026-I.",
+          "detectada": "2026-10-10"
+        },
+        {
+          "id": "AL-008",
+          "tipo": "inasistencia-tutoria",
+          "nivel": "alta",
+          "detalle": "Sin registro de asistencia a tutoría en el semestre.",
+          "detectada": "2026-10-12"
+        }
+      ]
+    },
+    {
+      "id": "EST-2023010482",
+      "codigo": "2023010482",
+      "apellidos": "Ruiz Vela",
+      "nombres": "Sofía Alejandra",
+      "escuelaId": "E-CON",
+      "ciclo": 5,
+      "etapa": "intermedio",
+      "estado": "regular",
+      "correo": "2023010482@unas.edu.pe",
+      "telefono": "+51 923 886 490",
+      "ingreso": "2022-03-28",
+      "promedioPonderado": 17.2,
+      "creditosAprobados": 118,
+      "creditosTotales": 210,
+      "alertas": []
+    },
+    {
+      "id": "EST-2023010490",
+      "codigo": "2023010490",
+      "apellidos": "Del Águila Mozombite",
+      "nombres": "Renzo",
+      "escuelaId": "E-ECO",
+      "ciclo": 3,
+      "etapa": "ingresante",
+      "estado": "regular",
+      "correo": "2023010490@unas.edu.pe",
+      "telefono": "+51 934 973 890",
+      "ingreso": "2023-03-27",
+      "promedioPonderado": 14.6,
+      "creditosAprobados": 58,
+      "creditosTotales": 210,
+      "alertas": []
+    },
+    {
+      "id": "EST-2023010491",
+      "codigo": "2023010491",
+      "apellidos": "Paredes Soria",
+      "nombres": "Lucero",
+      "escuelaId": "E-ECO",
+      "ciclo": 5,
+      "etapa": "intermedio",
+      "estado": "regular",
+      "correo": "2023010491@unas.edu.pe",
+      "telefono": "+51 949 192 373",
+      "ingreso": "2022-03-28",
+      "promedioPonderado": 15.8,
+      "creditosAprobados": 104,
+      "creditosTotales": 210,
+      "alertas": [
+        {
+          "id": "AL-009",
+          "tipo": "carga-creditos",
+          "nivel": "baja",
+          "detalle": "Matriculó 20 créditos y trabaja por las tardes.",
+          "detectada": "2026-10-04"
+        }
+      ]
+    },
+    {
+      "id": "EST-2023010500",
+      "codigo": "2023010500",
+      "apellidos": "Sánchez Bardales",
+      "nombres": "Wilder",
+      "escuelaId": "E-AGR",
+      "ciclo": 3,
+      "etapa": "ingresante",
+      "estado": "regular",
+      "correo": "2023010500@unas.edu.pe",
+      "telefono": "+51 960 279 773",
+      "ingreso": "2023-03-27",
+      "promedioPonderado": 13.9,
+      "creditosAprobados": 60,
+      "creditosTotales": 210,
+      "alertas": []
+    },
+    {
+      "id": "EST-2023010501",
+      "codigo": "2023010501",
+      "apellidos": "Gonzales Fachín",
+      "nombres": "Elmer",
+      "escuelaId": "E-AGR",
+      "ciclo": 7,
+      "etapa": "intermedio",
+      "estado": "regular",
+      "correo": "2023010501@unas.edu.pe",
+      "telefono": "+51 977 414 247",
+      "ingreso": "2021-03-29",
+      "promedioPonderado": 12.7,
+      "creditosAprobados": 144,
+      "creditosTotales": 210,
+      "alertas": [
+        {
+          "id": "AL-010",
+          "tipo": "repitencia",
+          "nivel": "media",
+          "detalle": "Repite Fitopatología por segunda vez.",
+          "detectada": "2026-10-08"
+        }
+      ]
+    },
+    {
+      "id": "EST-2026010020",
+      "codigo": "2026010020",
+      "apellidos": "Torres Angulo",
+      "nombres": "Kely Yaneth",
+      "escuelaId": "E-AGR",
+      "ciclo": 1,
+      "etapa": "ingresante",
+      "estado": "ingresante",
+      "correo": "2026010020@unas.edu.pe",
+      "telefono": "+51 984 469 665",
+      "ingreso": "2026-03-30",
+      "promedioPonderado": 14.9,
+      "creditosAprobados": 0,
+      "creditosTotales": 210,
+      "alertas": []
+    },
+    {
+      "id": "EST-2023010510",
+      "codigo": "2023010510",
+      "apellidos": "Mozombite Lomas",
+      "nombres": "Iván",
+      "escuelaId": "E-FOR",
+      "ciclo": 3,
+      "etapa": "ingresante",
+      "estado": "regular",
+      "correo": "2023010510@unas.edu.pe",
+      "telefono": "+51 929 588 148",
+      "ingreso": "2023-03-27",
+      "promedioPonderado": 15.2,
+      "creditosAprobados": 61,
+      "creditosTotales": 210,
+      "alertas": []
+    },
+    {
+      "id": "EST-2023010511",
+      "codigo": "2023010511",
+      "apellidos": "Reátegui Pinedo",
+      "nombres": "Nataly",
+      "escuelaId": "E-FOR",
+      "ciclo": 5,
+      "etapa": "intermedio",
+      "estado": "regular",
+      "correo": "2023010511@unas.edu.pe",
+      "telefono": "+51 944 707 530",
+      "ingreso": "2022-03-28",
+      "promedioPonderado": 16.6,
+      "creditosAprobados": 110,
+      "creditosTotales": 210,
+      "alertas": []
+    },
+    {
+      "id": "EST-2023010520",
+      "codigo": "2023010520",
+      "apellidos": "Cabrera Sifuentes",
+      "nombres": "Marco Antonio",
+      "escuelaId": "E-ZOO",
+      "ciclo": 3,
+      "etapa": "ingresante",
+      "estado": "observado",
+      "correo": "2023010520@unas.edu.pe",
+      "telefono": "+51 955 794 930",
+      "ingreso": "2023-03-27",
+      "promedioPonderado": 12.3,
+      "creditosAprobados": 52,
+      "creditosTotales": 210,
+      "alertas": [
+        {
+          "id": "AL-011",
+          "tipo": "bienestar",
+          "nivel": "alta",
+          "detalle": "Beneficio de comedor suspendido; reporta dificultad alimentaria.",
+          "detectada": "2026-10-11"
+        }
+      ]
+    },
+    {
+      "id": "EST-2023010521",
+      "codigo": "2023010521",
+      "apellidos": "Vela Sangama",
+      "nombres": "Rocío del Pilar",
+      "escuelaId": "E-ZOO",
+      "ciclo": 5,
+      "etapa": "intermedio",
+      "estado": "regular",
+      "correo": "2023010521@unas.edu.pe",
+      "telefono": "+51 970 913 413",
+      "ingreso": "2022-03-28",
+      "promedioPonderado": 15.5,
+      "creditosAprobados": 106,
+      "creditosTotales": 210,
+      "alertas": []
+    },
+    {
+      "id": "EST-2023010530",
+      "codigo": "2023010530",
+      "apellidos": "Amasifuén Tuanama",
+      "nombres": "Ángel Gabriel",
+      "escuelaId": "E-BIO",
+      "ciclo": 3,
+      "etapa": "ingresante",
+      "estado": "regular",
+      "correo": "2023010530@unas.edu.pe",
+      "telefono": "+51 981 100 813",
+      "ingreso": "2023-03-27",
+      "promedioPonderado": 14.4,
+      "creditosAprobados": 59,
+      "creditosTotales": 210,
+      "alertas": []
+    },
+    {
+      "id": "EST-2023010531",
+      "codigo": "2023010531",
+      "apellidos": "Rengifo Saldaña",
+      "nombres": "Brenda",
+      "escuelaId": "E-BIO",
+      "ciclo": 7,
+      "etapa": "intermedio",
+      "estado": "regular",
+      "correo": "2023010531@unas.edu.pe",
+      "telefono": "+51 928 235 287",
+      "ingreso": "2021-03-29",
+      "promedioPonderado": 17.4,
+      "creditosAprobados": 158,
+      "creditosTotales": 210,
+      "alertas": []
+    },
+    {
+      "id": "EST-2023010532",
+      "codigo": "2023010532",
+      "apellidos": "Saldaña Chujandama",
+      "nombres": "Elías",
+      "escuelaId": "E-BIO",
+      "ciclo": 9,
+      "etapa": "final",
+      "estado": "regular",
+      "correo": "2023010532@unas.edu.pe",
+      "telefono": "+51 943 353 669",
+      "ingreso": "2020-03-30",
+      "promedioPonderado": 13.1,
+      "creditosAprobados": 176,
+      "creditosTotales": 210,
+      "alertas": [
+        {
+          "id": "AL-012",
+          "tipo": "riesgo-academico",
+          "nivel": "media",
+          "detalle": "Taller de Tesis I en curso con avance bajo.",
+          "detectada": "2026-10-09"
+        }
+      ]
+    }
+  ],
+  "docentes": [
+    {
+      "id": "DOC-0421",
+      "codigo": "DOC-0421",
+      "apellidos": "Vela Ríos",
+      "nombres": "Luis Alberto",
+      "escuelaId": "E-IIS",
+      "departamento": "Departamento Académico de Informática y Sistemas",
+      "categoria": "Asociado",
+      "dedicacion": "Tiempo completo",
+      "correo": "lvela@unas.edu.pe",
+      "telefono": "+51 962 111 421",
+      "activo": true,
+      "aforoMaximo": 12,
+      "cursosAsignados": [
+        "C-IIS-202",
+        "C-IIS-301"
+      ]
+    },
+    {
+      "id": "DOC-0422",
+      "codigo": "DOC-0422",
+      "apellidos": "Paredes Auqui",
+      "nombres": "Marta Elena",
+      "escuelaId": "E-IIS",
+      "departamento": "Departamento Académico de Informática y Sistemas",
+      "categoria": "Principal",
+      "dedicacion": "Dedicación exclusiva",
+      "correo": "mparedes@unas.edu.pe",
+      "telefono": "+51 962 111 422",
+      "activo": true,
+      "aforoMaximo": 10,
+      "cursosAsignados": [
+        "C-IIS-401",
+        "C-IIS-501"
+      ]
+    },
+    {
+      "id": "DOC-0423",
+      "codigo": "DOC-0423",
+      "apellidos": "Ríos Valverde",
+      "nombres": "Carmen Julia",
+      "escuelaId": "E-ADM",
+      "departamento": "Departamento Académico de Ciencias Económicas",
+      "categoria": "Asociado",
+      "dedicacion": "Tiempo completo",
+      "correo": "crios@unas.edu.pe",
+      "telefono": "+51 962 111 423",
+      "activo": true,
+      "aforoMaximo": 14,
+      "cursosAsignados": [
+        "C-ADM-201"
+      ]
+    },
+    {
+      "id": "DOC-0424",
+      "codigo": "DOC-0424",
+      "apellidos": "Bermúdez Salas",
+      "nombres": "Jorge Luis",
+      "escuelaId": "E-ADM",
+      "departamento": "Departamento Académico de Ciencias Económicas",
+      "categoria": "Auxiliar",
+      "dedicacion": "Tiempo completo",
+      "correo": "jbermudez@unas.edu.pe",
+      "telefono": "+51 962 111 424",
+      "activo": true,
+      "aforoMaximo": 12,
+      "cursosAsignados": [
+        "C-ADM-101"
+      ]
+    },
+    {
+      "id": "DOC-0425",
+      "codigo": "DOC-0425",
+      "apellidos": "Huamán Ríos",
+      "nombres": "Milagros",
+      "escuelaId": "E-CON",
+      "departamento": "Departamento Académico de Ciencias Contables",
+      "categoria": "Asociado",
+      "dedicacion": "Tiempo completo",
+      "correo": "mhuaman@unas.edu.pe",
+      "telefono": "+51 962 111 425",
+      "activo": true,
+      "aforoMaximo": 12,
+      "cursosAsignados": [
+        "C-CON-201",
+        "C-CON-301"
+      ]
+    },
+    {
+      "id": "DOC-0426",
+      "codigo": "DOC-0426",
+      "apellidos": "Zavaleta Ruiz",
+      "nombres": "Pedro Pablo",
+      "escuelaId": "E-ECO",
+      "departamento": "Departamento Académico de Ciencias Económicas",
+      "categoria": "Principal",
+      "dedicacion": "Dedicación exclusiva",
+      "correo": "pzavaleta@unas.edu.pe",
+      "telefono": "+51 962 111 426",
+      "activo": true,
+      "aforoMaximo": 10,
+      "cursosAsignados": [
+        "C-ECO-301"
+      ]
+    },
+    {
+      "id": "DOC-0427",
+      "codigo": "DOC-0427",
+      "apellidos": "Sifuentes Lomas",
+      "nombres": "Rocío del Carmen",
+      "escuelaId": "E-AGR",
+      "departamento": "Departamento Académico de Ciencias Agrarias",
+      "categoria": "Asociado",
+      "dedicacion": "Tiempo completo",
+      "correo": "rsifuentes@unas.edu.pe",
+      "telefono": "+51 962 111 427",
+      "activo": true,
+      "aforoMaximo": 14,
+      "cursosAsignados": [
+        "C-AGR-201"
+      ]
+    },
+    {
+      "id": "DOC-0428",
+      "codigo": "DOC-0428",
+      "apellidos": "Tuanama Sangama",
+      "nombres": "Elmer",
+      "escuelaId": "E-FOR",
+      "departamento": "Departamento Académico de Ciencias Forestales",
+      "categoria": "Auxiliar",
+      "dedicacion": "Tiempo completo",
+      "correo": "etuanama@unas.edu.pe",
+      "telefono": "+51 962 111 428",
+      "activo": true,
+      "aforoMaximo": 12,
+      "cursosAsignados": [
+        "C-FOR-201"
+      ]
+    },
+    {
+      "id": "DOC-0429",
+      "codigo": "DOC-0429",
+      "apellidos": "Fachín Chujandama",
+      "nombres": "Gloria",
+      "escuelaId": "E-ZOO",
+      "departamento": "Departamento Académico de Zootecnia",
+      "categoria": "Asociado",
+      "dedicacion": "Tiempo completo",
+      "correo": "gfachin@unas.edu.pe",
+      "telefono": "+51 962 111 429",
+      "activo": true,
+      "aforoMaximo": 12,
+      "cursosAsignados": [
+        "C-ZOO-201"
+      ]
+    },
+    {
+      "id": "DOC-0430",
+      "codigo": "DOC-0430",
+      "apellidos": "Angulo Reátegui",
+      "nombres": "Segundo",
+      "escuelaId": "E-BIO",
+      "departamento": "Departamento Académico de Ciencias Biológicas",
+      "categoria": "Principal",
+      "dedicacion": "Dedicación exclusiva",
+      "correo": "sangulo@unas.edu.pe",
+      "telefono": "+51 962 111 430",
+      "activo": true,
+      "aforoMaximo": 10,
+      "cursosAsignados": [
+        "C-BIO-201"
+      ]
+    },
+    {
+      "id": "DOC-0431",
+      "codigo": "DOC-0431",
+      "apellidos": "Lomas Pizango",
+      "nombres": "Teresa",
+      "escuelaId": "E-IIS",
+      "departamento": "Departamento Académico de Informática y Sistemas",
+      "categoria": "Auxiliar",
+      "dedicacion": "Tiempo parcial",
+      "correo": "tlomas@unas.edu.pe",
+      "telefono": "+51 962 111 431",
+      "activo": false,
+      "aforoMaximo": 0,
+      "cursosAsignados": []
+    }
+  ],
+  "cuentas": [
+    {
+      "id": "EST-2023010456",
+      "role": "estudiante",
+      "name": "Ana Lucía Quispe Rojas",
+      "identifier": "2023010456",
+      "email": "2023010456@unas.edu.pe"
+    },
+    {
+      "id": "DOC-0421",
+      "role": "tutor",
+      "name": "Luis Alberto Vela Ríos",
+      "identifier": "DOC-0421",
+      "email": "lvela@unas.edu.pe"
+    },
+    {
+      "id": "COM-01",
+      "role": "coordinacion",
+      "name": "Marta Elena Paredes Auqui",
+      "identifier": "coordinacion.tutoria",
+      "email": "mparedes@unas.edu.pe"
+    }
+  ],
+  "asignaciones": [
+    {
+      "id": "ASG-2023010456",
+      "estudianteId": "EST-2023010456",
+      "tutorId": "DOC-0421",
+      "semestreId": "2026-II",
+      "escuelaId": "E-IIS",
+      "grupo": "G-IIS-1",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "afinidad de curso",
+      "referenciaAprobacion": "Acta de asignación tutorial IIS · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0421",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010457",
+      "estudianteId": "EST-2023010457",
+      "tutorId": "DOC-0421",
+      "semestreId": "2026-II",
+      "escuelaId": "E-IIS",
+      "grupo": "G-IIS-4",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "asignación directiva",
+      "referenciaAprobacion": "Acta de asignación tutorial IIS · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0421",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010458",
+      "estudianteId": "EST-2023010458",
+      "tutorId": "DOC-0421",
+      "semestreId": "2026-II",
+      "escuelaId": "E-IIS",
+      "grupo": "G-IIS-3",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "asignación directiva",
+      "referenciaAprobacion": "Acta de asignación tutorial IIS · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0421",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010459",
+      "estudianteId": "EST-2023010459",
+      "tutorId": "DOC-0421",
+      "semestreId": "2026-II",
+      "escuelaId": "E-IIS",
+      "grupo": "G-IIS-2",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "asignación directiva",
+      "referenciaAprobacion": "Acta de asignación tutorial IIS · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0421",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010460",
+      "estudianteId": "EST-2023010460",
+      "tutorId": "DOC-0421",
+      "semestreId": "2026-II",
+      "escuelaId": "E-IIS",
+      "grupo": "G-IIS-2",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "asignación directiva",
+      "referenciaAprobacion": "Acta de asignación tutorial IIS · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0421",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010461",
+      "estudianteId": "EST-2023010461",
+      "tutorId": "DOC-0421",
+      "semestreId": "2026-II",
+      "escuelaId": "E-IIS",
+      "grupo": "G-IIS-3",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "afinidad de curso",
+      "referenciaAprobacion": "Acta de asignación tutorial IIS · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0421",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010462",
+      "estudianteId": "EST-2023010462",
+      "tutorId": "DOC-0421",
+      "semestreId": "2026-II",
+      "escuelaId": "E-IIS",
+      "grupo": "G-IIS-4",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "asignación directiva",
+      "referenciaAprobacion": "Acta de asignación tutorial IIS · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0421",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2026010012",
+      "estudianteId": "EST-2026010012",
+      "tutorId": "DOC-0421",
+      "semestreId": "2026-II",
+      "escuelaId": "E-IIS",
+      "grupo": "G-IIS-4",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "asignación directiva",
+      "referenciaAprobacion": "Acta de asignación tutorial IIS · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0421",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2026010013",
+      "estudianteId": "EST-2026010013",
+      "tutorId": "DOC-0421",
+      "semestreId": "2026-II",
+      "escuelaId": "E-IIS",
+      "grupo": "G-IIS-1",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "asignación directiva",
+      "referenciaAprobacion": "Acta de asignación tutorial IIS · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0421",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010470",
+      "estudianteId": "EST-2023010470",
+      "tutorId": "DOC-0423",
+      "semestreId": "2026-II",
+      "escuelaId": "E-ADM",
+      "grupo": "G-ADM-1",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "asignación directiva",
+      "referenciaAprobacion": "Acta de asignación tutorial ADM · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0423",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010471",
+      "estudianteId": "EST-2023010471",
+      "tutorId": "DOC-0423",
+      "semestreId": "2026-II",
+      "escuelaId": "E-ADM",
+      "grupo": "G-ADM-4",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "afinidad de curso",
+      "referenciaAprobacion": "Acta de asignación tutorial ADM · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0423",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010472",
+      "estudianteId": "EST-2023010472",
+      "tutorId": "DOC-0423",
+      "semestreId": "2026-II",
+      "escuelaId": "E-ADM",
+      "grupo": "G-ADM-3",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "asignación directiva",
+      "referenciaAprobacion": "Acta de asignación tutorial ADM · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0423",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010473",
+      "estudianteId": "EST-2023010473",
+      "tutorId": "DOC-0423",
+      "semestreId": "2026-II",
+      "escuelaId": "E-ADM",
+      "grupo": "G-ADM-2",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "asignación directiva",
+      "referenciaAprobacion": "Acta de asignación tutorial ADM · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0423",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010480",
+      "estudianteId": "EST-2023010480",
+      "tutorId": "DOC-0425",
+      "semestreId": "2026-II",
+      "escuelaId": "E-CON",
+      "grupo": "G-CON-2",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "asignación directiva",
+      "referenciaAprobacion": "Acta de asignación tutorial CON · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0425",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010481",
+      "estudianteId": "EST-2023010481",
+      "tutorId": "DOC-0425",
+      "semestreId": "2026-II",
+      "escuelaId": "E-CON",
+      "grupo": "G-CON-1",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "asignación directiva",
+      "referenciaAprobacion": "Acta de asignación tutorial CON · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0425",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010482",
+      "estudianteId": "EST-2023010482",
+      "tutorId": "DOC-0425",
+      "semestreId": "2026-II",
+      "escuelaId": "E-CON",
+      "grupo": "G-CON-4",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "afinidad de curso",
+      "referenciaAprobacion": "Acta de asignación tutorial CON · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0425",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010490",
+      "estudianteId": "EST-2023010490",
+      "tutorId": "DOC-0426",
+      "semestreId": "2026-II",
+      "escuelaId": "E-ECO",
+      "grupo": "G-ECO-3",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "asignación directiva",
+      "referenciaAprobacion": "Acta de asignación tutorial ECO · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0426",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010491",
+      "estudianteId": "EST-2023010491",
+      "tutorId": "DOC-0426",
+      "semestreId": "2026-II",
+      "escuelaId": "E-ECO",
+      "grupo": "G-ECO-4",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "asignación directiva",
+      "referenciaAprobacion": "Acta de asignación tutorial ECO · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0426",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010500",
+      "estudianteId": "EST-2023010500",
+      "tutorId": "DOC-0427",
+      "semestreId": "2026-II",
+      "escuelaId": "E-AGR",
+      "grupo": "G-AGR-1",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "asignación directiva",
+      "referenciaAprobacion": "Acta de asignación tutorial AGR · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0427",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010501",
+      "estudianteId": "EST-2023010501",
+      "tutorId": "DOC-0427",
+      "semestreId": "2026-II",
+      "escuelaId": "E-AGR",
+      "grupo": "G-AGR-4",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "asignación directiva",
+      "referenciaAprobacion": "Acta de asignación tutorial AGR · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0427",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2026010020",
+      "estudianteId": "EST-2026010020",
+      "tutorId": "DOC-0427",
+      "semestreId": "2026-II",
+      "escuelaId": "E-AGR",
+      "grupo": "G-AGR-3",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "afinidad de curso",
+      "referenciaAprobacion": "Acta de asignación tutorial AGR · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0427",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010510",
+      "estudianteId": "EST-2023010510",
+      "tutorId": "DOC-0428",
+      "semestreId": "2026-II",
+      "escuelaId": "E-FOR",
+      "grupo": "G-FOR-4",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "asignación directiva",
+      "referenciaAprobacion": "Acta de asignación tutorial FOR · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0428",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010511",
+      "estudianteId": "EST-2023010511",
+      "tutorId": "DOC-0428",
+      "semestreId": "2026-II",
+      "escuelaId": "E-FOR",
+      "grupo": "G-FOR-3",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "asignación directiva",
+      "referenciaAprobacion": "Acta de asignación tutorial FOR · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0428",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010520",
+      "estudianteId": "EST-2023010520",
+      "tutorId": "DOC-0429",
+      "semestreId": "2026-II",
+      "escuelaId": "E-ZOO",
+      "grupo": "G-ZOO-3",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "asignación directiva",
+      "referenciaAprobacion": "Acta de asignación tutorial ZOO · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0429",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010521",
+      "estudianteId": "EST-2023010521",
+      "tutorId": "DOC-0429",
+      "semestreId": "2026-II",
+      "escuelaId": "E-ZOO",
+      "grupo": "G-ZOO-2",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "asignación directiva",
+      "referenciaAprobacion": "Acta de asignación tutorial ZOO · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0429",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010530",
+      "estudianteId": "EST-2023010530",
+      "tutorId": "DOC-0430",
+      "semestreId": "2026-II",
+      "escuelaId": "E-BIO",
+      "grupo": "G-BIO-2",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "afinidad de curso",
+      "referenciaAprobacion": "Acta de asignación tutorial BIO · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0430",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010531",
+      "estudianteId": "EST-2023010531",
+      "tutorId": "DOC-0430",
+      "semestreId": "2026-II",
+      "escuelaId": "E-BIO",
+      "grupo": "G-BIO-1",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "asignación directiva",
+      "referenciaAprobacion": "Acta de asignación tutorial BIO · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0430",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    },
+    {
+      "id": "ASG-2023010532",
+      "estudianteId": "EST-2023010532",
+      "tutorId": "DOC-0430",
+      "semestreId": "2026-II",
+      "escuelaId": "E-BIO",
+      "grupo": "G-BIO-4",
+      "fechaInicio": "2026-09-07",
+      "fechaFin": null,
+      "estado": "activa",
+      "criterio": "asignación directiva",
+      "referenciaAprobacion": "Acta de asignación tutorial BIO · 2026-II",
+      "historial": [
+        {
+          "fecha": "2026-09-07",
+          "tutorAnteriorId": null,
+          "tutorNuevoId": "DOC-0430",
+          "motivo": "Asignación inicial del semestre 2026-II",
+          "responsable": "Comisión de tutoría de la escuela"
+        }
+      ]
+    }
+  ],
+  "matriculas": [
+    {
+      "estudianteId": "EST-2023010456",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-17",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · IIS",
+      "ciclo": 3,
+      "cursos": [
+        {
+          "cursoId": "C-IIS-201",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Marta Elena Paredes Auqui",
+          "horario": "Mié 10:00–13:00"
+        },
+        {
+          "cursoId": "C-IIS-202",
+          "seccion": "B",
+          "creditos": 4,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Jue 11:00–14:00"
+        },
+        {
+          "cursoId": "C-IIS-101",
+          "seccion": "C",
+          "creditos": 3,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Vie 14:00–16:00"
+        },
+        {
+          "cursoId": "C-IIS-301",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Lun 15:00–18:00"
+        },
+        {
+          "cursoId": "C-IIS-302",
+          "seccion": "B",
+          "creditos": 3,
+          "docente": "Teresa Lomas Pizango",
+          "horario": "Mar 16:00–18:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010457",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-28",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · IIS",
+      "ciclo": 3,
+      "cursos": [
+        {
+          "cursoId": "C-IIS-201",
+          "seccion": "C",
+          "creditos": 4,
+          "docente": "Marta Elena Paredes Auqui",
+          "horario": "Mar 09:00–12:00"
+        },
+        {
+          "cursoId": "C-IIS-202",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Mié 10:00–13:00"
+        },
+        {
+          "cursoId": "C-IIS-101",
+          "seccion": "B",
+          "creditos": 3,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Jue 11:00–13:00"
+        },
+        {
+          "cursoId": "C-IIS-301",
+          "seccion": "C",
+          "creditos": 4,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Vie 14:00–17:00"
+        },
+        {
+          "cursoId": "C-IIS-302",
+          "seccion": "A",
+          "creditos": 3,
+          "docente": "Teresa Lomas Pizango",
+          "horario": "Lun 15:00–17:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010458",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-27",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · IIS",
+      "ciclo": 5,
+      "cursos": [
+        {
+          "cursoId": "C-IIS-301",
+          "seccion": "B",
+          "creditos": 4,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Mié 11:00–14:00"
+        },
+        {
+          "cursoId": "C-IIS-302",
+          "seccion": "C",
+          "creditos": 3,
+          "docente": "Teresa Lomas Pizango",
+          "horario": "Jue 14:00–16:00"
+        },
+        {
+          "cursoId": "C-IIS-101",
+          "seccion": "A",
+          "creditos": 3,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Vie 15:00–17:00"
+        },
+        {
+          "cursoId": "C-IIS-201",
+          "seccion": "B",
+          "creditos": 4,
+          "docente": "Marta Elena Paredes Auqui",
+          "horario": "Lun 16:00–19:00"
+        },
+        {
+          "cursoId": "C-IIS-202",
+          "seccion": "C",
+          "creditos": 4,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Mar 17:00–20:00"
+        },
+        {
+          "cursoId": "C-IIS-401",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Marta Elena Paredes Auqui",
+          "horario": "Mié 07:00–10:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010459",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-26",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · IIS",
+      "ciclo": 5,
+      "cursos": [
+        {
+          "cursoId": "C-IIS-301",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Mar 10:00–13:00"
+        },
+        {
+          "cursoId": "C-IIS-302",
+          "seccion": "B",
+          "creditos": 3,
+          "docente": "Teresa Lomas Pizango",
+          "horario": "Mié 11:00–13:00"
+        },
+        {
+          "cursoId": "C-IIS-101",
+          "seccion": "C",
+          "creditos": 3,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Jue 14:00–16:00"
+        },
+        {
+          "cursoId": "C-IIS-201",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Marta Elena Paredes Auqui",
+          "horario": "Vie 15:00–18:00"
+        },
+        {
+          "cursoId": "C-IIS-202",
+          "seccion": "B",
+          "creditos": 4,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Lun 16:00–19:00"
+        },
+        {
+          "cursoId": "C-IIS-401",
+          "seccion": "C",
+          "creditos": 4,
+          "docente": "Marta Elena Paredes Auqui",
+          "horario": "Mar 17:00–20:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010460",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-26",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · IIS",
+      "ciclo": 7,
+      "cursos": [
+        {
+          "cursoId": "C-IIS-401",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Marta Elena Paredes Auqui",
+          "horario": "Lun 10:00–13:00"
+        },
+        {
+          "cursoId": "C-IIS-402",
+          "seccion": "B",
+          "creditos": 3,
+          "docente": "Marta Elena Paredes Auqui",
+          "horario": "Mar 11:00–13:00"
+        },
+        {
+          "cursoId": "C-IIS-101",
+          "seccion": "C",
+          "creditos": 3,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Mié 14:00–16:00"
+        },
+        {
+          "cursoId": "C-IIS-201",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Marta Elena Paredes Auqui",
+          "horario": "Jue 15:00–18:00"
+        },
+        {
+          "cursoId": "C-IIS-202",
+          "seccion": "B",
+          "creditos": 4,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Vie 16:00–19:00"
+        },
+        {
+          "cursoId": "C-IIS-301",
+          "seccion": "C",
+          "creditos": 4,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Lun 17:00–20:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010461",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-27",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · IIS",
+      "ciclo": 7,
+      "cursos": [
+        {
+          "cursoId": "C-IIS-401",
+          "seccion": "B",
+          "creditos": 4,
+          "docente": "Marta Elena Paredes Auqui",
+          "horario": "Mar 11:00–14:00"
+        },
+        {
+          "cursoId": "C-IIS-402",
+          "seccion": "C",
+          "creditos": 3,
+          "docente": "Marta Elena Paredes Auqui",
+          "horario": "Mié 14:00–16:00"
+        },
+        {
+          "cursoId": "C-IIS-101",
+          "seccion": "A",
+          "creditos": 3,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Jue 15:00–17:00"
+        },
+        {
+          "cursoId": "C-IIS-201",
+          "seccion": "B",
+          "creditos": 4,
+          "docente": "Marta Elena Paredes Auqui",
+          "horario": "Vie 16:00–19:00"
+        },
+        {
+          "cursoId": "C-IIS-202",
+          "seccion": "C",
+          "creditos": 4,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Lun 17:00–20:00"
+        },
+        {
+          "cursoId": "C-IIS-301",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Mar 07:00–10:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010462",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-28",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · IIS",
+      "ciclo": 9,
+      "cursos": [
+        {
+          "cursoId": "C-IIS-501",
+          "seccion": "C",
+          "creditos": 3,
+          "docente": "Marta Elena Paredes Auqui",
+          "horario": "Mié 14:00–16:00"
+        },
+        {
+          "cursoId": "C-IIS-101",
+          "seccion": "A",
+          "creditos": 3,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Jue 15:00–17:00"
+        },
+        {
+          "cursoId": "C-IIS-201",
+          "seccion": "B",
+          "creditos": 4,
+          "docente": "Marta Elena Paredes Auqui",
+          "horario": "Vie 16:00–19:00"
+        },
+        {
+          "cursoId": "C-IIS-202",
+          "seccion": "C",
+          "creditos": 4,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Lun 17:00–20:00"
+        },
+        {
+          "cursoId": "C-IIS-301",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Mar 07:00–10:00"
+        },
+        {
+          "cursoId": "C-IIS-302",
+          "seccion": "B",
+          "creditos": 3,
+          "docente": "Teresa Lomas Pizango",
+          "horario": "Mié 08:00–10:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2026010012",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-24",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · IIS",
+      "ciclo": 1,
+      "cursos": [
+        {
+          "cursoId": "C-IIS-101",
+          "seccion": "B",
+          "creditos": 3,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Mar 11:00–13:00"
+        },
+        {
+          "cursoId": "C-IIS-201",
+          "seccion": "C",
+          "creditos": 4,
+          "docente": "Marta Elena Paredes Auqui",
+          "horario": "Mié 14:00–17:00"
+        },
+        {
+          "cursoId": "C-IIS-202",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Jue 15:00–18:00"
+        },
+        {
+          "cursoId": "C-IIS-301",
+          "seccion": "B",
+          "creditos": 4,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Vie 16:00–19:00"
+        },
+        {
+          "cursoId": "C-IIS-302",
+          "seccion": "C",
+          "creditos": 3,
+          "docente": "Teresa Lomas Pizango",
+          "horario": "Lun 17:00–19:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2026010013",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-25",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · IIS",
+      "ciclo": 1,
+      "cursos": [
+        {
+          "cursoId": "C-IIS-101",
+          "seccion": "C",
+          "creditos": 3,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Mié 14:00–16:00"
+        },
+        {
+          "cursoId": "C-IIS-201",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Marta Elena Paredes Auqui",
+          "horario": "Jue 15:00–18:00"
+        },
+        {
+          "cursoId": "C-IIS-202",
+          "seccion": "B",
+          "creditos": 4,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Vie 16:00–19:00"
+        },
+        {
+          "cursoId": "C-IIS-301",
+          "seccion": "C",
+          "creditos": 4,
+          "docente": "Luis Alberto Vela Ríos",
+          "horario": "Lun 17:00–20:00"
+        },
+        {
+          "cursoId": "C-IIS-302",
+          "seccion": "A",
+          "creditos": 3,
+          "docente": "Teresa Lomas Pizango",
+          "horario": "Mar 07:00–09:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010470",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-21",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · ADM",
+      "ciclo": 3,
+      "cursos": [
+        {
+          "cursoId": "C-ADM-201",
+          "seccion": "B",
+          "creditos": 4,
+          "docente": "Carmen Julia Ríos Valverde",
+          "horario": "Mar 08:00–11:00"
+        },
+        {
+          "cursoId": "C-ADM-101",
+          "seccion": "C",
+          "creditos": 3,
+          "docente": "Jorge Luis Bermúdez Salas",
+          "horario": "Mié 09:00–11:00"
+        },
+        {
+          "cursoId": "C-ADM-301",
+          "seccion": "A",
+          "creditos": 3,
+          "docente": "Jorge Luis Bermúdez Salas",
+          "horario": "Jue 10:00–12:00"
+        },
+        {
+          "cursoId": "C-ADM-401",
+          "seccion": "B",
+          "creditos": 4,
+          "docente": "Carmen Julia Ríos Valverde",
+          "horario": "Vie 11:00–14:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010471",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-20",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · ADM",
+      "ciclo": 3,
+      "cursos": [
+        {
+          "cursoId": "C-ADM-201",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Carmen Julia Ríos Valverde",
+          "horario": "Lun 07:00–10:00"
+        },
+        {
+          "cursoId": "C-ADM-101",
+          "seccion": "B",
+          "creditos": 3,
+          "docente": "Jorge Luis Bermúdez Salas",
+          "horario": "Mar 08:00–10:00"
+        },
+        {
+          "cursoId": "C-ADM-301",
+          "seccion": "C",
+          "creditos": 3,
+          "docente": "Jorge Luis Bermúdez Salas",
+          "horario": "Mié 09:00–11:00"
+        },
+        {
+          "cursoId": "C-ADM-401",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Carmen Julia Ríos Valverde",
+          "horario": "Jue 10:00–13:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010472",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-19",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · ADM",
+      "ciclo": 5,
+      "cursos": [
+        {
+          "cursoId": "C-ADM-301",
+          "seccion": "C",
+          "creditos": 3,
+          "docente": "Jorge Luis Bermúdez Salas",
+          "horario": "Vie 17:00–19:00"
+        },
+        {
+          "cursoId": "C-ADM-101",
+          "seccion": "A",
+          "creditos": 3,
+          "docente": "Jorge Luis Bermúdez Salas",
+          "horario": "Lun 07:00–09:00"
+        },
+        {
+          "cursoId": "C-ADM-201",
+          "seccion": "B",
+          "creditos": 4,
+          "docente": "Carmen Julia Ríos Valverde",
+          "horario": "Mar 08:00–11:00"
+        },
+        {
+          "cursoId": "C-ADM-401",
+          "seccion": "C",
+          "creditos": 4,
+          "docente": "Carmen Julia Ríos Valverde",
+          "horario": "Mié 09:00–12:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010473",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-18",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · ADM",
+      "ciclo": 7,
+      "cursos": [
+        {
+          "cursoId": "C-ADM-401",
+          "seccion": "B",
+          "creditos": 4,
+          "docente": "Carmen Julia Ríos Valverde",
+          "horario": "Jue 16:00–19:00"
+        },
+        {
+          "cursoId": "C-ADM-101",
+          "seccion": "C",
+          "creditos": 3,
+          "docente": "Jorge Luis Bermúdez Salas",
+          "horario": "Vie 17:00–19:00"
+        },
+        {
+          "cursoId": "C-ADM-201",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Carmen Julia Ríos Valverde",
+          "horario": "Lun 07:00–10:00"
+        },
+        {
+          "cursoId": "C-ADM-301",
+          "seccion": "B",
+          "creditos": 3,
+          "docente": "Jorge Luis Bermúdez Salas",
+          "horario": "Mar 08:00–10:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010480",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-22",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · CON",
+      "ciclo": 1,
+      "cursos": [
+        {
+          "cursoId": "C-CON-101",
+          "seccion": "C",
+          "creditos": 4,
+          "docente": "Milagros Huamán Ríos",
+          "horario": "Vie 17:00–20:00"
+        },
+        {
+          "cursoId": "C-CON-201",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Milagros Huamán Ríos",
+          "horario": "Lun 07:00–10:00"
+        },
+        {
+          "cursoId": "C-CON-301",
+          "seccion": "B",
+          "creditos": 3,
+          "docente": "Milagros Huamán Ríos",
+          "horario": "Mar 08:00–10:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010481",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-21",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · CON",
+      "ciclo": 3,
+      "cursos": [
+        {
+          "cursoId": "C-CON-201",
+          "seccion": "B",
+          "creditos": 4,
+          "docente": "Milagros Huamán Ríos",
+          "horario": "Jue 16:00–19:00"
+        },
+        {
+          "cursoId": "C-CON-101",
+          "seccion": "C",
+          "creditos": 4,
+          "docente": "Milagros Huamán Ríos",
+          "horario": "Vie 17:00–20:00"
+        },
+        {
+          "cursoId": "C-CON-301",
+          "seccion": "A",
+          "creditos": 3,
+          "docente": "Milagros Huamán Ríos",
+          "horario": "Lun 07:00–09:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010482",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-24",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · CON",
+      "ciclo": 5,
+      "cursos": [
+        {
+          "cursoId": "C-CON-301",
+          "seccion": "B",
+          "creditos": 3,
+          "docente": "Milagros Huamán Ríos",
+          "horario": "Mar 08:00–10:00"
+        },
+        {
+          "cursoId": "C-CON-101",
+          "seccion": "C",
+          "creditos": 4,
+          "docente": "Milagros Huamán Ríos",
+          "horario": "Mié 09:00–12:00"
+        },
+        {
+          "cursoId": "C-CON-201",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Milagros Huamán Ríos",
+          "horario": "Jue 10:00–13:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010490",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-27",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · ECO",
+      "ciclo": 3,
+      "cursos": [
+        {
+          "cursoId": "C-ECO-201",
+          "seccion": "B",
+          "creditos": 3,
+          "docente": "Pedro Pablo Zavaleta Ruiz",
+          "horario": "Jue 08:00–10:00"
+        },
+        {
+          "cursoId": "C-ECO-101",
+          "seccion": "C",
+          "creditos": 4,
+          "docente": "Pedro Pablo Zavaleta Ruiz",
+          "horario": "Vie 09:00–12:00"
+        },
+        {
+          "cursoId": "C-ECO-301",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Pedro Pablo Zavaleta Ruiz",
+          "horario": "Lun 10:00–13:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010491",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-28",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · ECO",
+      "ciclo": 5,
+      "cursos": [
+        {
+          "cursoId": "C-ECO-301",
+          "seccion": "C",
+          "creditos": 4,
+          "docente": "Pedro Pablo Zavaleta Ruiz",
+          "horario": "Vie 09:00–12:00"
+        },
+        {
+          "cursoId": "C-ECO-101",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Pedro Pablo Zavaleta Ruiz",
+          "horario": "Lun 10:00–13:00"
+        },
+        {
+          "cursoId": "C-ECO-201",
+          "seccion": "B",
+          "creditos": 3,
+          "docente": "Pedro Pablo Zavaleta Ruiz",
+          "horario": "Mar 11:00–13:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010500",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-21",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · AGR",
+      "ciclo": 3,
+      "cursos": [
+        {
+          "cursoId": "C-AGR-201",
+          "seccion": "B",
+          "creditos": 4,
+          "docente": "Rocío del Carmen Sifuentes Lomas",
+          "horario": "Mié 11:00–14:00"
+        },
+        {
+          "cursoId": "C-AGR-101",
+          "seccion": "C",
+          "creditos": 4,
+          "docente": "Rocío del Carmen Sifuentes Lomas",
+          "horario": "Jue 14:00–17:00"
+        },
+        {
+          "cursoId": "C-AGR-301",
+          "seccion": "A",
+          "creditos": 3,
+          "docente": "Rocío del Carmen Sifuentes Lomas",
+          "horario": "Vie 15:00–17:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010501",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-20",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · AGR",
+      "ciclo": 7,
+      "cursos": [
+        {
+          "cursoId": "C-AGR-101",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Rocío del Carmen Sifuentes Lomas",
+          "horario": "Mar 10:00–13:00"
+        },
+        {
+          "cursoId": "C-AGR-201",
+          "seccion": "B",
+          "creditos": 4,
+          "docente": "Rocío del Carmen Sifuentes Lomas",
+          "horario": "Mié 11:00–14:00"
+        },
+        {
+          "cursoId": "C-AGR-301",
+          "seccion": "C",
+          "creditos": 3,
+          "docente": "Rocío del Carmen Sifuentes Lomas",
+          "horario": "Jue 14:00–16:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2026010020",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-27",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · AGR",
+      "ciclo": 1,
+      "cursos": [
+        {
+          "cursoId": "C-AGR-101",
+          "seccion": "B",
+          "creditos": 4,
+          "docente": "Rocío del Carmen Sifuentes Lomas",
+          "horario": "Jue 11:00–14:00"
+        },
+        {
+          "cursoId": "C-AGR-201",
+          "seccion": "C",
+          "creditos": 4,
+          "docente": "Rocío del Carmen Sifuentes Lomas",
+          "horario": "Vie 14:00–17:00"
+        },
+        {
+          "cursoId": "C-AGR-301",
+          "seccion": "A",
+          "creditos": 3,
+          "docente": "Rocío del Carmen Sifuentes Lomas",
+          "horario": "Lun 15:00–17:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010510",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-20",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · FOR",
+      "ciclo": 3,
+      "cursos": [
+        {
+          "cursoId": "C-FOR-201",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Elmer Tuanama Sangama",
+          "horario": "Jue 07:00–10:00"
+        },
+        {
+          "cursoId": "C-FOR-101",
+          "seccion": "B",
+          "creditos": 4,
+          "docente": "Elmer Tuanama Sangama",
+          "horario": "Vie 08:00–11:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010511",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-19",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · FOR",
+      "ciclo": 5,
+      "cursos": [
+        {
+          "cursoId": "C-FOR-101",
+          "seccion": "C",
+          "creditos": 4,
+          "docente": "Elmer Tuanama Sangama",
+          "horario": "Mié 17:00–20:00"
+        },
+        {
+          "cursoId": "C-FOR-201",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Elmer Tuanama Sangama",
+          "horario": "Jue 07:00–10:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010520",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-19",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · ZOO",
+      "ciclo": 3,
+      "cursos": [
+        {
+          "cursoId": "C-ZOO-201",
+          "seccion": "C",
+          "creditos": 4,
+          "docente": "Gloria Fachín Chujandama",
+          "horario": "Mar 09:00–12:00"
+        },
+        {
+          "cursoId": "C-ZOO-101",
+          "seccion": "A",
+          "creditos": 4,
+          "docente": "Gloria Fachín Chujandama",
+          "horario": "Mié 10:00–13:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010521",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-18",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · ZOO",
+      "ciclo": 5,
+      "cursos": [
+        {
+          "cursoId": "C-ZOO-101",
+          "seccion": "B",
+          "creditos": 4,
+          "docente": "Gloria Fachín Chujandama",
+          "horario": "Lun 08:00–11:00"
+        },
+        {
+          "cursoId": "C-ZOO-201",
+          "seccion": "C",
+          "creditos": 4,
+          "docente": "Gloria Fachín Chujandama",
+          "horario": "Mar 09:00–12:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010530",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-26",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · BIO",
+      "ciclo": 3,
+      "cursos": [
+        {
+          "cursoId": "C-BIO-201",
+          "seccion": "A",
+          "creditos": 3,
+          "docente": "Segundo Angulo Reátegui",
+          "horario": "Jue 07:00–09:00"
+        },
+        {
+          "cursoId": "C-BIO-101",
+          "seccion": "B",
+          "creditos": 4,
+          "docente": "Segundo Angulo Reátegui",
+          "horario": "Vie 08:00–11:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010531",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-25",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · BIO",
+      "ciclo": 7,
+      "cursos": [
+        {
+          "cursoId": "C-BIO-101",
+          "seccion": "C",
+          "creditos": 4,
+          "docente": "Segundo Angulo Reátegui",
+          "horario": "Mié 17:00–20:00"
+        },
+        {
+          "cursoId": "C-BIO-201",
+          "seccion": "A",
+          "creditos": 3,
+          "docente": "Segundo Angulo Reátegui",
+          "horario": "Jue 07:00–09:00"
+        }
+      ]
+    },
+    {
+      "estudianteId": "EST-2023010532",
+      "semestreId": "2026-II",
+      "fecha": "2026-08-28",
+      "estado": "matriculado",
+      "planEstudios": "Plan de estudios 2022 · BIO",
+      "ciclo": 9,
+      "cursos": [
+        {
+          "cursoId": "C-BIO-101",
+          "seccion": "C",
+          "creditos": 4,
+          "docente": "Segundo Angulo Reátegui",
+          "horario": "Lun 09:00–12:00"
+        },
+        {
+          "cursoId": "C-BIO-201",
+          "seccion": "A",
+          "creditos": 3,
+          "docente": "Segundo Angulo Reátegui",
+          "horario": "Mar 10:00–12:00"
+        }
+      ]
+    }
+  ],
+  "horarios": [
+    {
+      "id": "HB-EST-2023010456-C-IIS-201",
+      "titulo": "Algoritmos y Estructuras de Datos · Sec. A",
+      "dia": 1,
+      "horaInicio": "09:00",
+      "horaFin": "12:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 103 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010456",
+      "cursoId": "C-IIS-201"
+    },
+    {
+      "id": "HB-EST-2023010456-C-IIS-202",
+      "titulo": "Base de Datos I · Sec. B",
+      "dia": 1,
+      "horaInicio": "11:00",
+      "horaFin": "14:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 102 · Pabellón B",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010456",
+      "cursoId": "C-IIS-202"
+    },
+    {
+      "id": "HB-EST-2023010456-C-IIS-101",
+      "titulo": "Introducción a la Ingeniería de Sistemas · Sec. C",
+      "dia": 1,
+      "horaInicio": "11:00",
+      "horaFin": "13:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 108 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010456",
+      "cursoId": "C-IIS-101"
+    },
+    {
+      "id": "HB-EST-2023010456-C-IIS-301",
+      "titulo": "Ingeniería de Software · Sec. A",
+      "dia": 4,
+      "horaInicio": "17:00",
+      "horaFin": "20:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 106 · Pabellón B",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010456",
+      "cursoId": "C-IIS-301"
+    },
+    {
+      "id": "HB-EST-2023010456-C-IIS-302",
+      "titulo": "Redes de Computadoras · Sec. B",
+      "dia": 3,
+      "horaInicio": "14:00",
+      "horaFin": "16:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 109 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010456",
+      "cursoId": "C-IIS-302"
+    },
+    {
+      "id": "HB-EST-2023010457-C-IIS-201",
+      "titulo": "Algoritmos y Estructuras de Datos · Sec. C",
+      "dia": 1,
+      "horaInicio": "16:00",
+      "horaFin": "19:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 102 · Pabellón B",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010457",
+      "cursoId": "C-IIS-201"
+    },
+    {
+      "id": "HB-EST-2023010457-C-IIS-202",
+      "titulo": "Base de Datos I · Sec. A",
+      "dia": 3,
+      "horaInicio": "09:00",
+      "horaFin": "12:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 103 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010457",
+      "cursoId": "C-IIS-202"
+    },
+    {
+      "id": "HB-EST-2023010457-C-IIS-101",
+      "titulo": "Introducción a la Ingeniería de Sistemas · Sec. B",
+      "dia": 3,
+      "horaInicio": "08:00",
+      "horaFin": "10:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 111 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010457",
+      "cursoId": "C-IIS-101"
+    },
+    {
+      "id": "HB-EST-2023010457-C-IIS-301",
+      "titulo": "Ingeniería de Software · Sec. C",
+      "dia": 3,
+      "horaInicio": "11:00",
+      "horaFin": "14:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 105 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010457",
+      "cursoId": "C-IIS-301"
+    },
+    {
+      "id": "HB-EST-2023010457-C-IIS-302",
+      "titulo": "Redes de Computadoras · Sec. A",
+      "dia": 2,
+      "horaInicio": "08:00",
+      "horaFin": "10:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 108 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010457",
+      "cursoId": "C-IIS-302"
+    },
+    {
+      "id": "HB-EST-2023010458-C-IIS-301",
+      "titulo": "Ingeniería de Software · Sec. B",
+      "dia": 1,
+      "horaInicio": "17:00",
+      "horaFin": "20:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 112 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010458",
+      "cursoId": "C-IIS-301"
+    },
+    {
+      "id": "HB-EST-2023010458-C-IIS-302",
+      "titulo": "Redes de Computadoras · Sec. C",
+      "dia": 1,
+      "horaInicio": "08:00",
+      "horaFin": "10:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 111 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010458",
+      "cursoId": "C-IIS-302"
+    },
+    {
+      "id": "HB-EST-2023010458-C-IIS-101",
+      "titulo": "Introducción a la Ingeniería de Sistemas · Sec. A",
+      "dia": 3,
+      "horaInicio": "16:00",
+      "horaFin": "18:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 102 · Pabellón B",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010458",
+      "cursoId": "C-IIS-101"
+    },
+    {
+      "id": "HB-EST-2023010458-C-IIS-201",
+      "titulo": "Algoritmos y Estructuras de Datos · Sec. B",
+      "dia": 4,
+      "horaInicio": "09:00",
+      "horaFin": "12:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 109 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010458",
+      "cursoId": "C-IIS-201"
+    },
+    {
+      "id": "HB-EST-2023010458-C-IIS-202",
+      "titulo": "Base de Datos I · Sec. C",
+      "dia": 3,
+      "horaInicio": "17:00",
+      "horaFin": "20:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 112 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010458",
+      "cursoId": "C-IIS-202"
+    },
+    {
+      "id": "HB-EST-2023010458-C-IIS-401",
+      "titulo": "Arquitectura de Software · Sec. A",
+      "dia": 1,
+      "horaInicio": "08:00",
+      "horaFin": "11:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 111 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010458",
+      "cursoId": "C-IIS-401"
+    },
+    {
+      "id": "HB-EST-2023010459-C-IIS-301",
+      "titulo": "Ingeniería de Software · Sec. A",
+      "dia": 2,
+      "horaInicio": "11:00",
+      "horaFin": "14:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 111 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010459",
+      "cursoId": "C-IIS-301"
+    },
+    {
+      "id": "HB-EST-2023010459-C-IIS-302",
+      "titulo": "Redes de Computadoras · Sec. B",
+      "dia": 2,
+      "horaInicio": "15:00",
+      "horaFin": "17:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 110 · Pabellón B",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010459",
+      "cursoId": "C-IIS-302"
+    },
+    {
+      "id": "HB-EST-2023010459-C-IIS-101",
+      "titulo": "Introducción a la Ingeniería de Sistemas · Sec. C",
+      "dia": 1,
+      "horaInicio": "09:00",
+      "horaFin": "11:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 109 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010459",
+      "cursoId": "C-IIS-101"
+    },
+    {
+      "id": "HB-EST-2023010459-C-IIS-201",
+      "titulo": "Algoritmos y Estructuras de Datos · Sec. A",
+      "dia": 3,
+      "horaInicio": "10:00",
+      "horaFin": "13:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 110 · Pabellón B",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010459",
+      "cursoId": "C-IIS-201"
+    },
+    {
+      "id": "HB-EST-2023010459-C-IIS-202",
+      "titulo": "Base de Datos I · Sec. B",
+      "dia": 2,
+      "horaInicio": "07:00",
+      "horaFin": "10:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 101 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010459",
+      "cursoId": "C-IIS-202"
+    },
+    {
+      "id": "HB-EST-2023010459-C-IIS-401",
+      "titulo": "Arquitectura de Software · Sec. C",
+      "dia": 4,
+      "horaInicio": "17:00",
+      "horaFin": "20:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 106 · Pabellón B",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010459",
+      "cursoId": "C-IIS-401"
+    },
+    {
+      "id": "HB-EST-2023010460-C-IIS-401",
+      "titulo": "Arquitectura de Software · Sec. A",
+      "dia": 3,
+      "horaInicio": "15:00",
+      "horaFin": "18:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 110 · Pabellón B",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010460",
+      "cursoId": "C-IIS-401"
+    },
+    {
+      "id": "HB-EST-2023010460-C-IIS-402",
+      "titulo": "Gestión de Proyectos TI · Sec. B",
+      "dia": 5,
+      "horaInicio": "08:00",
+      "horaFin": "10:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 111 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010460",
+      "cursoId": "C-IIS-402"
+    },
+    {
+      "id": "HB-EST-2023010460-C-IIS-101",
+      "titulo": "Introducción a la Ingeniería de Sistemas · Sec. C",
+      "dia": 4,
+      "horaInicio": "07:00",
+      "horaFin": "09:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 101 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010460",
+      "cursoId": "C-IIS-101"
+    },
+    {
+      "id": "HB-EST-2023010460-C-IIS-201",
+      "titulo": "Algoritmos y Estructuras de Datos · Sec. A",
+      "dia": 5,
+      "horaInicio": "11:00",
+      "horaFin": "14:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 108 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010460",
+      "cursoId": "C-IIS-201"
+    },
+    {
+      "id": "HB-EST-2023010460-C-IIS-202",
+      "titulo": "Base de Datos I · Sec. B",
+      "dia": 3,
+      "horaInicio": "11:00",
+      "horaFin": "14:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 105 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010460",
+      "cursoId": "C-IIS-202"
+    },
+    {
+      "id": "HB-EST-2023010460-C-IIS-301",
+      "titulo": "Ingeniería de Software · Sec. C",
+      "dia": 4,
+      "horaInicio": "07:00",
+      "horaFin": "10:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 107 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010460",
+      "cursoId": "C-IIS-301"
+    },
+    {
+      "id": "HB-EST-2023010461-C-IIS-401",
+      "titulo": "Arquitectura de Software · Sec. B",
+      "dia": 3,
+      "horaInicio": "09:00",
+      "horaFin": "12:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 103 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010461",
+      "cursoId": "C-IIS-401"
+    },
+    {
+      "id": "HB-EST-2023010461-C-IIS-402",
+      "titulo": "Gestión de Proyectos TI · Sec. C",
+      "dia": 5,
+      "horaInicio": "15:00",
+      "horaFin": "17:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 104 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010461",
+      "cursoId": "C-IIS-402"
+    },
+    {
+      "id": "HB-EST-2023010461-C-IIS-101",
+      "titulo": "Introducción a la Ingeniería de Sistemas · Sec. A",
+      "dia": 4,
+      "horaInicio": "10:00",
+      "horaFin": "12:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 104 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010461",
+      "cursoId": "C-IIS-101"
+    },
+    {
+      "id": "HB-EST-2023010461-C-IIS-201",
+      "titulo": "Algoritmos y Estructuras de Datos · Sec. B",
+      "dia": 5,
+      "horaInicio": "16:00",
+      "horaFin": "19:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 105 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010461",
+      "cursoId": "C-IIS-201"
+    },
+    {
+      "id": "HB-EST-2023010461-C-IIS-202",
+      "titulo": "Base de Datos I · Sec. C",
+      "dia": 4,
+      "horaInicio": "11:00",
+      "horaFin": "14:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 108 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010461",
+      "cursoId": "C-IIS-202"
+    },
+    {
+      "id": "HB-EST-2023010461-C-IIS-301",
+      "titulo": "Ingeniería de Software · Sec. A",
+      "dia": 2,
+      "horaInicio": "14:00",
+      "horaFin": "17:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 112 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010461",
+      "cursoId": "C-IIS-301"
+    },
+    {
+      "id": "HB-EST-2023010462-C-IIS-501",
+      "titulo": "Taller de Tesis I · Sec. C",
+      "dia": 3,
+      "horaInicio": "15:00",
+      "horaFin": "17:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 107 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010462",
+      "cursoId": "C-IIS-501"
+    },
+    {
+      "id": "HB-EST-2023010462-C-IIS-101",
+      "titulo": "Introducción a la Ingeniería de Sistemas · Sec. A",
+      "dia": 3,
+      "horaInicio": "11:00",
+      "horaFin": "13:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 111 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010462",
+      "cursoId": "C-IIS-101"
+    },
+    {
+      "id": "HB-EST-2023010462-C-IIS-201",
+      "titulo": "Algoritmos y Estructuras de Datos · Sec. B",
+      "dia": 3,
+      "horaInicio": "09:00",
+      "horaFin": "12:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 112 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010462",
+      "cursoId": "C-IIS-201"
+    },
+    {
+      "id": "HB-EST-2023010462-C-IIS-202",
+      "titulo": "Base de Datos I · Sec. C",
+      "dia": 3,
+      "horaInicio": "11:00",
+      "horaFin": "14:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 111 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010462",
+      "cursoId": "C-IIS-202"
+    },
+    {
+      "id": "HB-EST-2023010462-C-IIS-301",
+      "titulo": "Ingeniería de Software · Sec. A",
+      "dia": 5,
+      "horaInicio": "17:00",
+      "horaFin": "20:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 109 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010462",
+      "cursoId": "C-IIS-301"
+    },
+    {
+      "id": "HB-EST-2023010462-C-IIS-302",
+      "titulo": "Redes de Computadoras · Sec. B",
+      "dia": 4,
+      "horaInicio": "14:00",
+      "horaFin": "16:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 112 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010462",
+      "cursoId": "C-IIS-302"
+    },
+    {
+      "id": "HB-EST-2026010012-C-IIS-101",
+      "titulo": "Introducción a la Ingeniería de Sistemas · Sec. B",
+      "dia": 1,
+      "horaInicio": "11:00",
+      "horaFin": "13:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 111 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2026010012",
+      "cursoId": "C-IIS-101"
+    },
+    {
+      "id": "HB-EST-2026010012-C-IIS-201",
+      "titulo": "Algoritmos y Estructuras de Datos · Sec. C",
+      "dia": 1,
+      "horaInicio": "17:00",
+      "horaFin": "20:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 112 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2026010012",
+      "cursoId": "C-IIS-201"
+    },
+    {
+      "id": "HB-EST-2026010012-C-IIS-202",
+      "titulo": "Base de Datos I · Sec. A",
+      "dia": 1,
+      "horaInicio": "08:00",
+      "horaFin": "11:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 111 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2026010012",
+      "cursoId": "C-IIS-202"
+    },
+    {
+      "id": "HB-EST-2026010012-C-IIS-301",
+      "titulo": "Ingeniería de Software · Sec. B",
+      "dia": 2,
+      "horaInicio": "08:00",
+      "horaFin": "11:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 105 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2026010012",
+      "cursoId": "C-IIS-301"
+    },
+    {
+      "id": "HB-EST-2026010012-C-IIS-302",
+      "titulo": "Redes de Computadoras · Sec. C",
+      "dia": 1,
+      "horaInicio": "16:00",
+      "horaFin": "18:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 108 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2026010012",
+      "cursoId": "C-IIS-302"
+    },
+    {
+      "id": "HB-EST-2026010013-C-IIS-101",
+      "titulo": "Introducción a la Ingeniería de Sistemas · Sec. C",
+      "dia": 4,
+      "horaInicio": "07:00",
+      "horaFin": "09:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 104 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2026010013",
+      "cursoId": "C-IIS-101"
+    },
+    {
+      "id": "HB-EST-2026010013-C-IIS-201",
+      "titulo": "Algoritmos y Estructuras de Datos · Sec. A",
+      "dia": 2,
+      "horaInicio": "14:00",
+      "horaFin": "17:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 103 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2026010013",
+      "cursoId": "C-IIS-201"
+    },
+    {
+      "id": "HB-EST-2026010013-C-IIS-202",
+      "titulo": "Base de Datos I · Sec. B",
+      "dia": 4,
+      "horaInicio": "07:00",
+      "horaFin": "10:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 104 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2026010013",
+      "cursoId": "C-IIS-202"
+    },
+    {
+      "id": "HB-EST-2026010013-C-IIS-301",
+      "titulo": "Ingeniería de Software · Sec. C",
+      "dia": 3,
+      "horaInicio": "14:00",
+      "horaFin": "17:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 112 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2026010013",
+      "cursoId": "C-IIS-301"
+    },
+    {
+      "id": "HB-EST-2026010013-C-IIS-302",
+      "titulo": "Redes de Computadoras · Sec. A",
+      "dia": 1,
+      "horaInicio": "14:00",
+      "horaFin": "16:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 109 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2026010013",
+      "cursoId": "C-IIS-302"
+    },
+    {
+      "id": "HB-EST-2023010470-C-ADM-201",
+      "titulo": "Contabilidad General · Sec. B",
+      "dia": 5,
+      "horaInicio": "07:00",
+      "horaFin": "10:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 110 · Pabellón B",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010470",
+      "cursoId": "C-ADM-201"
+    },
+    {
+      "id": "HB-EST-2023010470-C-ADM-101",
+      "titulo": "Fundamentos de Administración · Sec. C",
+      "dia": 5,
+      "horaInicio": "09:00",
+      "horaFin": "11:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 109 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010470",
+      "cursoId": "C-ADM-101"
+    },
+    {
+      "id": "HB-EST-2023010470-C-ADM-301",
+      "titulo": "Gestión del Talento Humano · Sec. A",
+      "dia": 4,
+      "horaInicio": "11:00",
+      "horaFin": "13:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 111 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010470",
+      "cursoId": "C-ADM-301"
+    },
+    {
+      "id": "HB-EST-2023010470-C-ADM-401",
+      "titulo": "Planeamiento Estratégico · Sec. B",
+      "dia": 2,
+      "horaInicio": "14:00",
+      "horaFin": "17:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 106 · Pabellón B",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010470",
+      "cursoId": "C-ADM-401"
+    },
+    {
+      "id": "HB-EST-2023010471-C-ADM-201",
+      "titulo": "Contabilidad General · Sec. A",
+      "dia": 5,
+      "horaInicio": "16:00",
+      "horaFin": "19:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 105 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010471",
+      "cursoId": "C-ADM-201"
+    },
+    {
+      "id": "HB-EST-2023010471-C-ADM-101",
+      "titulo": "Fundamentos de Administración · Sec. B",
+      "dia": 5,
+      "horaInicio": "11:00",
+      "horaFin": "13:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 102 · Pabellón B",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010471",
+      "cursoId": "C-ADM-101"
+    },
+    {
+      "id": "HB-EST-2023010471-C-ADM-301",
+      "titulo": "Gestión del Talento Humano · Sec. C",
+      "dia": 1,
+      "horaInicio": "14:00",
+      "horaFin": "16:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 112 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010471",
+      "cursoId": "C-ADM-301"
+    },
+    {
+      "id": "HB-EST-2023010471-C-ADM-401",
+      "titulo": "Planeamiento Estratégico · Sec. A",
+      "dia": 1,
+      "horaInicio": "11:00",
+      "horaFin": "14:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 111 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010471",
+      "cursoId": "C-ADM-401"
+    },
+    {
+      "id": "HB-EST-2023010472-C-ADM-301",
+      "titulo": "Gestión del Talento Humano · Sec. C",
+      "dia": 1,
+      "horaInicio": "11:00",
+      "horaFin": "13:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 105 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010472",
+      "cursoId": "C-ADM-301"
+    },
+    {
+      "id": "HB-EST-2023010472-C-ADM-101",
+      "titulo": "Fundamentos de Administración · Sec. A",
+      "dia": 2,
+      "horaInicio": "07:00",
+      "horaFin": "09:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 107 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010472",
+      "cursoId": "C-ADM-101"
+    },
+    {
+      "id": "HB-EST-2023010472-C-ADM-201",
+      "titulo": "Contabilidad General · Sec. B",
+      "dia": 4,
+      "horaInicio": "17:00",
+      "horaFin": "20:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 106 · Pabellón B",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010472",
+      "cursoId": "C-ADM-201"
+    },
+    {
+      "id": "HB-EST-2023010472-C-ADM-401",
+      "titulo": "Planeamiento Estratégico · Sec. C",
+      "dia": 4,
+      "horaInicio": "07:00",
+      "horaFin": "10:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 104 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010472",
+      "cursoId": "C-ADM-401"
+    },
+    {
+      "id": "HB-EST-2023010473-C-ADM-401",
+      "titulo": "Planeamiento Estratégico · Sec. B",
+      "dia": 1,
+      "horaInicio": "10:00",
+      "horaFin": "13:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 101 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010473",
+      "cursoId": "C-ADM-401"
+    },
+    {
+      "id": "HB-EST-2023010473-C-ADM-101",
+      "titulo": "Fundamentos de Administración · Sec. C",
+      "dia": 2,
+      "horaInicio": "10:00",
+      "horaFin": "12:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 110 · Pabellón B",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010473",
+      "cursoId": "C-ADM-101"
+    },
+    {
+      "id": "HB-EST-2023010473-C-ADM-201",
+      "titulo": "Contabilidad General · Sec. A",
+      "dia": 1,
+      "horaInicio": "11:00",
+      "horaFin": "14:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 111 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010473",
+      "cursoId": "C-ADM-201"
+    },
+    {
+      "id": "HB-EST-2023010473-C-ADM-301",
+      "titulo": "Gestión del Talento Humano · Sec. B",
+      "dia": 3,
+      "horaInicio": "17:00",
+      "horaFin": "19:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 106 · Pabellón B",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010473",
+      "cursoId": "C-ADM-301"
+    },
+    {
+      "id": "HB-EST-2023010480-C-CON-101",
+      "titulo": "Contabilidad Básica · Sec. C",
+      "dia": 1,
+      "horaInicio": "10:00",
+      "horaFin": "13:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 104 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010480",
+      "cursoId": "C-CON-101"
+    },
+    {
+      "id": "HB-EST-2023010480-C-CON-201",
+      "titulo": "Costos y Presupuestos · Sec. A",
+      "dia": 1,
+      "horaInicio": "14:00",
+      "horaFin": "17:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 109 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010480",
+      "cursoId": "C-CON-201"
+    },
+    {
+      "id": "HB-EST-2023010480-C-CON-301",
+      "titulo": "Auditoría Financiera · Sec. B",
+      "dia": 3,
+      "horaInicio": "09:00",
+      "horaFin": "11:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 106 · Pabellón B",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010480",
+      "cursoId": "C-CON-301"
+    },
+    {
+      "id": "HB-EST-2023010481-C-CON-201",
+      "titulo": "Costos y Presupuestos · Sec. B",
+      "dia": 2,
+      "horaInicio": "15:00",
+      "horaFin": "18:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 110 · Pabellón B",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010481",
+      "cursoId": "C-CON-201"
+    },
+    {
+      "id": "HB-EST-2023010481-C-CON-101",
+      "titulo": "Contabilidad Básica · Sec. C",
+      "dia": 1,
+      "horaInicio": "07:00",
+      "horaFin": "10:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 101 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010481",
+      "cursoId": "C-CON-101"
+    },
+    {
+      "id": "HB-EST-2023010481-C-CON-301",
+      "titulo": "Auditoría Financiera · Sec. A",
+      "dia": 3,
+      "horaInicio": "17:00",
+      "horaFin": "19:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 103 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010481",
+      "cursoId": "C-CON-301"
+    },
+    {
+      "id": "HB-EST-2023010482-C-CON-301",
+      "titulo": "Auditoría Financiera · Sec. B",
+      "dia": 2,
+      "horaInicio": "17:00",
+      "horaFin": "19:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 106 · Pabellón B",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010482",
+      "cursoId": "C-CON-301"
+    },
+    {
+      "id": "HB-EST-2023010482-C-CON-101",
+      "titulo": "Contabilidad Básica · Sec. C",
+      "dia": 3,
+      "horaInicio": "07:00",
+      "horaFin": "10:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 104 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010482",
+      "cursoId": "C-CON-101"
+    },
+    {
+      "id": "HB-EST-2023010482-C-CON-201",
+      "titulo": "Costos y Presupuestos · Sec. A",
+      "dia": 3,
+      "horaInicio": "08:00",
+      "horaFin": "11:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 111 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010482",
+      "cursoId": "C-CON-201"
+    },
+    {
+      "id": "HB-EST-2023010490-C-ECO-201",
+      "titulo": "Estadística Económica · Sec. B",
+      "dia": 3,
+      "horaInicio": "11:00",
+      "horaFin": "13:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 111 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010490",
+      "cursoId": "C-ECO-201"
+    },
+    {
+      "id": "HB-EST-2023010490-C-ECO-101",
+      "titulo": "Microeconomía I · Sec. C",
+      "dia": 3,
+      "horaInicio": "14:00",
+      "horaFin": "17:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 106 · Pabellón B",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010490",
+      "cursoId": "C-ECO-101"
+    },
+    {
+      "id": "HB-EST-2023010490-C-ECO-301",
+      "titulo": "Econometría · Sec. A",
+      "dia": 1,
+      "horaInicio": "10:00",
+      "horaFin": "13:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 110 · Pabellón B",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010490",
+      "cursoId": "C-ECO-301"
+    },
+    {
+      "id": "HB-EST-2023010491-C-ECO-301",
+      "titulo": "Econometría · Sec. C",
+      "dia": 2,
+      "horaInicio": "07:00",
+      "horaFin": "10:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 101 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010491",
+      "cursoId": "C-ECO-301"
+    },
+    {
+      "id": "HB-EST-2023010491-C-ECO-101",
+      "titulo": "Microeconomía I · Sec. A",
+      "dia": 2,
+      "horaInicio": "07:00",
+      "horaFin": "10:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 107 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010491",
+      "cursoId": "C-ECO-101"
+    },
+    {
+      "id": "HB-EST-2023010491-C-ECO-201",
+      "titulo": "Estadística Económica · Sec. B",
+      "dia": 2,
+      "horaInicio": "16:00",
+      "horaFin": "18:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 108 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010491",
+      "cursoId": "C-ECO-201"
+    },
+    {
+      "id": "HB-EST-2023010500-C-AGR-201",
+      "titulo": "Suelos y Fertilidad · Sec. B",
+      "dia": 4,
+      "horaInicio": "14:00",
+      "horaFin": "17:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 112 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010500",
+      "cursoId": "C-AGR-201"
+    },
+    {
+      "id": "HB-EST-2023010500-C-AGR-101",
+      "titulo": "Botánica General · Sec. C",
+      "dia": 4,
+      "horaInicio": "15:00",
+      "horaFin": "18:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 107 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010500",
+      "cursoId": "C-AGR-101"
+    },
+    {
+      "id": "HB-EST-2023010500-C-AGR-301",
+      "titulo": "Fitopatología · Sec. A",
+      "dia": 3,
+      "horaInicio": "17:00",
+      "horaFin": "19:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 109 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010500",
+      "cursoId": "C-AGR-301"
+    },
+    {
+      "id": "HB-EST-2023010501-C-AGR-101",
+      "titulo": "Botánica General · Sec. A",
+      "dia": 5,
+      "horaInicio": "10:00",
+      "horaFin": "13:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 104 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010501",
+      "cursoId": "C-AGR-101"
+    },
+    {
+      "id": "HB-EST-2023010501-C-AGR-201",
+      "titulo": "Suelos y Fertilidad · Sec. B",
+      "dia": 4,
+      "horaInicio": "09:00",
+      "horaFin": "12:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 103 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010501",
+      "cursoId": "C-AGR-201"
+    },
+    {
+      "id": "HB-EST-2023010501-C-AGR-301",
+      "titulo": "Fitopatología · Sec. C",
+      "dia": 2,
+      "horaInicio": "09:00",
+      "horaFin": "11:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 106 · Pabellón B",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010501",
+      "cursoId": "C-AGR-301"
+    },
+    {
+      "id": "HB-EST-2026010020-C-AGR-101",
+      "titulo": "Botánica General · Sec. B",
+      "dia": 5,
+      "horaInicio": "15:00",
+      "horaFin": "18:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 101 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2026010020",
+      "cursoId": "C-AGR-101"
+    },
+    {
+      "id": "HB-EST-2026010020-C-AGR-201",
+      "titulo": "Suelos y Fertilidad · Sec. C",
+      "dia": 1,
+      "horaInicio": "17:00",
+      "horaFin": "20:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 112 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2026010020",
+      "cursoId": "C-AGR-201"
+    },
+    {
+      "id": "HB-EST-2026010020-C-AGR-301",
+      "titulo": "Fitopatología · Sec. A",
+      "dia": 3,
+      "horaInicio": "17:00",
+      "horaFin": "19:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 103 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2026010020",
+      "cursoId": "C-AGR-301"
+    },
+    {
+      "id": "HB-EST-2023010510-C-FOR-201",
+      "titulo": "Silvicultura · Sec. A",
+      "dia": 4,
+      "horaInicio": "10:00",
+      "horaFin": "13:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 110 · Pabellón B",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010510",
+      "cursoId": "C-FOR-201"
+    },
+    {
+      "id": "HB-EST-2023010510-C-FOR-101",
+      "titulo": "Dendrología · Sec. B",
+      "dia": 4,
+      "horaInicio": "10:00",
+      "horaFin": "13:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 101 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010510",
+      "cursoId": "C-FOR-101"
+    },
+    {
+      "id": "HB-EST-2023010511-C-FOR-101",
+      "titulo": "Dendrología · Sec. C",
+      "dia": 1,
+      "horaInicio": "17:00",
+      "horaFin": "20:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 112 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010511",
+      "cursoId": "C-FOR-101"
+    },
+    {
+      "id": "HB-EST-2023010511-C-FOR-201",
+      "titulo": "Silvicultura · Sec. A",
+      "dia": 3,
+      "horaInicio": "14:00",
+      "horaFin": "17:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 109 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010511",
+      "cursoId": "C-FOR-201"
+    },
+    {
+      "id": "HB-EST-2023010520-C-ZOO-201",
+      "titulo": "Nutrición Animal · Sec. C",
+      "dia": 5,
+      "horaInicio": "10:00",
+      "horaFin": "13:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 110 · Pabellón B",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010520",
+      "cursoId": "C-ZOO-201"
+    },
+    {
+      "id": "HB-EST-2023010520-C-ZOO-101",
+      "titulo": "Anatomía Animal · Sec. A",
+      "dia": 3,
+      "horaInicio": "09:00",
+      "horaFin": "12:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 103 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010520",
+      "cursoId": "C-ZOO-101"
+    },
+    {
+      "id": "HB-EST-2023010521-C-ZOO-101",
+      "titulo": "Anatomía Animal · Sec. B",
+      "dia": 5,
+      "horaInicio": "14:00",
+      "horaFin": "17:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 112 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010521",
+      "cursoId": "C-ZOO-101"
+    },
+    {
+      "id": "HB-EST-2023010521-C-ZOO-201",
+      "titulo": "Nutrición Animal · Sec. C",
+      "dia": 5,
+      "horaInicio": "17:00",
+      "horaFin": "20:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 103 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010521",
+      "cursoId": "C-ZOO-201"
+    },
+    {
+      "id": "HB-EST-2023010530-C-BIO-201",
+      "titulo": "Ecología General · Sec. A",
+      "dia": 3,
+      "horaInicio": "09:00",
+      "horaFin": "11:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 103 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010530",
+      "cursoId": "C-BIO-201"
+    },
+    {
+      "id": "HB-EST-2023010530-C-BIO-101",
+      "titulo": "Biología General · Sec. B",
+      "dia": 3,
+      "horaInicio": "15:00",
+      "horaFin": "18:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 104 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010530",
+      "cursoId": "C-BIO-101"
+    },
+    {
+      "id": "HB-EST-2023010531-C-BIO-101",
+      "titulo": "Biología General · Sec. C",
+      "dia": 4,
+      "horaInicio": "17:00",
+      "horaFin": "20:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 103 · Pabellón C",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010531",
+      "cursoId": "C-BIO-101"
+    },
+    {
+      "id": "HB-EST-2023010531-C-BIO-201",
+      "titulo": "Ecología General · Sec. A",
+      "dia": 3,
+      "horaInicio": "07:00",
+      "horaFin": "09:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 104 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010531",
+      "cursoId": "C-BIO-201"
+    },
+    {
+      "id": "HB-EST-2023010532-C-BIO-101",
+      "titulo": "Biología General · Sec. C",
+      "dia": 5,
+      "horaInicio": "07:00",
+      "horaFin": "10:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 104 · Pabellón D",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010532",
+      "cursoId": "C-BIO-101"
+    },
+    {
+      "id": "HB-EST-2023010532-C-BIO-201",
+      "titulo": "Ecología General · Sec. A",
+      "dia": 4,
+      "horaInicio": "11:00",
+      "horaFin": "13:00",
+      "modalidad": "presencial",
+      "lugar": "Aula 105 · Pabellón A",
+      "tipo": "academico",
+      "estudianteId": "EST-2023010532",
+      "cursoId": "C-BIO-201"
+    }
+  ]
+}

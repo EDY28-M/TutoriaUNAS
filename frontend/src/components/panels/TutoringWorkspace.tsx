@@ -1,16 +1,19 @@
-import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { DescartarFormulario } from './AccionesTutoria';
+import { useRef, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { bloqueoEvaluacion } from '../../utils/evaluacionesSesion';
 import { formatFecha } from '../../utils/fechas';
 import { useAuth } from '../../hooks/useAuth';
 import { usePortal } from '../../hooks/usePortal';
 import { useInstrumentWorkspace } from '../../hooks/useInstrumentWorkspace';
-import { guardarInstrumento, revisarInstrumento } from '../../services/instrumentWorkspace';
+import { persistirFormulario, persistirRevision } from '../../services/mutacionesTutoria';
+import { API_MODE } from '../../services/apiConfig';
+import { crearFormularioApi } from '../../services/apiTutoria';
 import { definicionPorCodigo } from '../../data/formatos';
 import { estudiantePorId, nombreCompleto } from '../../data/personas';
 import { semestreActual } from '../../data/catalogos';
 import type { CodigoFormato, Instrumento } from '../../types/domain';
-import { etapaDeFormato, fechaTutoria, puedeEnviarFormato } from '../../utils/instrumentos';
+import { fechaTutoria, puedeEnviarFormato } from '../../utils/instrumentos';
 import { StatusBadge } from '../ui/StatusBadge';
 import { EmptyState } from '../ui/EmptyState';
 import { Alert } from '../ui/Alert';
@@ -25,15 +28,26 @@ import '../../styles/tutoring-workspace.css';
 
 /** Bandejas por responsable, con un solo registro compartido entre portales. */
 export function TutoringWorkspace() {
+  const navegar = useNavigate();
   const { user } = useAuth();
   const portal = usePortal();
   const workspace = useInstrumentWorkspace();
   const [parametros, setParametros] = useSearchParams();
   const docente = user?.role === 'tutor';
   const [abierto, setAbierto] = useState<Instrumento | null>(null);
-  const [nuevo, setNuevo] = useState<CodigoFormato | null>(null);
-  const [seleccionados, setSeleccionados] = useState<string[]>([]);
+  const [nuevo, setNuevo] = useState<CodigoFormato | null>(() =>
+    ['F08', 'F12'].includes(parametros.get('crear') ?? '')
+      ? (parametros.get('crear') as CodigoFormato)
+      : null,
+  );
+  const [seleccionados, setSeleccionados] = useState<string[]>(() =>
+    portal.tutorados.some((a) => a.estudianteId === parametros.get('estudiante'))
+      ? [parametros.get('estudiante')!]
+      : [],
+  );
   const [comentario, setComentario] = useState('');
+  const [creando, setCreando] = useState(false);
+  const creacionEnCurso = useRef(false);
   const [aviso, setAviso] = useState('');
   const [error, setError] = useState('');
   const registros = portal.instrumentos;
@@ -52,6 +66,8 @@ export function TutoringWorkspace() {
     setAbierto(null);
     const nuevos = new URLSearchParams(parametros);
     nuevos.delete('sesion');
+    nuevos.delete('crear');
+    nuevos.delete('estudiante');
     setParametros(nuevos, { replace: true });
   }
   const definicion = actual ? definicionPorCodigo(actual.formato) : null;
@@ -88,11 +104,19 @@ export function TutoringWorkspace() {
       />
     );
   function abrir(registro: Instrumento) {
+    if (API_MODE && ['F06', 'F07'].includes(registro.formato) && registro.sesionId) {
+      navegar(`/tutor/asistencias?sesion=${encodeURIComponent(registro.sesionId)}`);
+      return;
+    }
     setAbierto(registro);
     setComentario('');
     setError('');
   }
   function preparar(codigo: CodigoFormato) {
+    if (API_MODE && ['F06', 'F07'].includes(codigo)) {
+      navegar('/tutor/asistencias');
+      return;
+    }
     const existente = propios.find((r) => r.formato === codigo && ['F02', 'F09'].includes(codigo));
     if (existente) {
       abrir(existente);
@@ -102,12 +126,31 @@ export function TutoringWorkspace() {
     setSeleccionados([]);
     setError('');
   }
-  function crear() {
+  async function crear() {
     if (!nuevo || !user || !seleccionados.length) {
       setError('Selecciona al estudiante o a los participantes atendidos.');
       return;
     }
     const estudianteId = nuevo === 'F07' ? null : seleccionados[0]!;
+    if (API_MODE) {
+      if (creacionEnCurso.current) return;
+      creacionEnCurso.current = true;
+      setCreando(true);
+      try {
+        abrir(await crearFormularioApi(nuevo, estudianteId));
+        setNuevo(null);
+        const nuevos = new URLSearchParams(parametros);
+        nuevos.delete('crear');
+        nuevos.delete('estudiante');
+        setParametros(nuevos, { replace: true });
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'No se pudo crear el registro.');
+      } finally {
+        creacionEnCurso.current = false;
+        setCreando(false);
+      }
+      return;
+    }
     const respuestas: Record<string, string> = {};
     if (nuevo === 'F07')
       respuestas.grupo = [
@@ -150,9 +193,9 @@ export function TutoringWorkspace() {
     });
     setNuevo(null);
   }
-  function guardar(respuestas: Record<string, string>, enviar: boolean) {
+  async function guardar(respuestas: Record<string, string>, enviar: boolean, version?: number) {
     if (!actual || !user) return;
-    const guardado = guardarInstrumento(actual, respuestas, user, enviar);
+    const guardado = await persistirFormulario(actual, respuestas, user, enviar, version);
     if (enviar) {
       cerrarFormulario();
       setAviso(
@@ -168,11 +211,12 @@ export function TutoringWorkspace() {
               : 'Formulario enviado. El seguimiento de tutoría se actualizó.',
       );
     } else setAbierto(guardado);
+    return guardado;
   }
-  function revisar(decision: 'aprobado' | 'observado') {
+  async function revisar(decision: 'aprobado' | 'observado') {
     if (!actual || !user) return;
     try {
-      revisarInstrumento(actual.id, user, decision, comentario);
+      await persistirRevision(actual, user, decision, comentario);
       cerrarFormulario();
       setAviso(
         decision === 'aprobado'
@@ -191,7 +235,10 @@ export function TutoringWorkspace() {
         </Alert>
       )}
       {workspace.aviso && (
-        <Alert tone="alerta" title="Guardado en el navegador">
+        <Alert
+          tone="alerta"
+          title={API_MODE ? 'No se pudo actualizar la información' : 'Guardado en el navegador'}
+        >
           {workspace.aviso}
         </Alert>
       )}
@@ -235,15 +282,21 @@ export function TutoringWorkspace() {
               ? 'Marca a los estudiantes que participaron.'
               : 'Selecciona al estudiante al que atendiste.'
           }
-          onClose={() => setNuevo(null)}
+          onClose={() => {
+            setNuevo(null);
+            const nuevos = new URLSearchParams(parametros);
+            nuevos.delete('crear');
+            nuevos.delete('estudiante');
+            setParametros(nuevos, { replace: true });
+          }}
           footer={
             <button
               type="button"
               className="btn btn-primary"
               onClick={crear}
-              disabled={!seleccionados.length}
+              disabled={!seleccionados.length || creando}
             >
-              Continuar <ArrowRight aria-hidden="true" />
+              {creando ? 'Preparando…' : 'Continuar'} <ArrowRight aria-hidden="true" />
             </button>
           }
         >
@@ -317,7 +370,7 @@ export function TutoringWorkspace() {
       )}
       {actual && definicion && (
         <Sheet
-          title={`Formato ${definicion.numero} · ${docente ? tituloFormulario(actual.formato) : esEvaluacion ? (actual.formato === 'F10' ? 'Tutoría individual' : 'Tutoría grupal') : 'Entrevista inicial'}`}
+          title={`Formato ${definicion.numero} · ${tituloFormulario(actual.formato)}`}
           wide
           onClose={cerrarFormulario}
         >
@@ -339,16 +392,15 @@ export function TutoringWorkspace() {
               {actual.observaciones
                 .filter((o) => o.estado === 'abierta')
                 .map((o) => (
-                  <p key={o.id}>{o.texto}</p>
+                  <span className="d-block" key={o.id}>
+                    {o.texto}
+                  </span>
                 ))}
             </Alert>
           )}
           {esPropio && !editar && !['enviado', 'aprobado'].includes(actual.estado) && (
             <Alert tone={esEvaluacion ? 'alerta' : 'info'} title="Vista previa">
-              {bloqueo ??
-                (etapaDeFormato(actual.formato) === 'inicio'
-                  ? 'La entrevista inicial se responde al inicio del semestre. Puedes revisar las preguntas.'
-                  : 'Podrás responder al cierre del semestre. Puedes revisar las preguntas.')}
+              {bloqueo ?? 'Podrás enviar este informe al cierre del semestre.'}
             </Alert>
           )}
           <GuidedInstrumentForm
@@ -360,6 +412,7 @@ export function TutoringWorkspace() {
             puedeEnviar={!bloqueo && puedeEnviarFormato(actual.formato, workspace.momento)}
             onGuardar={editar ? guardar : undefined}
           />
+          <DescartarFormulario instrumento={actual} onCerrar={cerrarFormulario} />
           {puedeRevisar && (
             <div className="tutoring-review-actions">
               <h3>Revisión de la entrevista</h3>

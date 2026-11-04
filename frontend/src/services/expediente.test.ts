@@ -147,6 +147,23 @@ describe('expediente compartido entre formularios', () => {
     expect(respuestasRecordadas(registro({ formato: 'F05' }))).not.toHaveProperty('motivacion');
   });
 
+  it('reutiliza el perfil al pasar a ciclos finales sin copiar el estado del semestre anterior', () => {
+    recordarRespuestas(registro(), {
+      colegio: 'I.E. ficticia',
+      apoderado: 'Contacto ficticio',
+      habilidades: '["Organización"]',
+      estadoSalud: 'Buena',
+      expectativas: 'Sí',
+      motivacion: 'Alta',
+    });
+    const siguiente = respuestasRecordadas(registro({ semestreId: '2027-I', formato: 'F05' }));
+    expect(siguiente).toEqual({
+      colegio: 'I.E. ficticia',
+      apoderado: 'Contacto ficticio',
+      habilidades: '["Organización"]',
+    });
+  });
+
   it('no resucita una respuesta borrada ni restaura respuestas desde una caché corrupta', () => {
     recordarRespuestas(registro(), { colegio: 'I.E. 001', apoderado: 'Dato ficticio' });
     recordarRespuestas(registro(), { apoderado: '' });

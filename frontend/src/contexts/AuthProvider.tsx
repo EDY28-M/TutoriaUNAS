@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { AuthContext } from './authContext';
@@ -23,5 +23,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, [queryClient]);
   const value = useMemo(() => ({ user, login, logout }), [user, login, logout]);
+  useEffect(() => {
+    window.addEventListener('unas:api-session-expired', logout);
+    return () => window.removeEventListener('unas:api-session-expired', logout);
+  }, [logout]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

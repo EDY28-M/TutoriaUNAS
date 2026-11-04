@@ -8,6 +8,7 @@ async function login(page: Page, role: 'Estudiante' | 'Tutor') {
   await page.locator('#password').fill('tutoria2026');
   await page.locator('button[type="submit"]').click();
   await expect(page.locator('.workspace h1')).toBeVisible();
+  await page.evaluate(() => document.fonts.ready);
 }
 
 async function geometry(locator: Locator) {
@@ -110,9 +111,11 @@ for (const width of [375, 1440]) {
     await tabs.evaluate((element) =>
       window.scrollTo(0, element.getBoundingClientRect().top + scrollY - 100),
     );
+    await tabs
+      .getByRole('tab', { name: /^Matrícula/ })
+      .evaluate((element) => element.focus({ preventScroll: true }));
     const before = await geometry(tabs);
-    await tabs.getByRole('tab', { name: /^Matrícula/ }).focus();
-    for (const label of ['Notas', 'Evaluaciones', 'Horario', 'Mis datos']) {
+    for (const label of ['Horario', 'Mis datos']) {
       await page.keyboard.press('ArrowRight');
       await expect(tabs.getByRole('tab', { name: new RegExp(`^${label}`) })).toHaveAttribute(
         'aria-selected',

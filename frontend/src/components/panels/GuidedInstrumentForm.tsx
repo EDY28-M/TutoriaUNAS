@@ -8,6 +8,7 @@ import {
 } from 'react-hook-form';
 import type { ControllerRenderProps, FieldPath } from 'react-hook-form';
 import { useFormularioInstrumento } from '../../hooks/useFormularioInstrumento';
+import { ApiError } from '../../services/apiClient';
 import { OPCIONES_EXCLUSIVAS, serializarFormulario } from '../../utils/validacionInstrumentos';
 import type { ValoresFormularioInstrumento } from '../../utils/validacionInstrumentos';
 import type { CampoFormato, DefinicionFormato, Instrumento } from '../../types/domain';
@@ -17,6 +18,9 @@ import { ArrowLeft, ArrowRight, Check, CircleCheck, Plus, Send, Trash } from '..
 import { asignaciones } from '../../data/tutoria';
 import { estudiantePorId, nombreCompleto } from '../../data/personas';
 import { usePortal } from '../../hooks/usePortal';
+import { esEntrevista } from '../../utils/entrevistas';
+import { preguntasRegistradas } from '../../utils/preguntasPendientes';
+import '../../styles/tutoring-workspace.css';
 import {
   avanceInstrumento,
   campoVisible,
@@ -32,7 +36,11 @@ interface Props {
   editable?: boolean;
   puedeEnviar?: boolean;
   compacto?: boolean;
-  onGuardar?(respuestas: Record<string, string>, enviar: boolean): void;
+  onGuardar?(
+    respuestas: Record<string, string>,
+    enviar: boolean,
+    version?: number,
+  ): void | Instrumento | Promise<void | Instrumento>;
 }
 
 /** Pasos breves y revisión explícita antes de compartir respuestas. */
@@ -45,21 +53,66 @@ export function GuidedInstrumentForm({
   onGuardar,
 }: Props) {
   const portal = usePortal();
-  const { formulario, contexto, valores, reutilizados, errores } = useFormularioInstrumento(
+  const { formulario, contexto, valores, valoresIniciales, errores } = useFormularioInstrumento(
     definicion,
     instrumento,
     portal,
     editable,
   );
   const esEvaluacion = ['F10', 'F11'].includes(instrumento.formato);
-  const [paso, setPaso] = useState(esEvaluacion ? 1 : 0);
+  const entrevista = esEntrevista(instrumento.formato);
+  const deReferencia = new Set([
+    'nombreEstudiante',
+    'codigo',
+    'ciclo',
+    'escuela',
+    'nombreTutor',
+    'telefonoTutor',
+    'semestre',
+    'correo',
+    'telefono',
+    'apoderado',
+    'facultad',
+    'comision',
+    'gruposAsignados',
+    'estudiantesAsignados',
+    'atendidosIndividual',
+    'atendidosGrupal',
+    'ciclosIndividual',
+    'ciclosGrupal',
+    'individuales',
+    'grupales',
+    ...(esEvaluacion ? ['fecha', 'grupo', 'turno'] : []),
+    ...(instrumento.formato === 'F12' ? ['area', 'motivo', 'detalle'] : []),
+  ]);
+  const registrados = new Set(
+    [...preguntasRegistradas(contexto, valoresIniciales)].filter(
+      (c) => entrevista || deReferencia.has(c),
+    ),
+  );
+  const [mostrarRegistrados, setMostrarRegistrados] = useState(false);
+  const secciones = contexto.secciones;
+  const pasos = secciones.flatMap((s, i) =>
+    registrados.size === 0 ||
+    mostrarRegistrados ||
+    s.campos.some((c) => campoVisible(c, valores) && !registrados.has(c.codigo))
+      ? [i]
+      : [],
+  );
+  const [pasoElegido, setPaso] = useState(() => pasos[0] ?? secciones.length);
+  const paso = pasos.includes(pasoElegido)
+    ? pasoElegido
+    : (pasos.find((i) => i >= pasoElegido) ?? secciones.length);
+  const indicePaso = pasos.indexOf(paso);
   const [mensaje, setMensaje] = useState('');
   const [fallo, setFallo] = useState('');
+  const [guardando, setGuardando] = useState(false);
+  const guardadoEnCurso = useRef(false);
+  const versionVista = useRef(instrumento.version);
   const [confirmacion, setConfirmacion] = useState<string | null>(null);
   const confirmado = confirmacion === JSON.stringify(valores);
   const cabecera = useRef<HTMLHeadingElement>(null);
   const resumenError = useRef<HTMLDivElement>(null);
-  const secciones = contexto.secciones;
   const resumen = paso === secciones.length;
   const seccion = secciones[paso];
   function alEditar(codigo: string, tabla = false) {
@@ -99,18 +152,37 @@ export function GuidedInstrumentForm({
       cabecera.current?.scrollIntoView({ block: 'start' });
     });
   }
-  function guardar(enviar: boolean) {
+  async function guardar(enviar: boolean) {
+    if (guardadoEnCurso.current) return false;
+    guardadoEnCurso.current = true;
+    setGuardando(true);
     setFallo('');
     try {
-      onGuardar?.(
+      const resultado = await onGuardar?.(
         respuestasVisibles(contexto, serializarFormulario(formulario.getValues())),
         enviar,
+        versionVista.current,
       );
+      if (resultado) versionVista.current = resultado.version;
       setMensaje(enviar ? 'Formulario enviado.' : 'Borrador guardado. Puedes continuar después.');
       return true;
     } catch (error) {
+      if (error instanceof ApiError) {
+        for (const [codigo, mensajes] of Object.entries(error.errors))
+          formulario.setError(
+            (contexto.secciones.some((s) =>
+              s.campos.some((c) => c.codigo === codigo && c.tipo === 'tabla'),
+            )
+              ? `tablas.${codigo}`
+              : `respuestas.${codigo}`) as FieldPath<ValoresFormularioInstrumento>,
+            { type: 'server', message: mensajes[0] ?? 'Revisa la respuesta.' },
+          );
+      }
       setFallo(error instanceof Error ? error.message : 'No pudimos guardar. Intenta nuevamente.');
       return false;
+    } finally {
+      guardadoEnCurso.current = false;
+      setGuardando(false);
     }
   }
   async function continuar() {
@@ -128,7 +200,7 @@ export function GuidedInstrumentForm({
       requestAnimationFrame(() => resumenError.current?.focus());
       return;
     }
-    if (!onGuardar || guardar(false)) ir(paso + 1);
+    if (!onGuardar || (await guardar(false))) ir(pasos[indicePaso + 1] ?? secciones.length);
   }
   async function enviar() {
     if (!(await formulario.trigger())) {
@@ -140,13 +212,18 @@ export function GuidedInstrumentForm({
       setFallo('Confirma que revisaste tus respuestas.');
       return;
     }
-    guardar(true);
+    await guardar(true);
   }
-  function bloque(seccionActual: (typeof secciones)[number], lectura: boolean) {
+  function bloque(
+    seccionActual: (typeof secciones)[number],
+    lectura: boolean,
+    solo?: 'pendientes',
+  ) {
     return (
       <div className="tutoring-fields">
         {seccionActual.campos
           .filter((campo) => campoVisible(campo, valores))
+          .filter((campo) => !solo || !registrados.has(campo.codigo))
           .map((campo) => {
             const Campo = campo.tipo === 'tabla' ? RespuestaCampo : RespuestaRegistrada;
             return (
@@ -157,11 +234,20 @@ export function GuidedInstrumentForm({
                 editable={
                   !lectura &&
                   !(
+                    [
+                      'nombreEstudiante',
+                      'codigo',
+                      'ciclo',
+                      'escuela',
+                      'nombreTutor',
+                      'semestre',
+                    ].includes(campo.codigo) && Boolean(valoresIniciales[campo.codigo])
+                  ) &&
+                  !(
                     esEvaluacion &&
                     ['grupo', 'fecha', 'turno', 'nombreTutor'].includes(campo.codigo)
                   )
                 }
-                reutilizado={reutilizados.includes(campo.codigo)}
                 error={errores[campo.codigo]}
                 otroError={errores[`${campo.codigo}__otro`]}
                 onChange={actualizar}
@@ -190,7 +276,7 @@ export function GuidedInstrumentForm({
       <div className="tutoring-form">
         <div className="tutoring-form__progress">
           <span className="small">
-            {resumen ? 'Revisión final' : `Paso ${paso + 1} de ${secciones.length}`}
+            {resumen ? 'Revisión final' : `Paso ${indicePaso + 1} de ${pasos.length}`}
             {!compacto && ` · Formato ${definicion.numero}`}
           </span>
           <Progress valor={avanceInstrumento(contexto, valores)} etiqueta="Respuestas completas" />
@@ -204,26 +290,26 @@ export function GuidedInstrumentForm({
               value={paso}
               onChange={(e) => ir(Number(e.target.value))}
             >
-              {[...secciones.map((s) => s.titulo), 'Revisar y enviar'].map((titulo, i) => (
-                <option key={titulo} value={i}>
-                  {i + 1}. {titulo}
+              {[...pasos, secciones.length].map((indice, i) => (
+                <option key={indice} value={indice}>
+                  {i + 1}. {secciones[indice]?.titulo ?? 'Revisar y enviar'}
                 </option>
               ))}
             </select>
           </label>
         ) : (
           <nav className="tutoring-steps" aria-label="Pasos del formulario">
-            {[...secciones.map((s) => s.titulo), 'Revisar y enviar'].map((titulo, i) => (
+            {[...pasos, secciones.length].map((indice, i) => (
               <button
-                key={titulo}
+                key={indice}
                 type="button"
-                aria-current={paso === i ? 'step' : undefined}
-                aria-label={`${i + 1}. ${titulo}`}
-                title={titulo}
-                onClick={() => ir(i)}
+                aria-current={paso === indice ? 'step' : undefined}
+                aria-label={`${i + 1}. ${secciones[indice]?.titulo ?? 'Revisar y enviar'}`}
+                title={secciones[indice]?.titulo ?? 'Revisar y enviar'}
+                onClick={() => ir(indice)}
               >
-                <span>{i < paso ? <Check aria-hidden="true" /> : i + 1}</span>
-                <span>{titulo}</span>
+                <span>{indice < paso ? <Check aria-hidden="true" /> : i + 1}</span>
+                <span>{secciones[indice]?.titulo ?? 'Revisar y enviar'}</span>
               </button>
             ))}
           </nav>
@@ -235,11 +321,9 @@ export function GuidedInstrumentForm({
           <p>
             {resumen
               ? 'Comprueba los datos antes de compartirlos.'
-              : reutilizados.length
-                ? `Reutilizamos ${reutilizados.length} respuestas anteriores. Confirma que siguen vigentes y cambia solo lo necesario.`
-                : compacto
-                  ? '* Obligatorio'
-                  : 'Marca tus opciones. Los campos con * son necesarios para enviar.'}
+              : compacto
+                ? '* Obligatorio'
+                : 'Marca tus opciones. Los campos con * son necesarios para enviar.'}
           </p>
         </div>
         {Object.keys(errores).length > 0 && (
@@ -255,7 +339,13 @@ export function GuidedInstrumentForm({
                 );
                 return (
                   <li key={codigo}>
-                    <button type="button" onClick={() => ir(Math.max(indice, 0))}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMostrarRegistrados(true);
+                        ir(Math.max(indice, 0));
+                      }}
+                    >
                       {campo?.etiqueta}: {error}
                     </button>
                   </li>
@@ -280,7 +370,14 @@ export function GuidedInstrumentForm({
               <details className="tutoring-review-section" key={s.titulo}>
                 <summary>{s.titulo}</summary>
                 {bloque(s, true)}
-                <button type="button" className="btn btn-link" onClick={() => ir(i)}>
+                <button
+                  type="button"
+                  className="btn btn-link"
+                  onClick={() => {
+                    setMostrarRegistrados(true);
+                    ir(i);
+                  }}
+                >
                   Editar esta sección
                 </button>
               </details>
@@ -311,16 +408,27 @@ export function GuidedInstrumentForm({
             )}
           </>
         ) : (
-          seccion && bloque(seccion, false)
+          seccion && bloque(seccion, false, !mostrarRegistrados ? 'pendientes' : undefined)
         )}
         <div className="tutoring-form__actions">
-          {paso > 0 && (
-            <button type="button" className="btn btn-falcon-default" onClick={() => ir(paso - 1)}>
+          {(resumen ? pasos.length > 0 : indicePaso > 0) && (
+            <button
+              type="button"
+              className="btn btn-falcon-default"
+              onClick={() => ir(resumen ? pasos.at(-1)! : pasos[indicePaso - 1]!)}
+            >
               <ArrowLeft aria-hidden="true" /> Atrás
             </button>
           )}
           {onGuardar && (
-            <button type="button" className="btn btn-falcon-default" onClick={() => guardar(false)}>
+            <button
+              type="button"
+              className="btn btn-falcon-default"
+              disabled={guardando}
+              onClick={() => {
+                void guardar(false);
+              }}
+            >
               Guardar borrador
             </button>
           )}
@@ -328,14 +436,19 @@ export function GuidedInstrumentForm({
             <button
               type="button"
               className="btn btn-primary"
-              disabled={!puedeEnviar || !onGuardar}
+              disabled={guardando || !puedeEnviar || !onGuardar}
               onClick={enviar}
             >
               <Send aria-hidden="true" /> Enviar formulario
             </button>
           ) : (
-            <button type="button" className="btn btn-primary" onClick={continuar}>
-              {paso === secciones.length - 1 ? 'Revisar respuestas' : 'Continuar'}{' '}
+            <button
+              type="button"
+              className="btn btn-primary"
+              disabled={guardando}
+              onClick={continuar}
+            >
+              {indicePaso === pasos.length - 1 ? 'Revisar respuestas' : 'Continuar'}{' '}
               <ArrowRight aria-hidden="true" />
             </button>
           )}
@@ -368,7 +481,6 @@ function RespuestaCampo({
   campo,
   valores,
   editable,
-  reutilizado,
   error,
   otroError,
   onChange,
@@ -378,7 +490,6 @@ function RespuestaCampo({
   campo: CampoFormato;
   valores: Record<string, string>;
   editable: boolean;
-  reutilizado?: boolean;
   error?: string;
   otroError?: string;
   onChange(codigo: string, valor: string): void;
@@ -560,12 +671,6 @@ function RespuestaCampo({
         </label>
       )}
       {control}
-      {editable && reutilizado && !identidad && (
-        <span className="field__hint">Reutilizado de tu expediente: ya lo registraste antes.</span>
-      )}
-      {editable && identidad && (
-        <span className="field__hint">Dato precargado de tu expediente.</span>
-      )}
       {campo.ayuda && (
         <span id={`${id}-ayuda`} className="field__hint">
           {campo.ayuda}

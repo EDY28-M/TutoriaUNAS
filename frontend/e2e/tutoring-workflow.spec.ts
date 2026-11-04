@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
 async function login(page: Page, rol: 'Estudiante' | 'Tutor') {
@@ -19,10 +19,17 @@ async function login(page: Page, rol: 'Estudiante' | 'Tutor') {
     })
     .waitFor();
   await page.evaluate(() => document.fonts.ready);
-  if (rol === 'Estudiante') await page.getByLabel('Momento del semestre').selectOption('inicio');
+}
+async function revisarFormulario(dialogo: Locator) {
+  const selector = dialogo.getByLabel('Sección del formulario');
+  await selector.selectOption((await selector.locator('option').last().getAttribute('value'))!);
 }
 async function llenarEntrevista(page: Page) {
   const dialogo = page.getByRole('dialog');
+  await revisarFormulario(dialogo);
+  const primeraSeccion = dialogo.locator('.tutoring-review-section').first();
+  await primeraSeccion.locator('summary').click();
+  await primeraSeccion.getByRole('button', { name: 'Editar esta sección' }).click();
   await dialogo.getByLabel('Sección del formulario').selectOption('0');
   await dialogo.getByRole('button', { name: 'Continuar', exact: true }).click();
   await dialogo.getByLabel('Colegio de procedencia').fill('I.E. de demostración');
@@ -61,7 +68,12 @@ test('entrevista: guardar, recargar, enviar, pedir corrección, reenviar y revis
   await page.setViewportSize({ width: 1440, height: 1000 });
   await login(page, 'Estudiante');
   await page.getByRole('button', { name: 'Comenzar · Formato 03', exact: true }).click();
-  await expect(page.getByRole('dialog').getByLabel('Nombre del estudiante')).toHaveValue(/Ana/);
+  await expect(page.getByRole('dialog').getByText(/Datos ya disponibles/)).toHaveCount(0);
+  await revisarFormulario(page.getByRole('dialog'));
+  await page.getByRole('dialog').locator('.tutoring-review-section > summary').first().click();
+  await expect(page.getByRole('dialog').locator('[data-field="nombreEstudiante"]')).toContainText(
+    'Ana',
+  );
   await page
     .getByRole('dialog')
     .getByRole('button', { name: 'Guardar borrador', exact: true })
@@ -117,7 +129,11 @@ test('fases: cambiar al cierre no habilita evaluaciones sin asistencia confirmad
     .click();
   await expect(page.getByRole('dialog').locator('input[type="radio"]')).toHaveCount(0);
   await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'Cerrar sesión', exact: true }).click();
+  await login(page, 'Tutor');
   await page.getByLabel('Momento del semestre').selectOption('cierre');
+  await page.getByRole('button', { name: 'Cerrar sesión', exact: true }).click();
+  await login(page, 'Estudiante');
   await page
     .getByRole('button', { name: /^Ver preguntas · Formato 11/ })
     .first()
@@ -165,9 +181,10 @@ test('atención personalizada: prepara una ficha 12 y su envío aparece en el ap
     .filter({ hasText: 'Quispe Rojas' })
     .filter({ hasText: 'Borrador' });
   await ficha.getByRole('button', { name: /Abrir formato 12/ }).click();
-  await d.getByRole('button', { name: 'Continuar', exact: true }).click();
-  await expect(d.getByLabel('Área de destino')).toHaveValue('Psicología');
-  await d.getByRole('button', { name: 'Revisar respuestas', exact: true }).click();
+  await revisarFormulario(d);
+  for (const resumen of await d.locator('.tutoring-review-section > summary').all())
+    await resumen.click();
+  await expect(d.locator('[data-field="area"]')).toContainText('Psicología');
   await d.getByRole('checkbox', { name: 'He revisado mis respuestas y deseo enviarlas.' }).check();
   await d.getByRole('button', { name: 'Enviar formulario', exact: true }).click();
   await page.getByRole('button', { name: 'Cerrar sesión', exact: true }).click();

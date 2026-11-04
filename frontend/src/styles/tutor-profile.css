@@ -247,6 +247,25 @@
   font-size: 0.7rem;
   line-height: 1.8;
 }
+.profile-events {
+  margin: 0;
+  padding: 0 0 16px;
+  list-style: none;
+}
+.profile-events li {
+  display: grid;
+  gap: 5px;
+  padding: 12px 0;
+  font-size: 0.78rem;
+}
+.profile-events li + li {
+  border-top: 1px solid var(--profile-line);
+}
+.profile-events span,
+.profile-events time {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
 .profile-security {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

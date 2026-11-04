@@ -8,16 +8,21 @@ import { useAuth } from '../../hooks/useAuth';
 import { FormField } from '../../components/forms/FormField';
 import { RoleSelector } from '../../components/forms/RoleSelector';
 import { dashboardPath, roleDetails } from '../../utils/roles';
+import { API_MODE } from '../../services/apiConfig';
+import { ActivacionRequerida } from '../../services/cuentas';
 
 const schema = z.object({
   identifier: z
     .string()
     .trim()
-    .min(1, 'Ingresa tu usuario de prueba.')
-    .max(64, 'El usuario es demasiado largo.'),
+    .min(
+      1,
+      API_MODE ? 'Ingresa tu correo institucional o usuario.' : 'Ingresa tu usuario de prueba.',
+    )
+    .max(254, 'El usuario es demasiado largo.'),
   password: z
     .string()
-    .min(1, 'Ingresa tu contraseña de prueba.')
+    .min(1, API_MODE ? 'Ingresa tu contraseña.' : 'Ingresa tu contraseña de prueba.')
     .max(128, 'La contraseña es demasiado larga.'),
   remember: z.boolean(),
 });
@@ -70,6 +75,10 @@ export function LoginPage() {
       });
       navigate(dashboardPath(account.role), { replace: true });
     } catch (error) {
+      if (error instanceof ActivacionRequerida) {
+        navigate('/verificar-cuenta', { replace: true });
+        return;
+      }
       setStatus('idle');
       setFailure(error instanceof Error ? error.message : 'No se pudo iniciar sesión.');
     }
@@ -95,12 +104,12 @@ export function LoginPage() {
       >
         <FormField
           id="identifier"
-          label={details.identifierLabel}
+          label={API_MODE ? 'Correo institucional o usuario' : details.identifierLabel}
           icon="fa-solid fa-id-card"
           iconVariant="classic"
-          placeholder={details.example}
+          placeholder={API_MODE ? 'nombre@unas.edu.pe' : details.example}
           autoComplete="username"
-          maxLength={64}
+          maxLength={254}
           disabled={busy}
           error={errors.identifier?.message}
           {...register('identifier')}
@@ -150,7 +159,16 @@ export function LoginPage() {
           </p>
         )}
       </form>
-      <p className="d01__demo-note">Entorno de demostración · Accede con una cuenta de prueba.</p>
+      {API_MODE ? (
+        <p className="d01__demo-note">
+          ¿Aún no tienes cuenta?{' '}
+          <Link className="link-soft" to="/crear-cuenta">
+            Crear cuenta
+          </Link>
+        </p>
+      ) : (
+        <p className="d01__demo-note">Entorno de demostración · Accede con una cuenta de prueba.</p>
+      )}
     </div>
   );
 }

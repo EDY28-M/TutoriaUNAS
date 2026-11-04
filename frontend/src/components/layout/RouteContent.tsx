@@ -8,7 +8,12 @@ export function RouteContent() {
   const { pathname } = useLocation();
 
   useLayoutEffect(() => {
-    ref.current?.style.removeProperty('min-height');
+    const resetHeight = () => ref.current?.style.removeProperty('min-height');
+    resetHeight();
+    // El espacio reservado para una pestaña pertenece al ancho en que se abrió.
+    // Al redimensionar no debe dejar un hueco que desaparezca en el siguiente clic.
+    window.addEventListener('resize', resetHeight);
+    return () => window.removeEventListener('resize', resetHeight);
   }, [pathname]);
 
   function preserveViewport(event: SyntheticEvent<HTMLDivElement>) {
@@ -16,8 +21,9 @@ export function RouteContent() {
     const control = event.target.closest('[role="tab"], button[aria-pressed], .segmented a');
     if (!control || !ref.current?.contains(control)) return;
     // Mantiene solo el espacio necesario para que una vista más corta no recorte el scroll actual.
-    const height =
-      window.scrollY > 0 ? Math.max(0, innerHeight - ref.current.getBoundingClientRect().top) : 0;
+    const outsideHeight =
+      document.documentElement.scrollHeight - ref.current.getBoundingClientRect().height;
+    const height = window.scrollY > 0 ? Math.max(0, scrollY + innerHeight - outsideHeight) : 0;
     ref.current.style.minHeight = height ? `${height}px` : '';
   }
 

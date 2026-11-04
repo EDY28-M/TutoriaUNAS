@@ -14,4 +14,11 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.3.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Update="**/*.local.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
+    <EmbeddedResource Include="Data/formatos.json" />
+    <EmbeddedResource Include="Data/*.sql" />
+    <Content Include="Data/semilla-desarrollo.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Data/semilla-sistema.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

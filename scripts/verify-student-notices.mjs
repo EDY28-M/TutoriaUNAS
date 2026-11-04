@@ -1,0 +1,98 @@
+import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+
+const require = createRequire(new URL('../frontend/package.json', import.meta.url));
+const { chromium, expect } = require('@playwright/test');
+const AxeBuilder = require('@axe-core/playwright').default;
+const baseURL = process.env.PORTAL_BASE_URL ?? 'http://127.0.0.1:5173';
+const output = new URL('../artifacts/student-notices/', import.meta.url);
+await mkdir(output, { recursive: true });
+const browser = await chromium.launch();
+const report = { passed: false, cases: [] };
+
+try {
+  for (const width of [320, 375, 390, 768, 1024, 1440]) {
+    const context = await browser.newContext({ viewport: { width, height: 960 } });
+    const page = await context.newPage();
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.goto(`${baseURL}/login`);
+    await page.getByRole('tab', { name: 'Estudiante', exact: true }).click();
+    await page.locator('#identifier').fill('2023010456');
+    await page.locator('#password').fill('tutoria2026');
+    await page.locator('button[type="submit"]').click();
+    await page.waitForURL('**/estudiante/dashboard');
+    await page.goto(`${baseURL}/estudiante/avisos`);
+    await expect(page.getByRole('heading', { name: 'Mis avisos', exact: true })).toBeVisible();
+    const messages = page.locator('.student-notices__message');
+    const filters = page.getByRole('group', { name: 'Filtrar avisos', exact: true });
+    await expect(messages).toHaveCount(6);
+    await expect(page.getByRole('button', { name: 'Avisos: 3 sin leer', exact: true })).toBeVisible();
+    await page.evaluate(() => document.fonts.ready);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+    assert.ok(overflow <= 1, `Desbordamiento en ${width}px: ${overflow}px`);
+    const a11y = await new AxeBuilder({ page }).include('.student-notices').analyze();
+    assert.deepEqual(a11y.violations.map((item) => item.id), [], `Accesibilidad a ${width}px`);
+    await page.screenshot({ path: fileURLToPath(new URL(`avisos-${width}.png`, output)), fullPage: true });
+
+    await filters.getByRole('button', { name: /^Sin leer/ }).click();
+    await expect(messages).toHaveCount(3);
+    await page.getByRole('button', { name: 'Sin leer: Sesión de tutoría el 27 de octubre', exact: true }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole('link', { name: 'Ver mis sesiones' })).toHaveAttribute('href', '/estudiante/sesiones');
+    await page.keyboard.press('Escape');
+    await expect(dialog).toHaveCount(0);
+    await expect(filters.getByRole('button', { name: /^Sin leer/ })).toBeFocused();
+    await expect(messages).toHaveCount(2);
+    await expect(page.getByRole('button', { name: 'Avisos: 2 sin leer', exact: true })).toBeVisible();
+    await filters.getByRole('button', { name: /^Todos/ }).click();
+    await page.getByRole('searchbox', { name: 'Buscar en mis avisos' }).fill('no existe este aviso');
+    await expect(page.getByText('Sin avisos', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Ver todos', exact: true }).click();
+    await expect(messages).toHaveCount(6);
+    await page.getByRole('searchbox', { name: 'Buscar en mis avisos' }).fill('entrevista');
+    await expect(messages).toHaveCount(1);
+    await page.getByRole('searchbox', { name: 'Buscar en mis avisos' }).fill('');
+    await filters.getByRole('button', { name: /^Correo/ }).click();
+    await expect(messages).toHaveCount(1);
+    await messages.first().click();
+    await expect(dialog.getByText('Para: 2023010456@unas.edu.pe', { exact: false })).toBeVisible();
+    await expect(dialog.getByText('2023010457@unas.edu.pe', { exact: false })).toHaveCount(0);
+    await page.keyboard.press('Escape');
+    await page.getByRole('button', { name: 'Preferencias', exact: true }).click();
+    await expect(dialog).toBeVisible();
+    await page.getByRole('switch', { name: 'Sesiones de tutoría', exact: true }).uncheck();
+    await page.getByRole('switch', { name: 'Salud y bienestar', exact: true }).check();
+    const preferencesA11y = await new AxeBuilder({ page }).include('dialog').analyze();
+    assert.deepEqual(preferencesA11y.violations.map((item) => item.id), [], `Preferencias a ${width}px`);
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('button', { name: 'Preferencias', exact: true })).toBeFocused();
+    await page.reload();
+    await page.getByRole('button', { name: 'Preferencias', exact: true }).click();
+    await expect(page.getByRole('switch', { name: 'Sesiones de tutoría', exact: true })).not.toBeChecked();
+    await expect(page.getByRole('switch', { name: 'Salud y bienestar', exact: true })).toBeChecked();
+    await page.keyboard.press('Escape');
+    await page.getByRole('button', { name: 'Marcar todos como leídos', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Avisos: 0 sin leer', exact: true })).toBeVisible();
+    await filters.getByRole('button', { name: /^Sin leer/ }).click();
+    await expect(page.getByText('Todo al día', { exact: true }).last()).toBeVisible();
+    await page.getByRole('button', { name: 'Ver todos', exact: true }).click();
+    await messages.first().click();
+    await dialog.getByRole('button', { name: 'Marcar como no leído', exact: true }).click();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('button', { name: 'Avisos: 1 sin leer', exact: true })).toBeVisible();
+    await page.reload();
+    await expect(page.getByRole('button', { name: 'Avisos: 1 sin leer', exact: true })).toBeVisible();
+    assert.deepEqual(errors, [], `Errores de ejecución a ${width}px`);
+    report.cases.push({ width, passed: true, overflow, messages: 6, a11yViolations: 0 });
+    console.log(`PASS ${width}px · filtros, búsqueda, lectura, preferencias, teclado y accesibilidad`);
+    await context.close();
+  }
+  report.passed = true;
+} finally {
+  await browser.close();
+  await writeFile(new URL('verification.json', output), JSON.stringify(report, null, 2));
+}

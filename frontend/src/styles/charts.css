@@ -278,6 +278,15 @@
   position: relative;
   min-width: 0;
 }
+.portal-chart-stage {
+  display: contents;
+}
+.chart-card--instruments .portal-chart-stage {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 360px;
+}
 .portal-chart {
   width: 100%;
   min-width: 0;
@@ -546,6 +555,9 @@
   }
 }
 @media (max-width: 360px) {
+  .chart-card--instruments .portal-chart-stage {
+    min-height: 400px;
+  }
   .chart-execution-badge {
     margin-left: 0;
   }

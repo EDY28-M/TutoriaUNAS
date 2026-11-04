@@ -1,0 +1,227 @@
+.compact-page.forms-panel {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+}
+.compact-page > * {
+  min-width: 0;
+}
+.compact-accounts {
+  max-height: 540px;
+  overflow: auto;
+}
+.compact-page .page-head {
+  margin-bottom: 0;
+}
+.compact-page .card {
+  box-shadow: none;
+  border-color: var(--line);
+}
+.compact-page .card__head {
+  background: transparent;
+}
+.compact-page .card__head h2 {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.compact-page .card__head p {
+  font-size: 0.78rem;
+}
+.compact-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1 1 220px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--muted);
+  background: var(--surface);
+}
+.compact-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink-900);
+  font: inherit;
+}
+.compact-search:focus-within {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+.compact-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.compact-toolbar > .field {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+.compact-toolbar .select {
+  max-width: 100%;
+}
+.compact-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.compact-disclosure {
+  border-top: 1px solid var(--line);
+}
+.compact-disclosure > summary {
+  padding: 14px 0;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--ink-800);
+}
+.compact-disclosure > .compact-list {
+  padding-bottom: 12px;
+}
+.compact-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.compact-list > li + li {
+  border-top: 1px solid var(--line);
+}
+.compact-list__row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+}
+button.compact-list__row {
+  cursor: pointer;
+}
+button.compact-list__row:hover {
+  background: var(--green-50);
+}
+.compact-list__body {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+.compact-list__body strong {
+  font-size: 0.87rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.compact-list__body small {
+  color: var(--muted);
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+.compact-list__end {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  font-size: 0.76rem;
+}
+.compact-code {
+  flex: 0 0 38px;
+  display: grid;
+  place-items: center;
+  min-height: 38px;
+  border-radius: 6px;
+  background: var(--green-50);
+  color: var(--green-800);
+  font:
+    0.78rem 'JetBrains Mono',
+    monospace;
+}
+.compact-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.compact-tags > span {
+  padding: 4px 8px;
+  border-radius: 5px;
+  background: var(--green-50);
+  color: var(--green-800);
+  font-size: 0.73rem;
+}
+.compact-permissions {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) minmax(0, 2fr);
+  gap: 16px;
+  align-items: center;
+  padding: 15px 18px;
+}
+.compact-permissions strong {
+  font-size: 0.84rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.compact-date-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px 32px;
+  padding: 18px 20px;
+}
+.compact-date-summary dl {
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+.compact-date-summary dt {
+  font-size: 0.73rem;
+  color: var(--muted);
+}
+.compact-date-summary dd {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.compact-detail-list {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+}
+.compact-detail-list > div {
+  display: grid;
+  gap: 5px;
+}
+.compact-detail-list dt {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.compact-detail-list dd {
+  margin: 0;
+  font-size: 0.86rem;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 599px) {
+  .compact-permissions {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+  .compact-list__row {
+    flex-wrap: wrap;
+    padding: 14px;
+    gap: 10px;
+  }
+  .compact-list__end {
+    margin-left: auto;
+  }
+  .compact-toolbar > .btn {
+    flex-grow: 1;
+  }
+}

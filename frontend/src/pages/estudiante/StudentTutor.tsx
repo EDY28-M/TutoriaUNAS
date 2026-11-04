@@ -8,6 +8,9 @@ import { Sheet } from '../../components/ui/Sheet';
 import { Alert } from '../../components/ui/Alert';
 import { Field, TextArea } from '../../components/panels/Field';
 import { usePortal } from '../../hooks/usePortal';
+import { useSistema } from '../../hooks/useSistema';
+import { API_MODE } from '../../services/apiConfig';
+import { mutarSistema } from '../../services/apiSistema';
 import { cursoPorId, nombreCurso } from '../../data/academico';
 import { etapaAcademica, semestreActual } from '../../data/catalogos';
 import { escuelaDe } from '../../data/personas';
@@ -17,10 +20,15 @@ import '../../styles/student-tutor.css';
 
 /** Contacto del tutor y contexto de la asignación, con los detalles a demanda. */
 export function StudentTutor() {
+  const sistema = useSistema();
   const { estudiante, tutor, asignacion, escuelaId, instrumentos } = usePortal();
   const [solicitud, setSolicitud] = useState(false);
   const [motivo, setMotivo] = useState('');
-  const [enviado, setEnviado] = useState(false);
+  const [enviadoLocal, setEnviado] = useState(false);
+  const [guardando, setGuardando] = useState(false);
+  const [error, setError] = useState('');
+  const enviada = sistema?.solicitudesCambio.find((s) => s.estado === 'pendiente');
+  const enviado = API_MODE ? !!enviada : enviadoLocal;
 
   if (!estudiante) {
     return (
@@ -47,8 +55,8 @@ export function StudentTutor() {
     );
   }
 
-  const etapa = etapaAcademica[estudiante.etapa];
-  const entrevista = instrumentos.find((instrumento) => instrumento.formato === etapa.formato);
+  const etapa = estudiante.etapa === 'sin-informar' ? null : etapaAcademica[estudiante.etapa];
+  const entrevista = instrumentos.find((instrumento) => instrumento.formato === etapa?.formato);
   const entrevistaEnviada = entrevista && ['enviado', 'aprobado'].includes(entrevista.estado);
   const historial = asignacion?.historial ?? [];
   const nombreTutor = `${tutor.nombres} ${tutor.apellidos}`;
@@ -69,7 +77,9 @@ export function StudentTutor() {
       {enviado && (
         <div role="status">
           <Alert tone="ok" title="Solicitud registrada en la demostración">
-            Tu solicitud queda en evaluación en esta sesión. No se envía ninguna solicitud real.
+            {API_MODE
+              ? 'Tu solicitud está registrada y pendiente de revisión por coordinación.'
+              : 'Tu solicitud queda en evaluación en esta sesión. No se envía ninguna solicitud real.'}
           </Alert>
         </div>
       )}
@@ -196,7 +206,8 @@ export function StudentTutor() {
                 <div>
                   <dt>Etapa académica</dt>
                   <dd>
-                    Ciclo {estudiante.ciclo} · {etapa.etiqueta}
+                    Ciclo {estudiante.ciclo ?? 'sin informar'} ·{' '}
+                    {etapa?.etiqueta ?? 'Por confirmar'}
                   </dd>
                 </div>
                 <div>
@@ -210,7 +221,11 @@ export function StudentTutor() {
               </dl>
               <div className="student-tutor__interview">
                 <div className="student-tutor__interview-top">
-                  <p className="student-tutor__label">Formato {etapa.formato.replace('F', '')}</p>
+                  <p className="student-tutor__label">
+                    {etapa
+                      ? `Formato ${etapa.formato.replace('F', '')}`
+                      : 'Ciclo pendiente de confirmar'}
+                  </p>
                   {entrevista && <StatusBadge estado={entrevista.estado} contexto="formulario" />}
                 </div>
                 <h3>Entrevista inicial</h3>
@@ -298,7 +313,7 @@ export function StudentTutor() {
                 type="submit"
                 form="student-tutor-change"
                 className="btn btn-primary"
-                disabled={motivo.trim().length < 10 || enviado}
+                disabled={guardando || motivo.trim().length < 10 || enviado}
               >
                 Enviar solicitud
               </button>
@@ -308,13 +323,32 @@ export function StudentTutor() {
           <form
             id="student-tutor-change"
             className="stack"
-            onSubmit={(evento) => {
+            onSubmit={async (evento) => {
               evento.preventDefault();
               if (motivo.trim().length < 10 || enviado) return;
+              if (API_MODE) {
+                setError('');
+                setGuardando(true);
+                try {
+                  await mutarSistema('solicitudes-cambio', 'POST', { motivo });
+                  setSolicitud(false);
+                  setMotivo('');
+                } catch (e) {
+                  setError(e instanceof Error ? e.message : 'No se pudo presentar la solicitud.');
+                } finally {
+                  setGuardando(false);
+                }
+                return;
+              }
               setEnviado(true);
               setSolicitud(false);
             }}
           >
+            {error && (
+              <Alert tone="riesgo" title="No se guardó la solicitud">
+                {error}
+              </Alert>
+            )}
             <dl className="meta-list">
               <div>
                 <dt>Estudiante</dt>
@@ -347,8 +381,9 @@ export function StudentTutor() {
               </span>
             </Field>
             <p className="small muted">
-              Demostración: la solicitud solo se muestra durante esta sesión y no se envía a la
-              comisión.
+              {API_MODE
+                ? 'La solicitud se guardará para que coordinación la revise. Tu tutor se mantiene hasta que se apruebe el cambio.'
+                : 'Demostración: la solicitud solo se muestra durante esta sesión y no se envía a la comisión.'}
             </p>
           </form>
         </Sheet>

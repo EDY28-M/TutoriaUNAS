@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API_MODE } from '../../services/apiConfig';
 import { useSearchParams } from 'react-router-dom';
 import { definicionPorCodigo } from '../../data/formatos';
 import { estudiantePorId, nombreCompleto } from '../../data/personas';
@@ -262,7 +263,9 @@ export function TeacherFormsPanel({
                   ? estudiantePorId(registro.estudianteId)
                   : null;
                 const ver =
-                  !estudiantes || ['enviado', 'aprobado', 'observado'].includes(registro.estado);
+                  !estudiantes ||
+                  ['enviado', 'aprobado'].includes(registro.estado) ||
+                  (!API_MODE && registro.estado === 'observado');
                 return (
                   <article
                     className="tutoring-record teacher-register__row"
@@ -277,7 +280,13 @@ export function TeacherFormsPanel({
                         <span> · </span>
                         {formatFecha(registro.actualizado)}
                       </p>
-                      {!ver && <small>Aún sin envío</small>}
+                      {!ver && (
+                        <small>
+                          {registro.estado === 'observado'
+                            ? 'Esperando el nuevo envío del estudiante'
+                            : 'Aún sin envío'}
+                        </small>
+                      )}
                       {sesion && esEvaluacionSesion(registro.formato) && (
                         <small>
                           {sesion.tema} · {formatFecha(sesion.fecha)} · {sesion.codigo}

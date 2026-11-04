@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useInstrumentWorkspace } from '../../hooks/useInstrumentWorkspace';
-import { programarSesion } from '../../services/sessionWorkspace';
+import { persistirProgramacion } from '../../services/mutacionesTutoria';
 import { TriangleAlert } from '../../components/ui/icons';
 import { PageHeading } from '../../components/ui/PageHeading';
 
@@ -13,6 +13,7 @@ import { Sheet } from '../../components/ui/Sheet';
 import { usePortal } from '../../hooks/usePortal';
 import { SessionCalendar } from '../../components/panels/SessionCalendar';
 import { SessionDetails } from '../../components/panels/SessionDetails';
+import { AccionesSesion } from '../../components/panels/AccionesTutoria';
 
 import { semestreActual } from '../../data/catalogos';
 import { estudiantePorId, nombreCompleto } from '../../data/personas';
@@ -44,7 +45,11 @@ export function TutorSessions() {
   const [nuevaFecha, setNuevaFecha] = useState(fechaActualLima);
   const [nuevaInicio, setNuevaInicio] = useState('16:00');
   const [nuevaFin, setNuevaFin] = useState('17:00');
-  const [nuevoEstudiante, setNuevoEstudiante] = useState(tutorados[0]?.estudianteId ?? '');
+  const [nuevoEstudiante, setNuevoEstudiante] = useState(
+    tutorados.find((a) => a.estudianteId === parametros.get('estudiante'))?.estudianteId ??
+      tutorados[0]?.estudianteId ??
+      '',
+  );
   const [nuevoGrupo, setNuevoGrupo] = useState(tutorados[0]?.grupo ?? '');
   const [modalidad, setModalidad] = useState<Sesion['modalidad']>('presencial');
   const [lugar, setLugar] = useState('Cubículo de tutoría · Pabellón B');
@@ -54,14 +59,16 @@ export function TutorSessions() {
   );
   const [error, setError] = useState('');
   const [aviso, setAviso] = useState('');
+  const [guardando, setGuardando] = useState(false);
   const convocados =
     nuevoTipo === 'individual'
       ? [nuevoEstudiante].filter(Boolean)
       : tutorados.filter((a) => a.grupo === nuevoGrupo).map((a) => a.estudianteId);
-  function programar() {
-    if (!user) return;
+  async function programar() {
+    if (!user || guardando) return;
+    setGuardando(true);
     try {
-      const sesion = programarSesion(
+      const sesion = await persistirProgramacion(
         user,
         {
           tipo: nuevoTipo,
@@ -83,6 +90,8 @@ export function TutorSessions() {
       setVentana({ tipo: 'detalle', sesionId: sesion.id });
     } catch (e) {
       setError(e instanceof Error ? e.message : 'No se pudo programar la sesión.');
+    } finally {
+      setGuardando(false);
     }
   }
 
@@ -177,6 +186,7 @@ export function TutorSessions() {
           }
         >
           <SessionDetails sesion={sesionDetalle} />
+          <AccionesSesion sesion={sesionDetalle} />
         </Sheet>
       )}
 
@@ -195,7 +205,12 @@ export function TutorSessions() {
               >
                 Cancelar
               </button>
-              <button type="button" className="btn btn-primary" onClick={programar}>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={programar}
+                disabled={guardando}
+              >
                 Guardar programación
               </button>
             </>

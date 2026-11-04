@@ -1,4 +1,7 @@
 import { useMemo, useState } from 'react';
+import { API_MODE } from '../../services/apiConfig';
+import { snapshotApi } from '../../services/apiTutoria';
+import { listaRespuesta, filasRespuesta } from '../../utils/instrumentos';
 import { PageHeading } from '../../components/ui/PageHeading';
 import { Card, CardBody, CardHead } from '../../components/ui/Card';
 import { Badge, StatusBadge } from '../../components/ui/StatusBadge';
@@ -24,6 +27,7 @@ interface Documento {
   estado: string;
   detalle: string;
   descargable: boolean;
+  periodo: string;
 }
 
 /**
@@ -34,11 +38,20 @@ interface Documento {
 export function StudentDocuments() {
   const portal = usePortal();
   const { estudiante, instrumentos, derivaciones } = portal;
+  const historial = snapshotApi().datos?.historial;
   const [abierto, setAbierto] = useState<Documento | null>(null);
 
   const documentos = useMemo<Documento[]>(() => {
-    const deInstrumentos: Documento[] = instrumentos
-      .filter((instrumento) => instrumento.estado === 'aprobado')
+    const registros = [
+      ...new Map(
+        [...instrumentos, ...(API_MODE ? (historial ?? []) : [])].map((r) => [r.id, r]),
+      ).values(),
+    ];
+    const deInstrumentos: Documento[] = registros
+      .filter(
+        (instrumento) =>
+          instrumento.estado === 'aprobado' || (API_MODE && instrumento.estado === 'enviado'),
+      )
       .map((instrumento) => {
         const definicion = definicionPorCodigo(instrumento.formato);
         return {
@@ -49,7 +62,8 @@ export function StudentDocuments() {
           fecha: instrumento.actualizado,
           estado: instrumento.estado,
           detalle: `Versión ${instrumento.version} · ${definicion?.actorEtiqueta ?? ''}`,
-          descargable: instrumento.descargaDisponible,
+          descargable: API_MODE || instrumento.descargaDisponible,
+          periodo: instrumento.semestreId,
         };
       });
 
@@ -64,34 +78,39 @@ export function StudentDocuments() {
       estado: derivacion.estado,
       detalle: derivacion.motivo,
       descargable: true,
+      periodo: derivacion.semestreId,
     }));
 
-    const constancias: Documento[] = [
-      {
-        id: 'CONST-TUTORIA',
-        tipo: 'constancia',
-        titulo: 'Constancia de participación en el Programa de Tutoría',
-        referencia: `CONST-${semestreActual}-TUTORIA`,
-        fecha: '2026-10-14',
-        estado: 'aprobado',
-        detalle:
-          'Acredita la participación en las sesiones del semestre. Requiere la visación del docente tutor.',
-        descargable: false,
-      },
-      {
-        id: 'CONST-MATRICULA',
-        tipo: 'constancia',
-        titulo: 'Constancia de matrícula del semestre',
-        referencia: `CONST-${semestreActual}-MATRICULA`,
-        fecha: '2026-08-22',
-        estado: 'aprobado',
-        detalle: 'Emitida por la DIAA a partir del registro de matrícula.',
-        descargable: false,
-      },
-    ];
+    const constancias: Documento[] = API_MODE
+      ? []
+      : [
+          {
+            id: 'CONST-TUTORIA',
+            periodo: semestreActual,
+            tipo: 'constancia',
+            titulo: 'Constancia de participación en el Programa de Tutoría',
+            referencia: `CONST-${semestreActual}-TUTORIA`,
+            fecha: '2026-10-14',
+            estado: 'aprobado',
+            detalle:
+              'Acredita la participación en las sesiones del semestre. Requiere la visación del docente tutor.',
+            descargable: false,
+          },
+          {
+            id: 'CONST-MATRICULA',
+            periodo: semestreActual,
+            tipo: 'constancia',
+            titulo: 'Constancia de matrícula del semestre',
+            referencia: `CONST-${semestreActual}-MATRICULA`,
+            fecha: '2026-08-22',
+            estado: 'aprobado',
+            detalle: 'Emitida por la DIAA a partir del registro de matrícula.',
+            descargable: false,
+          },
+        ];
 
     return [...deInstrumentos, ...deDerivaciones, ...constancias];
-  }, [derivaciones, instrumentos]);
+  }, [derivaciones, instrumentos, historial]);
 
   if (!estudiante) {
     return (
@@ -106,10 +125,43 @@ export function StudentDocuments() {
 
   function descargar(documento: Documento) {
     if (!documento.descargable) return;
+    const registro = [...instrumentos, ...(historial ?? [])].find((r) => r.id === documento.id);
+    const respuestas: string[][] = [];
+    if (registro)
+      for (const seccion of definicionPorCodigo(registro.formato)?.secciones ?? [])
+        for (const campo of seccion.campos) {
+          const valor = registro.respuestas[campo.codigo] ?? '';
+          if (campo.tipo === 'tabla')
+            filasRespuesta(valor).forEach((fila, i) =>
+              campo.columnas?.forEach((c) =>
+                respuestas.push([
+                  seccion.titulo,
+                  `${campo.etiqueta} · ${i + 1} · ${c.etiqueta}`,
+                  fila[c.codigo] ?? '',
+                ]),
+              ),
+            );
+          else
+            respuestas.push([
+              seccion.titulo,
+              campo.etiqueta,
+              (campo.tipo === 'multiple' ? listaRespuesta(valor).join(' · ') : valor) +
+                (registro.respuestas[`${campo.codigo}__otro`]
+                  ? `: ${registro.respuestas[`${campo.codigo}__otro`]}`
+                  : ''),
+            ]);
+        }
     downloadCsv(
       [
         ['Documento', 'Referencia', 'Fecha', 'Estado', 'Periodo'],
-        [documento.titulo, documento.referencia, documento.fecha, documento.estado, semestreActual],
+        [
+          documento.titulo,
+          documento.referencia,
+          documento.fecha,
+          documento.estado,
+          documento.periodo,
+        ],
+        ...(respuestas.length ? [[], ['Sección', 'Campo', 'Respuesta'], ...respuestas] : []),
       ],
       `${documento.referencia}.csv`,
     );

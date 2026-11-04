@@ -9,6 +9,9 @@ import {
   serializeDisplayPreferences,
 } from '../../utils/displayPreferences';
 import type { DisplayPreferences as Preferences } from '../../utils/displayPreferences';
+import { useSistema } from '../../hooks/useSistema';
+import { API_MODE } from '../../services/apiConfig';
+import { guardarPreferenciasApi } from '../../services/apiSistema';
 
 function readPreferences(): Preferences {
   try {
@@ -19,10 +22,28 @@ function readPreferences(): Preferences {
 }
 
 export function PreferencesPage() {
-  const [preferences, setPreferences] = useState<Preferences>(readPreferences);
+  const sistema = useSistema();
+  const [locales, setPreferences] = useState<Preferences>(readPreferences);
+  const preferences = API_MODE ? (sistema?.preferencias.pantalla ?? defaults) : locales;
   const [mensaje, setMensaje] = useState('');
+  const [error, setError] = useState('');
+  const [guardando, setGuardando] = useState(false);
 
-  function guardar(nuevas: Preferences) {
+  async function guardar(nuevas: Preferences) {
+    if (API_MODE) {
+      if (!sistema || guardando) return;
+      setGuardando(true);
+      setError('');
+      try {
+        await guardarPreferenciasApi({ ...sistema.preferencias, pantalla: nuevas });
+        setMensaje('Preferencias guardadas en tu cuenta.');
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'No se pudieron guardar las preferencias.');
+      } finally {
+        setGuardando(false);
+      }
+      return;
+    }
     localStorage.setItem(PREFERENCES_KEY, serializeDisplayPreferences(nuevas));
     setPreferences(nuevas);
     setMensaje('Ajustes guardados en este navegador.');
@@ -59,10 +80,19 @@ export function PreferencesPage() {
           {mensaje}
         </Alert>
       )}
+      {error && (
+        <Alert tone="riesgo" title="No se guardaron las preferencias">
+          {error}
+        </Alert>
+      )}
       <Card>
         <CardHead
           title="Vista del portal"
-          description="Los cambios se aplican al instante y se conservan en este navegador."
+          description={
+            API_MODE
+              ? 'Los cambios confirmados se guardan en tu cuenta.'
+              : 'Los cambios se aplican al instante y se conservan en este navegador.'
+          }
         />
         <CardBody>
           <div className="preferences-options">
@@ -75,6 +105,7 @@ export function PreferencesPage() {
                 <span className="switch">
                   <input
                     type="checkbox"
+                    disabled={guardando}
                     checked={preferences[opcion.id]}
                     onChange={(evento) =>
                       guardar({ ...preferences, [opcion.id]: evento.target.checked })

@@ -71,7 +71,10 @@ export const semestres: Semestre[] = [
   },
 ];
 
-export const semestreActual = '2026-II';
+export let semestreActual = '2026-II';
+export function establecerSemestreActual(id: string) {
+  semestreActual = id;
+}
 
 export const cursos: Curso[] = [
   // Ingeniería en Informática y Sistemas

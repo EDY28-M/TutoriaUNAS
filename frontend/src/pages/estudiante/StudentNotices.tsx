@@ -1,38 +1,76 @@
-import { useMemo, useState } from 'react';
-import { Bell, Inbox, Mail, MailOpen, Send, Settings2, Users } from '../../components/ui/icons';
+import { useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { PageHeading } from '../../components/ui/PageHeading';
-import { Card, CardBody, CardFoot, CardHead } from '../../components/ui/Card';
-import { Stat } from '../../components/ui/Stat';
-import { Badge, StatusBadge } from '../../components/ui/StatusBadge';
+import { FormsFilters } from '../../components/ui/FormsPanel';
+import { Card } from '../../components/ui/Card';
+import { Badge } from '../../components/ui/StatusBadge';
 import { Sheet } from '../../components/ui/Sheet';
 import { Alert } from '../../components/ui/Alert';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { Timeline } from '../../components/ui/Timeline';
 import { usePortal } from '../../hooks/usePortal';
-import { avisos, notificaciones } from '../../data/institucional';
-import { formatFechaHora } from '../../utils/fechas';
-import type { Aviso } from '../../types/domain';
+import { useStudentNotices } from '../../hooks/useStudentNotices';
+import type { MensajeEstudiante } from '../../hooks/useStudentNotices';
+import { preferenciasAvisos } from '../../services/studentNoticesWorkspace';
+import { formatFecha, formatFechaHora } from '../../utils/fechas';
+import '../../assets/vendor/fontawesome.min.css';
+import '../../styles/student-notices.css';
 
-/**
- * Bandeja de avisos del tutorado. Los envíos por correo se habilitarán cuando
- * la OTIC confirme el servicio, el remitente autorizado y las reglas de envío;
- * hasta entonces el aviso vive dentro del sistema.
- */
+const categorias = {
+  sesion: { titulo: 'Sesiones', icono: 'calendar-days', accion: 'Ver mis sesiones' },
+  instrumento: { titulo: 'Formularios', icono: 'file-lines', accion: 'Ver mis formularios' },
+  derivacion: { titulo: 'Apoyo', icono: 'hand-holding-heart', accion: 'Ver mis solicitudes' },
+  academico: { titulo: 'Mis estudios', icono: 'graduation-cap', accion: 'Ver mis estudios' },
+  sistema: { titulo: 'Bienestar', icono: 'heart-pulse', accion: 'Ver salud y bienestar' },
+} as const;
+type Filtro = 'todos' | 'sin-leer' | 'sistema' | 'correo';
+
 export function StudentNotices() {
-  const portal = usePortal();
-  const { estudiante } = portal;
-  const [abierto, setAbierto] = useState<Aviso | null>(null);
-  const [filtro, setFiltro] = useState<'todos' | 'sistema' | 'correo'>('todos');
+  const { estudiante } = usePortal();
+  const { mensajes, sinLeer, preferencias, marcarLeidas, cambiarPreferencia } = useStudentNotices();
+  const [abiertoId, setAbiertoId] = useState<string | null>(null);
+  const [configurando, setConfigurando] = useState(false);
+  const [filtro, setFiltro] = useState<Filtro>('todos');
+  const [busqueda, setBusqueda] = useState('');
+  const [error, setError] = useState('');
+  const [confirmacion, setConfirmacion] = useState('');
+  const filtros = useRef<HTMLDivElement>(null);
+  const origenDetalle = useRef<HTMLButtonElement | null>(null);
+  const abierto = mensajes.find((mensaje) => mensaje.id === abiertoId);
+  const termino = busqueda.trim().toLocaleLowerCase('es-PE');
+  const visibles = mensajes.filter(
+    (mensaje) =>
+      (filtro === 'todos' || (filtro === 'sin-leer' ? !mensaje.leida : mensaje.canal === filtro)) &&
+      (!termino ||
+        `${mensaje.titulo} ${mensaje.detalle} ${categorias[mensaje.tipo].titulo}`
+          .toLocaleLowerCase('es-PE')
+          .includes(termino)),
+  );
+  const correos = mensajes.filter((mensaje) => mensaje.canal === 'correo').length;
 
-  const propios = useMemo(() => {
-    if (!estudiante) return avisos;
-    const dirigidos = avisos.filter((aviso) =>
-      aviso.destinatarios.some((destinatario) => destinatario.startsWith(estudiante.codigo)),
-    );
-    return dirigidos.length > 0 ? dirigidos : avisos.slice(0, 3);
-  }, [estudiante]);
-
-  const visibles = propios.filter((aviso) => filtro === 'todos' || aviso.canal === filtro);
+  async function guardar(accion: () => void | Promise<void>, texto: string) {
+    try {
+      await accion();
+      setError('');
+      setConfirmacion(texto);
+    } catch (causa) {
+      setConfirmacion('');
+      setError(causa instanceof Error ? causa.message : 'No se pudo guardar. Inténtalo otra vez.');
+    }
+  }
+  function abrir(mensaje: MensajeEstudiante, origen: HTMLButtonElement) {
+    origenDetalle.current = origen;
+    setAbiertoId(mensaje.id);
+    if (!mensaje.leida) guardar(() => marcarLeidas([mensaje.id]), 'Aviso leído.');
+  }
+  function cerrar() {
+    setAbiertoId(null);
+    requestAnimationFrame(() => {
+      const destino = origenDetalle.current?.isConnected
+        ? origenDetalle.current
+        : filtros.current?.querySelector<HTMLButtonElement>('button[aria-pressed="true"]');
+      destino?.focus();
+    });
+  }
 
   if (!estudiante) {
     return (
@@ -43,228 +81,239 @@ export function StudentNotices() {
     );
   }
 
-  const sinLeer = notificaciones.filter((notificacion) => !notificacion.leida);
-
   return (
-    <>
+    <div className="student-notices forms-panel">
       <PageHeading
+        className="forms-panel__header"
         eyebrow="Estudiante · Cuenta"
-        title="Avisos"
-        description="Revisa los mensajes y recordatorios de tus tutorías."
-        actions={<Badge tone={sinLeer.length ? 'alerta' : 'ok'}>{sinLeer.length} sin leer</Badge>}
+        title="Mis avisos"
+        actions={
+          <>
+            <span className="forms-panel__pending">
+              {sinLeer ? `${sinLeer} sin leer` : 'Todo al día'}
+            </span>
+            <button
+              type="button"
+              className="btn btn-falcon-default student-notices__settings"
+              onClick={() => setConfigurando(true)}
+            >
+              <i className="fa-solid fa-sliders" aria-hidden="true" /> Preferencias
+            </button>
+          </>
+        }
       />
+      {error && !abierto && !configurando && (
+        <Alert tone="riesgo" title="No se guardó el cambio">
+          {error}
+        </Alert>
+      )}
+      <p className="sr-only" role="status">
+        {confirmacion}
+      </p>
 
-      <Alert tone="info" title="Avisos dentro del sistema">
-        Por ahora, revisa tus avisos aquí. El envío al correo institucional aún no está disponible.
-      </Alert>
-
-      <div className="grid grid--4">
-        <Stat
-          label="Avisos recibidos"
-          value={propios.length}
-          note="Del semestre 2026-II"
-          icon={<Inbox aria-hidden="true" />}
-        />
-        <Stat
-          label="Notificaciones sin leer"
-          value={sinLeer.length}
-          note="Sesiones, formularios y solicitudes de apoyo"
-          icon={<Bell aria-hidden="true" />}
-          tone={sinLeer.length ? 'alerta' : 'verde'}
-        />
-        <Stat
-          label="Avisos por correo"
-          value={propios.filter((aviso) => aviso.canal === 'correo').length}
-          note={propios.filter((aviso) => aviso.estado === 'programado').length + ' programados'}
-          icon={<Mail aria-hidden="true" />}
-          tone="info"
-        />
-        <Stat
-          label="Plantillas activas"
-          value={new Set(propios.map((aviso) => aviso.plantilla)).size}
-          note="Definidas por Tutoría y Capacitación Docente"
-          icon={<Settings2 aria-hidden="true" />}
-          tone="violeta"
+      <div ref={filtros}>
+        <FormsFilters
+          label="Filtrar avisos"
+          options={[
+            { id: 'todos', nombre: 'Todos', cantidad: mensajes.length },
+            { id: 'sin-leer', nombre: 'Sin leer', cantidad: sinLeer },
+            { id: 'sistema', nombre: 'Sistema', cantidad: mensajes.length - correos },
+            { id: 'correo', nombre: 'Correo', cantidad: correos },
+          ]}
+          value={filtro}
+          onChange={(valor) => setFiltro(valor as Filtro)}
+          acciones={
+            <label className="student-notices__search">
+              <i className="fa-solid fa-magnifying-glass" aria-hidden="true" />
+              <input
+                type="search"
+                aria-label="Buscar en mis avisos"
+                placeholder="Buscar aviso"
+                value={busqueda}
+                onChange={(evento) => setBusqueda(evento.target.value)}
+              />
+            </label>
+          }
         />
       </div>
 
-      <div className="grid grid--sidebar">
-        <Card>
-          <CardHead
-            title="Bandeja de avisos"
-            description="Asunto, destinatarios, plantilla y estado de envío"
-            actions={
-              <div className="segmented" role="tablist" aria-label="Filtrar avisos por canal">
-                {(
-                  [
-                    ['todos', 'Todos'],
-                    ['correo', 'Correo'],
-                    ['sistema', 'Sistema'],
-                  ] as Array<['todos' | 'correo' | 'sistema', string]>
-                ).map(([id, etiqueta]) => (
+      <Card className="student-notices__inbox">
+        {visibles.length ? (
+          <ul className="student-notices__messages" aria-label="Avisos recibidos">
+            {visibles.map((mensaje) => {
+              const categoria = categorias[mensaje.tipo];
+              return (
+                <li key={mensaje.id}>
                   <button
-                    key={id}
                     type="button"
-                    role="tab"
-                    aria-selected={filtro === id}
-                    onClick={() => setFiltro(id)}
+                    className={`student-notices__message${mensaje.leida ? '' : ' student-notices__message--unread'}`}
+                    aria-label={`${mensaje.leida ? 'Leído' : 'Sin leer'}: ${mensaje.titulo}`}
+                    onClick={(evento) => abrir(mensaje, evento.currentTarget)}
                   >
-                    {etiqueta}
-                  </button>
-                ))}
-              </div>
-            }
-          />
-          <CardBody flush>
-            {visibles.length === 0 ? (
-              <EmptyState
-                title="Sin avisos en este canal"
-                description="Cambia el filtro para ver los demás avisos registrados."
-                icon={<Inbox />}
-              />
-            ) : (
-              <ul className="list">
-                {visibles.map((aviso) => (
-                  <li className="list__item" key={aviso.id}>
-                    <span
-                      className={`list__icon list__icon--${aviso.estado === 'enviado' ? 'ok' : aviso.estado === 'programado' ? 'info' : 'warn'}`}
-                      aria-hidden="true"
-                    >
-                      {aviso.estado === 'enviado' ? <MailOpen /> : <Mail />}
+                    <span className="student-notices__message-icon" aria-hidden="true">
+                      <i
+                        className={`fa-solid fa-${mensaje.canal === 'correo' ? 'envelope' : categoria.icono}`}
+                      />
                     </span>
-                    <span className="list__body">
-                      <strong>{aviso.asunto}</strong>
-                      <p>{aviso.cuerpo}</p>
-                      <span className="list__meta">
-                        <Badge mono>{aviso.plantilla}</Badge>
-                        <span>{formatFechaHora(aviso.enviado)}</span>
-                        <span>
-                          <Users
-                            size={12}
-                            aria-hidden="true"
-                            style={{ verticalAlign: '-2px', marginRight: 4 }}
-                          />
-                          {aviso.destinatarios.length} destinatario(s)
-                        </span>
+                    <span className="student-notices__message-body">
+                      <strong>{mensaje.titulo}</strong>
+                      <span>
+                        {mensaje.canal === 'correo' ? 'Correo · Demo' : categoria.titulo}
+                        <span aria-hidden="true"> · </span>
+                        <time dateTime={mensaje.fecha}>{formatFecha(mensaje.fecha)}</time>
                       </span>
                     </span>
-                    <span className="list__aside stack stack--sm" style={{ gap: 6 }}>
-                      <StatusBadge estado={aviso.estado} />
-                      <button
-                        type="button"
-                        className="btn btn-falcon-default btn-sm"
-                        onClick={() => setAbierto(aviso)}
-                      >
-                        Ver aviso
-                      </button>
+                    <span className="student-notices__message-end" aria-hidden="true">
+                      {!mensaje.leida && <span className="student-notices__unread-dot" />}
+                      <i className="fa-solid fa-arrow-right" />
                     </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardBody>
-          <CardFoot>
-            <span>Los avisos se generan desde las plantillas aprobadas por el área.</span>
-          </CardFoot>
-        </Card>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <EmptyState
+            title={filtro === 'sin-leer' && !termino ? 'Todo al día' : 'Sin avisos'}
+            icon={<i className="fa-regular fa-circle-check" aria-hidden="true" />}
+            action={
+              <button
+                type="button"
+                className="student-notices__text-button"
+                onClick={() => {
+                  setBusqueda('');
+                  setFiltro('todos');
+                }}
+              >
+                Ver todos
+              </button>
+            }
+          />
+        )}
+      </Card>
 
-        <div className="stack">
-          <Card accent>
-            <CardHead
-              title="Notificaciones del sistema"
-              description="Aparecen en la campana de la barra superior"
-            />
-            <CardBody>
-              {notificaciones.length === 0 ? (
-                <EmptyState title="Sin notificaciones" />
-              ) : (
-                <Timeline
-                  etiqueta="Notificaciones recientes"
-                  hitos={notificaciones.map((notificacion) => ({
-                    titulo: notificacion.titulo,
-                    descripcion: notificacion.detalle,
-                    fecha: formatFechaHora(notificacion.fecha),
-                    tono: notificacion.leida ? 'neutro' : 'info',
-                  }))}
-                />
-              )}
-            </CardBody>
-          </Card>
+      <footer className="student-notices__footer">
+        <span role="status">
+          {visibles.length} {visibles.length === 1 ? 'aviso' : 'avisos'}
+        </span>
+        <button
+          type="button"
+          className="student-notices__text-button"
+          disabled={!sinLeer}
+          onClick={() =>
+            guardar(
+              () => marcarLeidas(mensajes.map((mensaje) => mensaje.id)),
+              'Todos los avisos leídos.',
+            )
+          }
+        >
+          <i className="fa-solid fa-check-double" aria-hidden="true" /> Marcar todos como leídos
+        </button>
+      </footer>
 
-          <Card>
-            <CardHead
-              title="Configurar avisos"
-              description="Configuración de demostración; no envía correos reales"
-            />
-            <CardBody>
-              <ul className="list">
-                {[
-                  ['Recordatorio de sesión de tutoría', true],
-                  ['Formularios pendientes de llenado', true],
-                  ['Cambios en el estado de una solicitud de apoyo', true],
-                  ['Campañas de salud y bienestar', false],
-                  ['Resumen semanal de mi avance tutorial', false],
-                ].map(([etiqueta, activo]) => (
-                  <li className="list__item" key={etiqueta as string}>
-                    <label className="switch" style={{ width: '100%' }}>
-                      <input type="checkbox" defaultChecked={Boolean(activo)} />
-                      <span>{etiqueta}</span>
-                    </label>
-                  </li>
-                ))}
-              </ul>
-            </CardBody>
-            <CardFoot>
-              <span>Las preferencias se guardarán cuando exista el servicio de correo.</span>
-            </CardFoot>
-          </Card>
-        </div>
-      </div>
-
-      {abierto && (
+      {configurando && (
         <Sheet
-          title={abierto.asunto}
-          description={`Enviado el ${formatFechaHora(abierto.enviado)} · plantilla ${abierto.plantilla}`}
-          onClose={() => setAbierto(null)}
+          title="Preferencias de avisos"
+          onClose={() => setConfigurando(false)}
           footer={
             <button
               type="button"
-              className="btn btn-falcon-default"
-              onClick={() => setAbierto(null)}
+              className="btn btn-primary"
+              onClick={() => setConfigurando(false)}
             >
-              Cerrar
+              Listo
             </button>
           }
         >
-          <div className="stack">
-            <div className="ui-row ui-row--tight ui-row--wrap">
-              <StatusBadge estado={abierto.estado} />
-              <Badge tone="info">{abierto.canal}</Badge>
-              <Badge mono>{abierto.plantilla}</Badge>
-            </div>
-            <p>{abierto.cuerpo}</p>
-            <div>
-              <h3 style={{ fontSize: '0.92rem', marginBottom: 8 }}>Destinatarios</h3>
-              <ul className="list">
-                {abierto.destinatarios.map((destinatario) => (
-                  <li className="list__item" key={destinatario}>
-                    <span className="list__icon list__icon--info" aria-hidden="true">
-                      <Send />
-                    </span>
-                    <span className="list__body">
-                      <strong className="mono">{destinatario}</strong>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <Alert tone="info" title="Historial">
-              El sistema registra quién generó el aviso, cuándo y con qué plantilla. Los envíos por
-              correo quedan condicionados a la habilitación del servicio institucional.
-            </Alert>
+          <div className="student-notices-detail">
+            {error && (
+              <Alert tone="riesgo" title="No se guardó el cambio">
+                {error}
+              </Alert>
+            )}
+            <fieldset className="student-notices__preference-list">
+              <legend className="sr-only">Configurar avisos</legend>
+              {preferenciasAvisos.map((preferencia) => (
+                <label className="student-notices__preference" key={preferencia.id}>
+                  <i className={`fa-solid fa-${preferencia.icono}`} aria-hidden="true" />
+                  <span>{preferencia.titulo}</span>
+                  <input
+                    type="checkbox"
+                    role="switch"
+                    aria-label={preferencia.titulo}
+                    checked={preferencias[preferencia.id]}
+                    onChange={(evento) =>
+                      guardar(
+                        () => cambiarPreferencia(preferencia.id, evento.target.checked),
+                        'Preferencia guardada.',
+                      )
+                    }
+                  />
+                </label>
+              ))}
+            </fieldset>
+            <p className="student-notices__local-note">
+              Guardado en este navegador. Correo por habilitar.
+            </p>
           </div>
         </Sheet>
       )}
-    </>
+
+      {abierto && (
+        <Sheet
+          title={abierto.titulo}
+          description={formatFechaHora(abierto.fecha)}
+          onClose={cerrar}
+          footer={
+            <>
+              <button
+                type="button"
+                className="btn btn-falcon-default"
+                onClick={() =>
+                  guardar(
+                    () => marcarLeidas([abierto.id], !abierto.leida),
+                    abierto.leida ? 'Aviso marcado como no leído.' : 'Aviso leído.',
+                  )
+                }
+              >
+                {abierto.leida ? 'Marcar como no leído' : 'Marcar como leído'}
+              </button>
+              {abierto.enlace && (
+                <Link className="btn btn-primary" to={abierto.enlace}>
+                  {abierto.canal === 'correo'
+                    ? 'Ver mis sesiones'
+                    : categorias[abierto.tipo].accion}{' '}
+                  <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+                </Link>
+              )}
+            </>
+          }
+        >
+          <div className="student-notices-detail stack">
+            {error && (
+              <Alert tone="riesgo" title="No se guardó el cambio">
+                {error}
+              </Alert>
+            )}
+            <div className="ui-row ui-row--wrap">
+              <Badge>
+                {abierto.canal === 'correo'
+                  ? 'Correo de demostración'
+                  : categorias[abierto.tipo].titulo}
+              </Badge>
+              <Badge tone="ok">{abierto.leida ? 'Leído' : 'Sin leer'}</Badge>
+            </div>
+            <p>{abierto.detalle}</p>
+            {abierto.aviso && (
+              <p className="student-notices__local-note">
+                Para: {estudiante.correo}
+                <br />
+                Correo simulado.
+              </p>
+            )}
+          </div>
+        </Sheet>
+      )}
+    </div>
   );
 }

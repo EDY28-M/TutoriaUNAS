@@ -41,6 +41,20 @@ function renderPanel(momento: 'inicio' | 'durante' | 'cierre') {
 }
 
 describe('etapas del portal del estudiante', () => {
+  it('conserva las evaluaciones y espera la confirmación del ciclo para ofrecer la entrevista', () => {
+    render(
+      <MemoryRouter>
+        <StudentFormsPanel registros={registros} ciclo={null} momento="inicio" onAbrir={vi.fn()} />
+      </MemoryRouter>,
+    );
+    expect(
+      screen.getByText('Coordinación debe confirmar tu ciclo para habilitar la entrevista.'),
+    ).toBeVisible();
+    expect(
+      screen.queryByRole('button', { name: /Comenzar · Formato 0[345]/ }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Ver preguntas · Formato 10' })).toBeVisible();
+  });
   it.each([
     [1, 'F03'],
     [2, 'F03'],
@@ -71,20 +85,11 @@ describe('etapas del portal del estudiante', () => {
     expect(screen.getAllByRole('button', { name: /^Comenzar · Formato/ })).toHaveLength(1);
   });
 
-  it('coloca el selector de etapa en la fila de filtros, junto a los contadores', () => {
+  it('muestra el ciclo sin un selector de momento del semestre', () => {
     renderPanel('inicio');
-    const filtros = screen.getByRole('group', { name: 'Filtrar mis formularios' });
-    const etapa = screen.getByLabelText('Momento del semestre');
-    expect(filtros.contains(etapa)).toBe(true);
-    expect(etapa).toHaveValue('inicio');
-  });
-
-  it('explica el ciclo y la entrevista que corresponde', () => {
-    const { container } = renderPanel('inicio');
-    const contexto = container.querySelector('.forms-panel__context');
-    expect(contexto?.textContent).toContain('Tu ciclo es 4');
-    expect(contexto?.textContent).toContain('formato 04');
-    expect(contexto?.textContent).toContain('ciclos 4 a 7');
+    expect(screen.getByText('Ciclo 4 · 2026-II')).toBeVisible();
+    expect(screen.queryByLabelText('Momento del semestre')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Entrevista de ciclos intermedios' })).toBeVisible();
   });
 
   it('al inicio permite la entrevista y bloquea evaluaciones sin sesión asociada', () => {
@@ -95,19 +100,39 @@ describe('etapas del portal del estudiante', () => {
     expect(screen.queryByText(/En esta etapa no hay formularios/)).toBeNull();
   });
 
-  it('durante el semestre explica que las evaluaciones dependen de la asistencia', () => {
-    renderPanel('durante');
-    expect(screen.getByText(/Cada evaluación se habilita al finalizar su sesión/)).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Ver preguntas · Formato 04' })).toBeEnabled();
-    expect(screen.getByText('Se completa al inicio')).toBeVisible();
-    expect(screen.queryByRole('button', { name: 'Comenzar · Formato 04' })).toBeNull();
-  });
+  it.each(['inicio', 'durante', 'cierre'] as const)(
+    'permite recuperar la entrevista pendiente en %s',
+    (momento) => {
+      renderPanel(momento);
+      expect(screen.getByRole('button', { name: 'Comenzar · Formato 04' })).toBeEnabled();
+      expect(screen.queryByText('Se completa al inicio')).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Ver preguntas · Formato 10' })).toBeEnabled();
+    },
+  );
 
-  it('cambiar al cierre no habilita una evaluación sin asistencia', () => {
-    renderPanel('cierre');
-    expect(screen.getByRole('button', { name: 'Ver preguntas · Formato 10' })).toBeEnabled();
-    expect(screen.getByRole('button', { name: 'Ver preguntas · Formato 11' })).toBeEnabled();
-    expect(screen.getByRole('button', { name: 'Ver preguntas · Formato 04' })).toBeEnabled();
-    expect(screen.getByText('Se completa al inicio')).toBeVisible();
+  it('conserva solo la entrevista vigente y no convierte un envío en otra tarea', () => {
+    render(
+      <MemoryRouter>
+        <StudentFormsPanel
+          ciclo={5}
+          momento="durante"
+          onAbrir={vi.fn()}
+          registros={[
+            instrumento({ id: 'pasada', formato: 'F03', estado: 'enviado', semestreId: '2026-I' }),
+            instrumento({
+              id: 'anterior',
+              formato: 'F04',
+              estado: 'enviado',
+              semestreId: '2026-I',
+            }),
+            instrumento({ id: 'vigente', formato: 'F04', estado: 'enviado' }),
+            instrumento({ id: 'futura', formato: 'F05' }),
+          ]}
+        />
+      </MemoryRouter>,
+    );
+    expect(screen.getAllByRole('button', { name: /Ver respuestas · Formato/ })).toHaveLength(1);
+    expect(screen.queryByRole('button', { name: /Comenzar · Formato/ })).not.toBeInTheDocument();
+    expect(screen.getByText('Todo al día')).toBeVisible();
   });
 });

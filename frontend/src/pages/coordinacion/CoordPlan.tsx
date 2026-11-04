@@ -1,3 +1,4 @@
+import { ActividadesPlanPersistentes } from '../../components/panels/GestionCoordinacion';
 import { useId, useMemo, useState } from 'react';
 import { CalendarDays, Check, Flag, Target, Users } from '../../components/ui/icons';
 import { PageHeading } from '../../components/ui/PageHeading';
@@ -17,6 +18,77 @@ import { abreviaturaEscuela, escuelaDe } from '../../data/personas';
 import { escuelas, semestreActual, etapaAcademica } from '../../data/catalogos';
 import { actividadesPlan } from '../../data/tutoria';
 import { formatFecha, formatFechaLarga } from '../../utils/fechas';
+import { API_MODE } from '../../services/apiConfig';
+import { crearFormularioApi, guardarFormularioApi } from '../../services/apiTutoria';
+import { useInstrumentWorkspace } from '../../hooks/useInstrumentWorkspace';
+import { GuidedInstrumentForm } from '../../components/panels/GuidedInstrumentForm';
+import { EtapaSelector } from '../../components/ui/FormsPanel';
+import { definicionPorCodigo } from '../../data/formatos';
+import { puedeEnviarFormato } from '../../utils/instrumentos';
+
+export function CoordPlan() {
+  return API_MODE ? <PlanPersistente /> : <PlanDemostracion />;
+}
+
+function PlanPersistente() {
+  const { registros, momento } = useInstrumentWorkspace();
+  const plan = registros.find((r) => r.formato === 'F01');
+  const [error, setError] = useState('');
+  const [creando, setCreando] = useState(false);
+  async function preparar() {
+    setError('');
+    setCreando(true);
+    try {
+      await crearFormularioApi('F01');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'No se pudo preparar el plan.');
+    } finally {
+      setCreando(false);
+    }
+  }
+  return (
+    <div className="stack">
+      <PageHeading
+        eyebrow={`Coordinación · Semestre ${semestreActual}`}
+        title="Plan e informe de tutoría"
+        description="Formato 01 del equipo de tutores de tu escuela. Puedes preparar el borrador y enviarlo en el cierre del semestre."
+      />
+      <EtapaSelector momento={momento} />
+      {error && (
+        <Alert tone="riesgo" title="No se pudo preparar el formato">
+          {error}
+        </Alert>
+      )}
+      <ActividadesPlanPersistentes />
+      {plan ? (
+        <GuidedInstrumentForm
+          key={plan.id}
+          definicion={definicionPorCodigo('F01')!}
+          instrumento={plan}
+          editable={!['enviado', 'aprobado'].includes(plan.estado)}
+          puedeEnviar={puedeEnviarFormato('F01', momento)}
+          onGuardar={(respuestas, enviar, version) =>
+            guardarFormularioApi(plan, respuestas, enviar, version ?? plan.version)
+          }
+        />
+      ) : (
+        <Card>
+          <CardBody>
+            <p>Aún no se preparó el formato 01 de esta escuela y semestre.</p>
+            <button
+              type="button"
+              className="btn btn-primary"
+              disabled={creando}
+              onClick={() => void preparar()}
+            >
+              Preparar formato 01
+            </button>
+          </CardBody>
+        </Card>
+      )}
+    </div>
+  );
+}
 
 /** Resumen del plan de una escuela. */
 interface ResumenPlan {
@@ -59,7 +131,7 @@ function estadoPlan(actividad: ActividadPlan): string {
  * actividades, metas, responsables, evidencias y avance, con el calendario de
  * las actividades del semestre y su referencia de aprobación.
  */
-export function CoordPlan() {
+function PlanDemostracion() {
   const portal = usePortal();
   const idSelector = useId();
   const [escuelaId, setEscuelaId] = useState(portal.escuelaId);

@@ -1,4 +1,6 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { API_MODE } from '../../services/apiConfig';
+import { apiJson } from '../../services/apiClient';
 import type { DefinicionSelect } from '../../components/panels/PanelFiltros';
 import { PanelFiltros, useFiltro } from '../../components/panels/PanelFiltros';
 import { Alert } from '../../components/ui/Alert';
@@ -38,6 +40,86 @@ function esAccesoBloqueado(evento: EventoAuditoria): boolean {
  * con filtros, métricas de descargas y de accesos bloqueados, y exportación CSV.
  */
 export function CoordAudit() {
+  return API_MODE ? <AuditoriaPersistente /> : <AuditoriaDemostracion />;
+}
+
+interface RegistroServidor {
+  id: number;
+  fecha: string;
+  usuarioId: string;
+  escuelaId: string;
+  accion: string;
+  recursoId: string;
+  version: number;
+}
+function AuditoriaPersistente() {
+  const [registros, setRegistros] = useState<RegistroServidor[]>([]);
+  const [error, setError] = useState('');
+  const [cargando, setCargando] = useState(true);
+  const [revision, setRevision] = useState(0);
+  useEffect(() => {
+    const controller = new AbortController();
+    apiJson<RegistroServidor[]>('/api/tutoria/auditoria', 'GET', undefined, controller.signal)
+      .then((datos) => {
+        if (!controller.signal.aborted) {
+          setRegistros(datos);
+          setError('');
+        }
+      })
+      .catch((e: unknown) => {
+        if (!controller.signal.aborted)
+          setError(e instanceof Error ? e.message : 'No se pudo cargar la auditoría.');
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setCargando(false);
+      });
+    return () => controller.abort();
+  }, [revision]);
+  return (
+    <div className="stack">
+      <PageHeading
+        eyebrow="Coordinación"
+        title="Auditoría de tutoría"
+        description="Últimas 200 operaciones confirmadas de tu escuela, sin contenido de las respuestas del expediente."
+        actions={
+          <button
+            type="button"
+            className="btn btn-falcon-default"
+            disabled={cargando}
+            onClick={() => {
+              setCargando(true);
+              setRevision((value) => value + 1);
+            }}
+          >
+            Actualizar
+          </button>
+        }
+      />
+      {error && (
+        <Alert tone="riesgo" title="No se pudo cargar la auditoría">
+          {error}
+        </Alert>
+      )}
+      {cargando && <p role="status">Cargando operaciones…</p>}
+      <DataTable
+        rows={registros}
+        rowKey={(r) => String(r.id)}
+        caption="Operaciones persistidas en el servidor"
+        pagination="auto"
+        emptyTitle="Sin operaciones registradas"
+        columns={[
+          { key: 'fecha', header: 'Fecha', render: (r) => formatFechaHora(r.fecha) },
+          { key: 'cuenta', header: 'Cuenta', render: (r) => r.usuarioId },
+          { key: 'accion', header: 'Acción', render: (r) => r.accion },
+          { key: 'recurso', header: 'Registro', render: (r) => r.recursoId },
+          { key: 'version', header: 'Versión', render: (r) => String(r.version) },
+        ]}
+      />
+    </div>
+  );
+}
+
+function AuditoriaDemostracion() {
   const portal = usePortal();
   const [soloDescargas, setSoloDescargas] = useState(false);
 

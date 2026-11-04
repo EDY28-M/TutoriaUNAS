@@ -8,12 +8,14 @@ import type { DashboardScopeData } from '../../components/ui/PortalCharts';
 import { Stat } from '../../components/ui/Stat';
 import { escuelas } from '../../data/catalogos';
 import { estudiantePorId } from '../../data/personas';
+import { useSistema } from '../../hooks/useSistema';
 
 export function CoordDashboard() {
   return <DashboardScope coordinacion>{(scope) => <CoordPanel scope={scope} />}</DashboardScope>;
 }
 
 function CoordPanel({ scope }: { scope: DashboardScopeData }) {
+  const importacion = useSistema()?.fuentes.importacionesPadron?.[0];
   const { portal } = scope;
   const asignaciones = portal.tutorados.filter((a) => a.estado === 'activa');
   const asignados = new Set(asignaciones.map((a) => a.estudianteId));
@@ -34,7 +36,7 @@ function CoordPanel({ scope }: { scope: DashboardScopeData }) {
   ).length;
   const alertas = [...asignados].filter((id) => {
     const e = estudiantePorId(id);
-    return e && (e.alertas.length > 0 || e.promedioPonderado < 13);
+    return e && (e.alertas.length > 0 || (e.promedioPonderado ?? Infinity) < 13);
   }).length;
   const cobertura = asignados.size ? Math.round((atendidos.size / asignados.size) * 100) : 0;
   const porEscuela = escuelas
@@ -62,6 +64,12 @@ function CoordPanel({ scope }: { scope: DashboardScopeData }) {
           <>
             {scope.filtros}
             <div className="dashboard-actions">
+              {importacion && (
+                <Link className="btn btn-falcon-default" to="/coordinacion/padron">
+                  Padrón: {Number(importacion.alumnos).toLocaleString('es-PE')} alumnos ·{' '}
+                  {Number(importacion.docentes).toLocaleString('es-PE')} docentes
+                </Link>
+              )}
               <Link className="btn btn-falcon-default" to="/coordinacion/sesiones">
                 Sesiones
               </Link>
@@ -80,7 +88,7 @@ function CoordPanel({ scope }: { scope: DashboardScopeData }) {
           icon={<Presentation />}
         />
         <Stat
-          label="Estudiantes"
+          label="Estudiantes asignados"
           value={asignados.size}
           note={`En ${porEscuela.length} escuelas profesionales`}
           tone="info"

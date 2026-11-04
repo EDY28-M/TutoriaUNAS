@@ -1,12 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  hayCruce,
-  horarioDe,
-  matriculaDe,
-  nombreCurso,
-  resumenDe,
-  resultadosDe,
-} from './academico';
+import { hayCruce, horarioDe, matriculaDe, nombreCurso, resumenDe } from './academico';
 import { estudiantes, estudiantePorId } from './personas';
 import { asignaciones } from './tutoria';
 import {
@@ -52,16 +45,6 @@ describe('expediente acadÃ©mico de demostraciÃ³n', () => {
   it('asigna una matrÃ­cula y un resumen a cada estudiante', () => {
     expect(matriculaDe(estudiante.id)?.estudianteId).toBe(estudiante.id);
     expect(resumenDe(estudiante.id)?.estudianteId).toBe(estudiante.id);
-  });
-
-  it('registra resultados en curso y cerrados con coherencia', () => {
-    const resultados = resultadosDe(estudiante.id);
-    expect(resultados.length).toBeGreaterThan(0);
-    for (const fila of resultados) {
-      if (fila.estado === 'en-curso') expect(fila.notaFinal).toBeNull();
-      if (fila.estado === 'aprobado') expect(fila.notaFinal).toBeGreaterThanOrEqual(11);
-      if (fila.estado === 'desaprobado') expect(fila.notaFinal).toBeLessThan(11);
-    }
   });
 
   it('resuelve el nombre del curso y devuelve un texto alternativo si no existe', () => {

@@ -18,7 +18,7 @@ try {
     $env:TMP = $env:TEMP
     Push-Location -LiteralPath $taskBackend
     try {
-        & dotnet test TutoriaUNAS.slnx --collect:'XPlat Code Coverage' --settings coverage.runsettings --results-directory $taskRun --logger 'trx;LogFileName=pruebas.trx'
+        & dotnet test TutoriaUNAS.slnx --configuration Release --no-restore --collect:'XPlat Code Coverage' --settings coverage.runsettings --results-directory $taskRun --logger 'trx;LogFileName=pruebas.trx'
         if ($LASTEXITCODE -ne 0) { throw "dotnet test fallo con codigo $LASTEXITCODE" }
     } finally {
         Pop-Location

@@ -93,8 +93,8 @@ describe('correspondencia con los dos PDF proporcionados', () => {
     expect(puedeEnviarFormato('F02', 'durante')).toBe(false);
     expect(puedeEnviarFormato('F09', 'cierre')).toBe(true);
     expect(puedeEnviarFormato('F04', 'inicio')).toBe(true);
-    expect(puedeEnviarFormato('F04', 'durante')).toBe(false);
-    expect(puedeEnviarFormato('F04', 'cierre')).toBe(false);
+    expect(puedeEnviarFormato('F04', 'durante')).toBe(true);
+    expect(puedeEnviarFormato('F04', 'cierre')).toBe(true);
     expect(puedeEnviarFormato('F06', 'durante')).toBe(true);
   });
   it('exige la explicación cuando corresponde y limpia preguntas de seguimiento ocultas', () => {

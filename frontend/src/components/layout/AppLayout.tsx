@@ -5,8 +5,13 @@ import { Sidebar } from '../navigation/Sidebar';
 import { Topbar } from './Topbar';
 import { RouteContent } from './RouteContent';
 import { PageLoading } from '../ui/PageLoading';
+import { Alert } from '../ui/Alert';
+import { ApiBoundary } from './ApiBoundary';
 import { navigation } from '../../data/navegacion';
 import { useAuth } from '../../hooks/useAuth';
+import { useSistema } from '../../hooks/useSistema';
+import { API_MODE } from '../../services/apiConfig';
+import { guardarPreferenciasApi } from '../../services/apiSistema';
 import {
   DISPLAY_PREFERENCES_KEY as PREFERENCES_KEY,
   parseDisplayPreferences,
@@ -15,6 +20,7 @@ import {
 import '../../styles/ui.css';
 import '../../styles/falcon-layout.css';
 import '../../styles/app.css';
+import '../../styles/portal-surfaces.css';
 
 function subscribePreferences(callback: () => void) {
   window.addEventListener('storage', callback);
@@ -42,7 +48,10 @@ function mobileSnapshot() {
 
 export function AppLayout() {
   const { user } = useAuth();
+  const sistema = useSistema();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [errorMenu, setErrorMenu] = useState('');
+  const guardandoMenu = useRef(false);
   const esMovil = useSyncExternalStore(subscribeMobile, mobileSnapshot, () => false);
   const rawPreferences = useSyncExternalStore(subscribePreferences, preferenceSnapshot, () => '{}');
   const preferences = useMemo(() => parseDisplayPreferences(rawPreferences), [rawPreferences]);
@@ -124,15 +133,28 @@ export function AppLayout() {
     grupoActual?.items.find((item) => item.path === segmento) ??
     grupoActual?.items.find((item) => item.path.split('?')[0] === segmento);
 
-  function alternarMenu() {
+  async function alternarMenu() {
     if (esMovil) {
       setMenuOpen((valor) => !valor);
       return;
     }
-    localStorage.setItem(
-      PREFERENCES_KEY,
-      serializeDisplayPreferences({ ...preferences, sidebarMini: !preferences.sidebarMini }),
-    );
+    const nuevas = { ...preferences, sidebarMini: !preferences.sidebarMini };
+    if (API_MODE) {
+      if (!sistema || guardandoMenu.current) return;
+      guardandoMenu.current = true;
+      setErrorMenu('');
+      try {
+        await guardarPreferenciasApi({ ...sistema.preferencias, pantalla: nuevas });
+      } catch (error) {
+        setErrorMenu(
+          error instanceof Error ? error.message : 'No se pudo guardar el estado del menú.',
+        );
+      } finally {
+        guardandoMenu.current = false;
+      }
+      return;
+    }
+    localStorage.setItem(PREFERENCES_KEY, serializeDisplayPreferences(nuevas));
     window.dispatchEvent(new Event('unas:preferences'));
   }
 
@@ -178,6 +200,11 @@ export function AppLayout() {
           <div
             className={`workspace__inner${segmento === 'dashboard' ? ' workspace__inner--dashboard' : ''}`}
           >
+            {errorMenu && (
+              <Alert tone="riesgo" title="No se guardó el ajuste del menú">
+                {errorMenu}
+              </Alert>
+            )}
             {user && (
               <nav className="app-breadcrumbs" aria-label="Ruta de navegación">
                 <ol>
@@ -203,7 +230,9 @@ export function AppLayout() {
               </nav>
             )}
             <Suspense fallback={<PageLoading />}>
-              <RouteContent />
+              <ApiBoundary>
+                <RouteContent />
+              </ApiBoundary>
             </Suspense>
           </div>
         </main>

@@ -1,5 +1,7 @@
+import { etiquetaEtapa } from '../../utils/datosAcademicos';
+import { API_MODE } from '../../services/apiConfig';
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
   BookOpen,
@@ -10,7 +12,6 @@ import {
   GraduationCap,
   HeartPulse,
   Send,
-  TriangleAlert,
 } from '../../components/ui/icons';
 import { PageHeading } from '../../components/ui/PageHeading';
 import { Card, CardBody, CardFoot, CardHead } from '../../components/ui/Card';
@@ -26,7 +27,7 @@ import { Tabs, TabPanel } from '../../components/ui/Tabs';
 import { Timeline } from '../../components/ui/Timeline';
 import { usePortal } from '../../hooks/usePortal';
 import { definicionPorCodigo } from '../../data/formatos';
-import { areasDerivacion, etapaAcademica, semestreActual } from '../../data/catalogos';
+import { areasDerivacion, semestreActual } from '../../data/catalogos';
 import {
   abreviaturaEscuela,
   docentePorId,
@@ -35,7 +36,7 @@ import {
   nombreCompleto,
 } from '../../data/personas';
 import { asignacionDe } from '../../data/tutoria';
-import { horarioDe, matriculaDe, nombreCurso, resultadosDe, resumenDe } from '../../data/academico';
+import { horarioDe, matriculaDe, nombreCurso, resumenDe } from '../../data/academico';
 import {
   apoyosDe,
   atencionesTutorialesDe,
@@ -43,7 +44,7 @@ import {
   etiquetaBeneficio,
   etiquetaServicio,
 } from '../../data/salud';
-import type { ResultadoAcademico } from '../../types/domain';
+import type { MatriculaCurso } from '../../types/domain';
 import {
   DIAS_SEMANA,
   HOY_ISO,
@@ -81,6 +82,16 @@ function tonoAlerta(nivel: string): 'riesgo' | 'alerta' | 'info' {
 
 export function TuteeRecord() {
   const { estudianteId } = useParams<{ estudianteId: string }>();
+  const navegar = useNavigate();
+  function abrirRegistro(tipo: 'sesion' | 'derivacion') {
+    if (API_MODE)
+      navegar(
+        tipo === 'sesion'
+          ? `/tutor/sesiones?accion=programar&estudiante=${encodeURIComponent(estudianteId ?? '')}`
+          : `/tutor/instrumentos?crear=F12&estudiante=${encodeURIComponent(estudianteId ?? '')}`,
+      );
+    else setVentana(tipo);
+  }
   const portal = usePortal();
   const [pestana, setPestana] = useState('academico');
   const [ventana, setVentana] = useState<'sesion' | 'derivacion' | null>(null);
@@ -126,15 +137,11 @@ export function TuteeRecord() {
   const derivaciones = portal.derivaciones.filter((d) => d.estudianteId === estudiante.id);
   const matricula = matriculaDe(estudiante.id);
   const resumen = resumenDe(estudiante.id);
-  const resultados = resultadosDe(estudiante.id);
   const bloques = horarioDe(estudiante.id);
   const beneficios = beneficiosDe(estudiante.id);
   const atenciones = atencionesTutorialesDe(estudiante.id);
   const apoyos = apoyosDe(estudiante.id);
 
-  const inscritos = new Map((matricula?.cursos ?? []).map((curso) => [curso.cursoId, curso]));
-  const enCurso = resultados.filter((resultado) => resultado.estado === 'en-curso');
-  const desaprobados = resultados.filter((resultado) => resultado.estado === 'desaprobado');
   const realizadas = sesiones.filter((sesion) => sesion.estado === 'realizada');
   const asistidas = realizadas.filter((sesion) =>
     sesion.asistentes.some(
@@ -146,7 +153,7 @@ export function TuteeRecord() {
   const instrumentosPendientes = instrumentos.filter((instrumento) =>
     ['no-iniciado', 'borrador', 'observado'].includes(instrumento.estado),
   );
-  const columnasCursos: Column<ResultadoAcademico>[] = [
+  const columnasCursos: Column<MatriculaCurso>[] = [
     {
       key: 'curso',
       header: 'Curso',
@@ -155,9 +162,7 @@ export function TuteeRecord() {
       render: (fila) => (
         <>
           <span className="cell-strong">{nombreCurso(fila.cursoId)}</span>
-          <span className="cell-note">
-            {fila.semestreId} · {fila.vecesCursado} vez/veces cursado
-          </span>
+          <span className="cell-note">{matricula?.semestreId}</span>
         </>
       ),
     },
@@ -165,11 +170,10 @@ export function TuteeRecord() {
       key: 'seccion',
       header: 'Sección y docente',
       render: (fila) => {
-        const inscrito = inscritos.get(fila.cursoId);
         return (
           <>
-            <span>{inscrito ? `Sección ${inscrito.seccion}` : 'Sección no registrada'}</span>
-            <span className="cell-note">{inscrito?.docente ?? 'Docente por designar'}</span>
+            <span>{fila.seccion ? `Sección ${fila.seccion}` : 'Sección no registrada'}</span>
+            <span className="cell-note">{fila.docente || 'Docente por designar'}</span>
           </>
         );
       },
@@ -178,42 +182,13 @@ export function TuteeRecord() {
       key: 'creditos',
       header: 'Créditos',
       sortable: true,
-      sortValue: (fila) => fila.creditos,
-      render: (fila) => <span className="num">{fila.creditos}</span>,
-    },
-    {
-      key: 'nota',
-      header: 'Nota final',
-      sortable: true,
-      sortValue: (fila) => fila.notaFinal ?? 0,
-      render: (fila) => (
-        <>
-          <span
-            className={
-              fila.estado === 'desaprobado'
-                ? 'cell-strong text-danger'
-                : fila.estado === 'en-curso'
-                  ? 'cell-strong muted'
-                  : 'cell-strong'
-            }
-          >
-            {fila.notaFinal !== null ? fila.notaFinal.toFixed(1) : 'En curso'}
-          </span>
-          <span className="cell-note">{fila.evaluaciones.length} evaluación(es) registradas</span>
-        </>
-      ),
-    },
-    {
-      key: 'estado',
-      header: 'Estado',
-      render: (fila) => <StatusBadge estado={fila.estado} />,
+      sortValue: (fila) => fila.creditos ?? -1,
+      render: (fila) => <span className="num">{fila.creditos ?? 'Sin informar'}</span>,
     },
     {
       key: 'horario',
       header: 'Horario de clases',
-      render: (fila) => (
-        <span className="cell-mono">{inscritos.get(fila.cursoId)?.horario ?? 'Por definir'}</span>
-      ),
+      render: (fila) => <span className="cell-mono">{fila.horario || 'Por definir'}</span>,
     },
   ];
 
@@ -311,7 +286,7 @@ export function TuteeRecord() {
       <PageHeading
         eyebrow={`Expediente tutorial · ${abreviaturaEscuela(estudiante.escuelaId)} · Semestre ${semestreActual}`}
         title={nombreCompleto(estudiante)}
-        description={`Código ${estudiante.codigo} · ciclo ${estudiante.ciclo} (${etapaAcademica[estudiante.etapa]?.etiqueta ?? 'etapa por definir'}) · ${asignacion?.grupo ?? 'sin grupo'} · datos consultados al ${formatFecha(HOY_ISO)}.`}
+        description={`Código ${estudiante.codigo} · ciclo ${estudiante.ciclo ?? 'sin informar'} (${etiquetaEtapa(estudiante.etapa) ?? 'etapa por definir'}) · ${asignacion?.grupo ?? 'sin grupo'} · datos consultados al ${formatFecha(HOY_ISO)}.`}
         actions={
           <>
             <Link className="btn btn-falcon-default" to="/tutor/tutorados">
@@ -320,11 +295,15 @@ export function TuteeRecord() {
             <button
               type="button"
               className="btn btn-falcon-default"
-              onClick={() => setVentana('derivacion')}
+              onClick={() => abrirRegistro('derivacion')}
             >
               <Send aria-hidden="true" /> Registrar solicitud de apoyo
             </button>
-            <button type="button" className="btn btn-primary" onClick={() => setVentana('sesion')}>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => abrirRegistro('sesion')}
+            >
               <CalendarCheck aria-hidden="true" /> Registrar sesión
             </button>
           </>
@@ -346,15 +325,19 @@ export function TuteeRecord() {
       <div className="grid grid--4">
         <Stat
           label="Promedio ponderado"
-          value={estudiante.promedioPonderado.toFixed(1)}
+          value={estudiante.promedioPonderado?.toFixed(1) ?? 'Sin informar'}
           note={`Posición ${resumen?.posicion ?? '—'} de su ciclo · corte ${formatFecha(resumen?.fechaCorte ?? null)}`}
           icon={<GraduationCap aria-hidden="true" />}
-          tone={estudiante.promedioPonderado >= 13 ? 'verde' : 'alerta'}
+          tone={(estudiante.promedioPonderado ?? -Infinity) >= 13 ? 'verde' : 'alerta'}
         />
         <Stat
           label="Créditos aprobados"
-          value={estudiante.creditosAprobados}
-          note={`de ${estudiante.creditosTotales} del plan de estudios`}
+          value={estudiante.creditosAprobados ?? 'Sin informar'}
+          note={
+            estudiante.creditosTotales === null
+              ? 'Total del plan no informado'
+              : `de ${estudiante.creditosTotales} del plan de estudios`
+          }
           icon={<BookOpen aria-hidden="true" />}
           tone="info"
         />
@@ -427,24 +410,23 @@ export function TuteeRecord() {
         <div className="grid grid--3">
           <Stat
             label="Avance curricular"
-            value={`${resumen?.avanceCurricular ?? 0}%`}
+            value={
+              resumen?.avanceCurricular == null ? 'Sin informar' : `${resumen.avanceCurricular}%`
+            }
             note={resumen?.fuente ?? 'Información de la DIAA'}
             icon={<BookOpen aria-hidden="true" />}
             tone="dorado"
           />
           <Stat
             label="Cursos matriculados"
-            value={enCurso.length}
-            note={`${resumen?.creditosMatriculados ?? 0} créditos en el semestre`}
+            value={matricula?.cursos.length ?? 0}
+            note={
+              resumen?.creditosMatriculados == null
+                ? 'Créditos no informados'
+                : `${resumen.creditosMatriculados} créditos en el semestre`
+            }
             icon={<CalendarDays aria-hidden="true" />}
             tone="info"
-          />
-          <Stat
-            label="Cursos desaprobados"
-            value={desaprobados.length}
-            note={`Historial acumulado · ${resumen?.cursosDesaprobados ?? 0} registrados`}
-            icon={<TriangleAlert aria-hidden="true" />}
-            tone={desaprobados.length > 0 ? 'riesgo' : 'verde'}
           />
         </div>
 
@@ -472,18 +454,20 @@ export function TuteeRecord() {
                   </div>
                   <div>
                     <dt>Ciclo</dt>
-                    <dd>{matricula.ciclo}</dd>
+                    <dd>{matricula.ciclo ?? 'Sin informar'}</dd>
                   </div>
                   <div>
                     <dt>Cursos matriculados</dt>
                     <dd>{matricula.cursos.length}</dd>
                   </div>
                 </dl>
-                <Progress
-                  valor={resumen?.avanceCurricular ?? 0}
-                  etiqueta="Avance curricular del plan de estudios"
-                  variante="dorado"
-                />
+                {resumen?.avanceCurricular != null && (
+                  <Progress
+                    valor={resumen.avanceCurricular}
+                    etiqueta="Avance curricular del plan de estudios"
+                    variante="dorado"
+                  />
+                )}
               </div>
             ) : (
               <EmptyState
@@ -496,18 +480,15 @@ export function TuteeRecord() {
         </Card>
 
         <Card>
-          <CardHead
-            title="Cursos, notas y docentes"
-            description="Resultados del semestre en curso e historial registrado por la DIAA"
-          />
+          <CardHead title="Cursos y docentes" description="Matrícula y horarios del semestre" />
           <CardBody flush>
-            <DataTable<ResultadoAcademico>
-              rows={resultados}
+            <DataTable<MatriculaCurso>
+              rows={matricula?.cursos ?? []}
               columns={columnasCursos}
-              caption="Resultados académicos del estudiante por curso"
-              rowKey={(fila) => fila.id}
-              emptyTitle="Sin resultados registrados"
-              emptyDescription="La DIAA aún no reporta notas para este estudiante."
+              caption="Cursos matriculados del estudiante"
+              rowKey={(fila) => `${fila.cursoId}-${fila.seccion}`}
+              emptyTitle="Sin cursos registrados"
+              emptyDescription="No hay matrícula disponible para este semestre."
               initialSort={{ key: 'curso', direction: 'asc' }}
             />
           </CardBody>
@@ -518,13 +499,6 @@ export function TuteeRecord() {
             </Link>
           </CardFoot>
         </Card>
-
-        {desaprobados.length > 0 && (
-          <Alert tone="alerta" title={`${desaprobados.length} curso(s) desaprobado(s)`}>
-            {desaprobados.map((fila) => nombreCurso(fila.cursoId)).join(' · ')}. Considere la
-            nivelación y el registro del acuerdo en la próxima sesión de tutoría.
-          </Alert>
-        )}
       </TabPanel>
 
       <TabPanel id="tutoria" activo={pestana}>
@@ -608,7 +582,7 @@ export function TuteeRecord() {
             <button
               type="button"
               className="btn btn-primary btn-sm"
-              onClick={() => setVentana('sesion')}
+              onClick={() => abrirRegistro('sesion')}
             >
               Registrar sesión
             </button>

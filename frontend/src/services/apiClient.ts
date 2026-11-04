@@ -1,11 +1,108 @@
-// Reserved for real API integration. Authorization must be enforced by the server.
-export async function getApiJson(path: string, signal?: AbortSignal): Promise<unknown> {
+import type { DemoUser } from '../types/auth';
+import { z } from 'zod';
+
+export interface ApiSession {
+  accessToken: string;
+  expiresAt: number;
+  user: DemoUser;
+}
+const SESSION_KEY = 'unas:api-session:v1';
+const sessionSchema = z.object({
+  accessToken: z.string().min(1),
+  expiresAt: z.number().finite(),
+  user: z.object({
+    id: z.string().min(1),
+    role: z.enum(['estudiante', 'tutor', 'coordinacion']),
+    name: z.string(),
+    identifier: z.string(),
+    email: z.string(),
+    personaId: z.string().optional(),
+  }),
+});
+let session: ApiSession | null = null;
+try {
+  const raw = sessionStorage.getItem(SESSION_KEY);
+  if (raw) {
+    const parsed = sessionSchema.safeParse(JSON.parse(raw));
+    if (parsed.success) session = parsed.data;
+  }
+} catch {
+  /* Requiere volver a iniciar sesión. */
+}
+export function getApiSession() {
+  return session && session.expiresAt > Date.now() ? session : null;
+}
+export function setApiSession(value: ApiSession | null, remember = true) {
+  session = value;
+  try {
+    if (value && remember) sessionStorage.setItem(SESSION_KEY, JSON.stringify(value));
+    else sessionStorage.removeItem(SESSION_KEY);
+  } catch {
+    /* Sesión solo en memoria. */
+  }
+}
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+    public errors: Record<string, string[]> = {},
+  ) {
+    super(message);
+  }
+}
+export async function apiJson<T>(
+  path: string,
+  method = 'GET',
+  body?: unknown,
+  signal?: AbortSignal,
+): Promise<T> {
   const baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5080';
+  const current = getApiSession();
+  function comprobarCuenta() {
+    if (!path.endsWith('/login') && getApiSession()?.accessToken !== current?.accessToken)
+      throw new ApiError('La sesión cambió. Vuelve a abrir el registro.', 409);
+  }
   const response = await fetch(new URL(path, baseUrl), {
+    method,
+    body: body === undefined ? undefined : JSON.stringify(body),
     credentials: 'omit',
     signal,
-    headers: { Accept: 'application/json' },
+    cache: 'no-store',
+    headers: {
+      Accept: 'application/json',
+      ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
+      ...(current ? { Authorization: `Bearer ${current.accessToken}` } : {}),
+    },
+  }).catch((error: unknown) => {
+    if (error instanceof DOMException && error.name === 'AbortError') throw error;
+    throw new ApiError(
+      'No hay conexión con el servidor. Revisa la conexión e inténtalo de nuevo.',
+      503,
+    );
   });
-  if (!response.ok) throw new Error('No se pudo completar la consulta al servidor.');
-  return response.json();
+  comprobarCuenta();
+  if (!response.ok) {
+    const problem = (await response.json().catch(() => ({}))) as {
+      title?: string;
+      errors?: Record<string, string[]>;
+    };
+    comprobarCuenta();
+    if (
+      (response.status === 401 || (response.status === 403 && path === '/api/tutoria/estado')) &&
+      !path.endsWith('/login')
+    ) {
+      setApiSession(null);
+      window.dispatchEvent(new Event('unas:api-session-expired'));
+    }
+    throw new ApiError(
+      problem.title ?? 'No se pudo completar la operación en el servidor.',
+      response.status,
+      problem.errors,
+    );
+  }
+  const result = response.status === 204 ? undefined : await response.json();
+  comprobarCuenta();
+  return result as T;
 }
+export const getApiJson = (path: string, signal?: AbortSignal) =>
+  apiJson<unknown>(path, 'GET', undefined, signal);

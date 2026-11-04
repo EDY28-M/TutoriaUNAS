@@ -9,7 +9,7 @@ export interface Column<T> {
   header: string;
   render(row: T): ReactNode;
   sortable?: boolean;
-  sortValue?(row: T): string | number;
+  sortValue?(row: T): string | number | null;
   align?: 'left' | 'right';
 }
 
@@ -24,6 +24,8 @@ interface DataTableProps<T> {
   initialSort?: { key: string; direction: 'asc' | 'desc' };
   compact?: boolean;
   pagination?: 'always' | 'auto';
+  paginationPosition?: 'top' | 'bottom';
+  inlineActions?: boolean;
 }
 
 /**
@@ -42,6 +44,8 @@ export function DataTable<T>({
   initialSort,
   compact = false,
   pagination = 'always',
+  paginationPosition = 'top',
+  inlineActions = false,
 }: DataTableProps<T>) {
   const [orden, setOrden] = useState(initialSort ?? null);
   const [pagina, setPagina] = useState(1);
@@ -57,6 +61,8 @@ export function DataTable<T>({
     return [...rows].sort((a, b) => {
       const va = valor(a);
       const vb = valor(b);
+      if (va === null) return vb === null ? 0 : 1;
+      if (vb === null) return -1;
       const comparacion =
         typeof va === 'number' && typeof vb === 'number'
           ? va - vb
@@ -103,7 +109,7 @@ export function DataTable<T>({
           }}
         >
           {[...new Set([pageSize, 12, 25, 50])]
-            .sort((a, b) => a - b)
+            .sort((a, b) => (a ?? Infinity) - (b ?? Infinity))
             .map((numero) => (
               <option key={numero} value={numero}>
                 {numero}
@@ -140,7 +146,9 @@ export function DataTable<T>({
 
   return (
     <div className="data-table-panel">
-      {(pagination === 'always' || rows.length > pageSize) && paginacion}
+      {paginationPosition === 'top' &&
+        (pagination === 'always' || rows.length > pageSize) &&
+        paginacion}
       <div
         ref={marco}
         className="table-wrap data-table-panel__scroll"
@@ -192,9 +200,10 @@ export function DataTable<T>({
                   <td
                     key={columna.key}
                     data-column={columna.key}
+                    data-label={columna.header}
                     style={columna.align === 'right' ? { textAlign: 'right' } : undefined}
                   >
-                    {columna.key === 'acciones' ? (
+                    {columna.key === 'acciones' && !inlineActions ? (
                       <RowActions label={`Acciones del registro ${rowKey(fila)}`}>
                         {columna.render(fila)}
                       </RowActions>
@@ -208,6 +217,9 @@ export function DataTable<T>({
           </tbody>
         </table>
       </div>
+      {paginationPosition === 'bottom' &&
+        (pagination === 'always' || rows.length > pageSize) &&
+        paginacion}
     </div>
   );
 }

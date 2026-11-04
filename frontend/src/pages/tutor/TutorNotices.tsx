@@ -1,6 +1,12 @@
+import { BorradoresAvisos } from '../../components/panels/AccionesTutoria';
+import { API_MODE } from '../../services/apiConfig';
+import { useSistema } from '../../hooks/useSistema';
+import { RedactorAviso } from '../../components/panels/RedactorAviso';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bell, Mail, ServerCog, TriangleAlert } from '../../components/ui/icons';
+import { Bell, Mail, ServerCog, TriangleAlert, Send, FileText } from '../../components/ui/icons';
+import { MetricGroup } from '../../components/ui/MetricGroup';
+import { Stat } from '../../components/ui/Stat';
 import { PageHeading } from '../../components/ui/PageHeading';
 import { Card, CardBody, CardFoot, CardHead } from '../../components/ui/Card';
 import { Alert } from '../../components/ui/Alert';
@@ -86,6 +92,8 @@ const ETIQUETA_TIPO: Record<Notificacion['tipo'], string> = {
 };
 
 export function TutorNotices() {
+  const sistema = useSistema();
+  const [editarAviso, setEditarAviso] = useState<string | null>(null);
   const portal = usePortal();
   const { docente, avisosSinLeer } = portal;
 
@@ -220,50 +228,47 @@ export function TutorNotices() {
         </Alert>
       )}
 
-      <dl className="notice-metrics" aria-label="Resumen de avisos">
-        <div>
-          <dt>Para mi cuenta</dt>
-          <dd>
-            <strong>{dirigidos.length}</strong>
-            <small>Avisos dirigidos a ti</small>
-          </dd>
-        </div>
-        <div>
-          <dt>Enviados</dt>
-          <dd>
-            <strong>{enviados.length}</strong>
-            <small>
-              {programados.length} programados · {borradores.length} borradores
-            </small>
-          </dd>
-        </div>
-        <div>
-          <dt>Plantillas</dt>
-          <dd>
-            <strong>{plantillasDisponibles.length}</strong>
-            <small>Textos disponibles</small>
-          </dd>
-        </div>
-        <div>
-          <dt>Notificaciones</dt>
-          <dd>
-            <strong>{avisosSinLeer}</strong>
-            <small>Sin leer en el sistema</small>
-          </dd>
-        </div>
-      </dl>
+      <MetricGroup label="Resumen de avisos">
+        <Stat
+          label="Para mi cuenta"
+          value={dirigidos.length}
+          note="Avisos dirigidos a ti"
+          icon={<Mail />}
+        />
+        <Stat
+          label="Enviados"
+          value={enviados.length}
+          note={`${programados.length} programados · ${borradores.length} borradores`}
+          icon={<Send />}
+        />
+        <Stat
+          label="Plantillas"
+          value={plantillasDisponibles.length}
+          note="Textos disponibles"
+          icon={<FileText />}
+        />
+        <Stat
+          label="Notificaciones"
+          value={avisosSinLeer}
+          note="Sin leer en el sistema"
+          icon={<Bell />}
+        />
+      </MetricGroup>
 
       <div className="notice-mail-status">
         <span>
-          <i className="fa-solid fa-circle-info" aria-hidden="true" /> Correo en demostración. No se
-          envían mensajes.
+          <i className="fa-solid fa-circle-info" aria-hidden="true" />{' '}
+          {API_MODE
+            ? 'Avisos dentro del sistema. El correo institucional requiere su proveedor.'
+            : 'Correo en demostración. No se envían mensajes.'}
         </span>
         <button
           type="button"
           className="tutor-notices__text-button"
           onClick={() => setPanel('envio')}
         >
-          Estado del correo <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+          {API_MODE ? 'Redactar aviso' : 'Estado del correo'}{' '}
+          <i className="fa-solid fa-arrow-right" aria-hidden="true" />
         </button>
       </div>
 
@@ -426,7 +431,18 @@ export function TutorNotices() {
           </ul>
         </Sheet>
       )}
-      {panel === 'envio' && (
+      {API_MODE && <BorradoresAvisos />}
+      {API_MODE && panel === 'envio' && (
+        <RedactorAviso
+          aviso={sistema?.mensajes.find((m) => m.id === editarAviso)}
+          copiar={!sistema?.mensajes.find((m) => m.id === editarAviso)?.editable}
+          onCerrar={() => {
+            setPanel(null);
+            setEditarAviso(null);
+          }}
+        />
+      )}
+      {!API_MODE && panel === 'envio' && (
         <Sheet title="Estado del correo institucional" onClose={() => setPanel(null)} wide>
           <div className="stack">
             <Card>
@@ -522,8 +538,22 @@ export function TutorNotices() {
               >
                 Cerrar
               </button>
-              <button type="button" className="btn btn-primary" onClick={() => setAbiertoId(null)}>
-                Reenviar (demostración)
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => {
+                  if (API_MODE) {
+                    setEditarAviso(abierto.id);
+                    setPanel('envio');
+                  }
+                  setAbiertoId(null);
+                }}
+              >
+                {API_MODE
+                  ? sistema?.mensajes.find((m) => m.id === abierto.id)?.editable
+                    ? 'Editar borrador'
+                    : 'Redactar a partir de este aviso'
+                  : 'Reenviar (demostración)'}
               </button>
             </>
           }
@@ -578,8 +608,9 @@ export function TutorNotices() {
               </ul>
             </div>
             <p className="small muted">
-              El reenvío y la programación de avisos permanecen en modo demostración hasta que la
-              OTIC habilite el servicio de correo institucional.
+              {API_MODE
+                ? 'Los avisos internos se publican en el sistema. El correo externo requiere que la OTIC habilite el servicio institucional.'
+                : 'El reenvío y la programación se muestran con datos de demostración.'}
             </p>
           </div>
         </Sheet>

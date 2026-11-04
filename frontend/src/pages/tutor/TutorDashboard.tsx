@@ -28,7 +28,10 @@ function TutorPanel({ scope }: { scope: DashboardScopeData }) {
   const abiertas = derivaciones.filter((d) => !['atendida', 'cerrada'].includes(d.estado));
   const alertas = tutorados.filter((a) => {
     const estudiante = estudiantePorId(a.estudianteId);
-    return estudiante && (estudiante.alertas.length > 0 || estudiante.promedioPonderado < 13);
+    return (
+      estudiante &&
+      (estudiante.alertas.length > 0 || (estudiante.promedioPonderado ?? Infinity) < 13)
+    );
   }).length;
   return (
     <div className="dashboard-page dashboard-page--tutor">

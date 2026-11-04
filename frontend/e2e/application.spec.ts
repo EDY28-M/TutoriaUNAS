@@ -399,9 +399,12 @@ test('el tutor separa estudiantes únicos, atenciones y sesiones en sus reportes
   await page.goto('/tutor/reportes');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Reporte');
   // Una persona se cuenta una vez en cobertura; sus asistencias se acumulan.
-  await expect(page.locator('.report-metrics > div').nth(0)).toContainText('9 de 9');
-  await expect(page.locator('.report-metrics > div').nth(1)).toContainText('33');
-  await expect(page.locator('.report-metrics > div').nth(2)).toContainText('26');
+  const indicadores = page
+    .getByRole('region', { name: 'Indicadores de tutoría', exact: true })
+    .locator('.stat');
+  await expect(indicadores.nth(0)).toContainText('9 de 9');
+  await expect(indicadores.nth(1)).toContainText('33');
+  await expect(indicadores.nth(2)).toContainText('26');
   await expect(page.locator('.report-chart canvas')).toHaveCount(5);
   await page.getByText('Desglose por ciclo', { exact: true }).click();
   const desglose = page.getByRole('region', {

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { API_MODE } from './apiConfig';
 import type { Sesion } from '../types/domain';
 import type { Role } from '../types/auth';
 import { sesionFinalizo } from '../utils/evaluacionesSesion';
@@ -66,6 +67,7 @@ export function guardarAsistencia(
   mensaje: string,
   storage: Pick<Storage, 'getItem' | 'setItem'> = window.localStorage,
 ) {
+  if (API_MODE) throw new Error('La asistencia debe confirmarse en el servidor.');
   if (
     actor.role !== 'tutor' ||
     actor.id !== sesion.tutorId ||
@@ -108,5 +110,8 @@ export function guardarAsistencia(
 }
 
 export function cantidadAsistentes(sesion: Sesion): number {
-  return sesion.asistentes.filter((a) => a.estado === 'asistio' || a.estado === 'tarde').length;
+  return (
+    sesion.totalAsistentes ??
+    sesion.asistentes.filter((a) => a.estado === 'asistio' || a.estado === 'tarde').length
+  );
 }

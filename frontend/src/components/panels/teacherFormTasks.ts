@@ -1,4 +1,5 @@
 import type { CodigoFormato } from '../../types/domain';
+import { tituloEntrevista } from '../../utils/entrevistas';
 import { FileText, HandHeart, ListChecks, Send, UserCheck, UsersRound } from '../ui/icons';
 import type { Icono } from '../ui/icons';
 
@@ -25,6 +26,6 @@ export function tituloFormulario(codigo: CodigoFormato) {
       ? 'Evaluación individual'
       : codigo === 'F11'
         ? 'Evaluación grupal'
-        : 'Entrevista inicial')
+        : tituloEntrevista(codigo))
   );
 }

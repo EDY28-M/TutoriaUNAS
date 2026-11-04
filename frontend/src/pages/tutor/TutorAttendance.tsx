@@ -10,7 +10,9 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { usePortal } from '../../hooks/usePortal';
 import { useAuth } from '../../hooks/useAuth';
 import { estudiantePorId, nombreCompleto } from '../../data/personas';
-import { cantidadAsistentes, guardarAsistencia } from '../../services/sessionAttendance';
+import { cantidadAsistentes } from '../../services/sessionAttendance';
+import { persistirAsistencia } from '../../services/mutacionesTutoria';
+import { API_MODE } from '../../services/apiConfig';
 import { formatFecha, formatFechaLarga } from '../../utils/fechas';
 import type { Sesion } from '../../types/domain';
 import '../../styles/attendance.css';
@@ -178,8 +180,8 @@ export function TutorAttendance() {
           key={detalle.id}
           sesion={detalle}
           onClose={cerrar}
-          onSave={(asistentes, mensaje) => {
-            guardarAsistencia(user, detalle, asistentes, mensaje);
+          onSave={async (asistentes, mensaje, tipo, version) => {
+            await persistirAsistencia(user, { ...detalle, version }, asistentes, mensaje, tipo);
             cerrar();
             setConfirmacion(
               `Registro guardado · ${detalle.codigo}${mensaje.trim() ? '. El acuerdo ya está disponible en la sesión del estudiante.' : '.'}`,
@@ -203,8 +205,16 @@ function AttendanceEditor({
 }: {
   sesion: Sesion;
   onClose(): void;
-  onSave(asistentes: Sesion['asistentes'], mensaje: string): void;
+  onSave(
+    asistentes: Sesion['asistentes'],
+    mensaje: string,
+    tipo: string,
+    version?: number,
+  ): Promise<void>;
 }) {
+  const [version] = useState(sesion.version);
+  const [guardando, setGuardando] = useState(false);
+  const [tipoTutoria, setTipoTutoria] = useState('Académica');
   const [asistentes, setAsistentes] = useState<Sesion['asistentes']>(() =>
     sesion.asistentes.map((a) => ({
       ...a,
@@ -219,13 +229,18 @@ function AttendanceEditor({
   const [error, setError] = useState('');
   const total = asistentes.filter((a) => a.estado === 'asistio' || a.estado === 'tarde').length;
   const finalizo = sesionFinalizo(sesion);
-  function guardar() {
+  async function guardar() {
+    if (guardando) return;
+    setGuardando(true);
+    setError('');
     try {
-      onSave(asistentes, mensaje);
+      await onSave(asistentes, mensaje, tipoTutoria, version);
     } catch (e) {
       setError(
         e instanceof Error ? e.message : 'No se pudo guardar el registro. Inténtalo de nuevo.',
       );
+    } finally {
+      setGuardando(false);
     }
   }
   return (
@@ -243,7 +258,7 @@ function AttendanceEditor({
             type="button"
             className="btn btn-primary"
             onClick={guardar}
-            disabled={!finalizo || marcados.size !== asistentes.length}
+            disabled={guardando || !finalizo || marcados.size !== asistentes.length}
           >
             {sesion.asistenciaConfirmada
               ? 'Guardar registro'
@@ -357,6 +372,21 @@ function AttendanceEditor({
             })}
           </tbody>
         </table>
+        {API_MODE && sesion.tipo === 'individual' && (
+          <label className="field">
+            <span>Tipo de tutoría individual</span>
+            <select
+              className="select"
+              value={tipoTutoria}
+              disabled={guardando}
+              onChange={(e) => setTipoTutoria(e.target.value)}
+            >
+              <option>Académica</option>
+              <option>Personal</option>
+              <option>Social</option>
+            </select>
+          </label>
+        )}
         <section className="stack stack--sm" aria-label="Acuerdos de tutoría">
           {sesion.acuerdos.length > 0 && (
             <details>
@@ -388,7 +418,11 @@ function AttendanceEditor({
             asistentes.
           </p>
         </section>
-        <p className="small muted">Demostración: registro guardado en este navegador.</p>
+        <p className="small muted">
+          {API_MODE
+            ? 'La asistencia y el formato de atención se guardan al confirmar el registro.'
+            : 'Demostración: registro guardado en este navegador.'}
+        </p>
       </div>
     </Sheet>
   );

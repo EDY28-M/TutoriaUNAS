@@ -86,9 +86,10 @@ export function SearchableSelect({ label, placeholder, options, value, onChange 
           aria-describedby={seleccionado?.description ? `${id}-selection` : undefined}
           value={consulta ?? seleccionado?.label ?? ''}
           onFocus={() => {
-            setAbierto(true);
+            if (!seleccionado || consulta !== null) setAbierto(true);
             setActivo(0);
           }}
+          onClick={() => setAbierto(true)}
           onChange={(e) => {
             setConsulta(e.target.value);
             setAbierto(true);

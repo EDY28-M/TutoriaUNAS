@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from './useAuth';
+import { useStudentNotices } from './useStudentNotices';
+import { API_MODE } from '../services/apiConfig';
 import { useSessionAttendance } from './useSessionAttendance';
 import { resolverSesiones } from '../services/sessionWorkspace';
 import { useScheduledSessions } from './useScheduledSessions';
@@ -9,7 +11,9 @@ import {
   evaluacionesDeSesiones,
 } from '../utils/evaluacionesSesion';
 import { useInstrumentWorkspace } from './useInstrumentWorkspace';
-import { formatoInicial, puedeEnviarFormato } from '../utils/instrumentos';
+import { puedeEnviarFormato } from '../utils/instrumentos';
+import { formulariosVigentes } from '../utils/entrevistas';
+import { semestreActual } from '../data/catalogos';
 import { derivacionesDesdeInstrumentos } from '../utils/seguimientoInstrumentos';
 import type {
   Asignacion,
@@ -17,6 +21,7 @@ import type {
   Docente,
   Estudiante,
   Instrumento,
+  Notificacion,
   Sesion,
 } from '../types/domain';
 import type { Contadores } from '../data';
@@ -60,6 +65,7 @@ export interface Portal {
   /** Ámbito institucional: escuela del estudiante o del tutor. */
   escuelaId: string;
   avisosSinLeer: number;
+  notificaciones: Notificacion[];
 }
 
 /**
@@ -68,6 +74,7 @@ export interface Portal {
  */
 export function usePortal(): Portal {
   const { user } = useAuth();
+  const avisosEstudiante = useStudentNotices();
   const role = user?.role ?? 'estudiante';
   const userId = user?.id ?? '';
   const { registros: todosInstrumentos, momento } = useInstrumentWorkspace();
@@ -95,16 +102,9 @@ export function usePortal(): Portal {
         // El tutorado solo responde los instrumentos cuyo actor es él mismo
         // (entrevistas 03, 04 o 05 y evaluaciones 10 y 11). Los formatos que
         // llena el docente tutor pertenecen a su bandeja, no a la del tutorado.
-        instrumentos = todosInstrumentos
+        instrumentos = formulariosVigentes(todosInstrumentos, estudiante.ciclo, semestreActual)
           .filter((item) => item.estudianteId === estudiante!.id)
-          .filter((instrumento) => definicionPorCodigo(instrumento.formato)?.actor === 'tutorado')
-          // Solo la entrevista de la etapa actual: las de etapas anteriores ya no
-          // le pertenecen aunque existan registros de semestres pasados.
-          .filter(
-            (instrumento) =>
-              !['F03', 'F04', 'F05'].includes(instrumento.formato) ||
-              instrumento.formato === formatoInicial(estudiante!.ciclo),
-          );
+          .filter((instrumento) => definicionPorCodigo(instrumento.formato)?.actor === 'tutorado');
         derivaciones = derivacionesDe(estudiante.id);
       }
     } else if (role === 'tutor') {
@@ -115,13 +115,13 @@ export function usePortal(): Portal {
         derivaciones = derivacionesDeTutor(doc.id);
       }
     } else {
-      doc = docentePorId('DOC-0422') ?? null;
+      doc = docentePorId(user?.personaId ?? 'DOC-0422') ?? null;
       tutorados = todasAsignaciones;
       instrumentos = todosInstrumentos;
       derivaciones = todasDerivaciones;
     }
 
-    const extrasDerivaciones = derivacionesDesdeInstrumentos(todosInstrumentos);
+    const extrasDerivaciones = API_MODE ? [] : derivacionesDesdeInstrumentos(todosInstrumentos);
     sesiones = resolverSesiones(todosInstrumentos, programadas, registrosAsistencia).filter(
       (s) =>
         role === 'coordinacion' ||
@@ -159,7 +159,11 @@ export function usePortal(): Portal {
     const derivacionesAbiertas = derivaciones.filter((derivacion) =>
       ESTADOS_ABIERTOS.includes(derivacion.estado),
     ).length;
-    const avisosSinLeer = notificaciones.filter((notificacion) => !notificacion.leida).length;
+    const notificacionesVisibles =
+      role === 'estudiante' ? avisosEstudiante.mensajes : notificaciones;
+    const avisosSinLeer = notificacionesVisibles.filter(
+      (notificacion) => !notificacion.leida,
+    ).length;
     const instrumentosObservados = instrumentos.filter(
       (instrumento) => instrumento.estado === 'observado',
     ).length;
@@ -188,6 +192,17 @@ export function usePortal(): Portal {
       },
       escuelaId,
       avisosSinLeer,
+      notificaciones: notificacionesVisibles,
     };
-  }, [role, userId, todosInstrumentos, momento, registrosAsistencia, programadas, ahora]);
+  }, [
+    role,
+    userId,
+    user?.personaId,
+    todosInstrumentos,
+    momento,
+    registrosAsistencia,
+    programadas,
+    ahora,
+    avisosEstudiante.mensajes,
+  ]);
 }

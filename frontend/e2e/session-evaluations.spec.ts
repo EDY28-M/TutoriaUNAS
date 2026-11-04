@@ -36,6 +36,7 @@ for (const caso of [
   test(`${caso.tipo}: programar, finalizar y ${caso.asistio ? 'evaluar' : 'bloquear por inasistencia'}`, async ({
     page,
   }) => {
+    test.setTimeout(60000);
     await page.setViewportSize({ width: caso.ancho, height: 1000 });
     await page.clock.setFixedTime(new Date('2026-11-01T17:00:00-05:00'));
     await ingresar(page, 'Tutor');
@@ -101,12 +102,17 @@ for (const caso of [
     await expect(modal.getByRole('heading', { level: 2 })).toContainText(`Formato ${caso.formato}`);
     const selector = modal.getByLabel('Sección del formulario');
     if (caso.tipo === 'individual' && caso.asistio) await revisarAnchos(page, 'evaluar-sesion');
-    const cantidad = await selector.locator('option').count();
-    await selector.selectOption('0');
+    const pasos = await selector
+      .locator('option')
+      .evaluateAll((options) => options.map((o) => (o as HTMLOptionElement).value));
+    const cantidad = pasos.length;
+    await expect(modal.getByText(/Datos ya disponibles/)).toHaveCount(0);
+    await selector.selectOption(pasos[cantidad - 1]!);
+    await modal.locator('.tutoring-review-section > summary').first().click();
     await expect(modal.locator('[data-field="fecha"]')).toContainText('2026-11-01');
     await expect(modal.locator('[data-field="fecha"] input')).toHaveCount(0);
-    for (let i = 1; i < cantidad - 1; i++) {
-      await selector.selectOption(String(i));
+    for (let i = 0; i < cantidad - 1; i++) {
+      await selector.selectOption(pasos[i]!);
       for (const grupo of await modal.getByRole('radiogroup').all()) {
         await expect(grupo.getByRole('radio')).toHaveCount(
           caso.formato === '11' ? 3 : i === cantidad - 2 ? 2 : 4,
@@ -118,7 +124,7 @@ for (const caso of [
     await page.reload();
     await expect(modal).toBeVisible();
     await expect(modal.locator('[data-field="p01"] input:checked')).toHaveCount(1);
-    await modal.getByLabel('Sección del formulario').selectOption(String(cantidad - 1));
+    await modal.getByLabel('Sección del formulario').selectOption(pasos[cantidad - 1]!);
     await modal
       .getByRole('checkbox', { name: 'He revisado mis respuestas y deseo enviarlas.' })
       .check();

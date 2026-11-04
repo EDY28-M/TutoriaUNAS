@@ -9,13 +9,22 @@ interface SheetProps {
   footer?: ReactNode;
   onClose(): void;
   wide?: boolean;
+  className?: string;
 }
 
 /**
  * Ventana modal sobre el elemento `dialog` nativo: gestiona el foco, el cierre
  * con Escape y el bloqueo del fondo sin dependencias adicionales.
  */
-export function Sheet({ title, description, children, footer, onClose, wide = false }: SheetProps) {
+export function Sheet({
+  title,
+  description,
+  children,
+  footer,
+  onClose,
+  wide = false,
+  className = '',
+}: SheetProps) {
   const dialogo = useRef<HTMLDialogElement>(null);
   const tituloId = useId();
 
@@ -32,7 +41,7 @@ export function Sheet({ title, description, children, footer, onClose, wide = fa
   return (
     <dialog
       ref={dialogo}
-      className={`sheet${wide ? ' sheet--wide' : ''}`}
+      className={`sheet${wide ? ' sheet--wide' : ''} ${className}`}
       aria-labelledby={tituloId}
       onCancel={(evento) => {
         evento.preventDefault();

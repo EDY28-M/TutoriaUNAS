@@ -1,6 +1,11 @@
+import { useNavigate } from 'react-router-dom';
+import { API_MODE } from '../../services/apiConfig';
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { PageHeading } from '../../components/ui/PageHeading';
+import { MetricGroup } from '../../components/ui/MetricGroup';
+import { Stat } from '../../components/ui/Stat';
+import { FolderOpen, Clock, UserCheck, TriangleAlert } from '../../components/ui/icons';
 import { Card, CardBody, CardFoot, CardHead } from '../../components/ui/Card';
 import { Alert } from '../../components/ui/Alert';
 import { Badge, StatusBadge } from '../../components/ui/StatusBadge';
@@ -46,6 +51,7 @@ const PRIORIDADES: Derivacion['prioridad'][] = ['alta', 'media', 'baja'];
 
 /** Bandeja y seguimiento del formato 12, con los datos administrativos comunicables. */
 export function TutorReferrals() {
+  const navegar = useNavigate();
   const portal = usePortal();
   const { docente, tutorados } = portal;
   const [parametros] = useSearchParams();
@@ -292,50 +298,47 @@ export function TutorReferrals() {
               type="button"
               className="btn btn-primary"
               aria-label="Nueva solicitud de apoyo"
-              onClick={() => setNuevaAbierta(true)}
+              onClick={() =>
+                API_MODE ? navegar('/tutor/instrumentos?crear=F12') : setNuevaAbierta(true)
+              }
             >
               <i className="fa-solid fa-plus" aria-hidden="true" /> Nueva solicitud
             </button>
           </>
         }
       />
-      <dl
-        className="referral-metrics"
-        aria-label={
+      <MetricGroup
+        label={
           enSeguimiento
             ? 'Resumen de solicitudes en seguimiento'
             : 'Resumen de todas las solicitudes'
         }
       >
-        <div>
-          <dt>Abiertas</dt>
-          <dd>
-            <strong>{abiertas.length}</strong>
-            <small>Requieren seguimiento</small>
-          </dd>
-        </div>
-        <div>
-          <dt>En atención o seguimiento</dt>
-          <dd>
-            <strong>{enAtencion.length}</strong>
-            <small>Incluye citas programadas</small>
-          </dd>
-        </div>
-        <div>
-          <dt>Atendidas o cerradas</dt>
-          <dd>
-            <strong>{cerradas.length}</strong>
-            <small>Atención concluida</small>
-          </dd>
-        </div>
-        <div>
-          <dt>Prioridad alta</dt>
-          <dd>
-            <strong>{prioridadAlta.length}</strong>
-            <small>Acompañamiento cercano</small>
-          </dd>
-        </div>
-      </dl>
+        <Stat
+          label="Abiertas"
+          value={abiertas.length}
+          note="Requieren seguimiento"
+          icon={<FolderOpen />}
+        />
+        <Stat
+          label="En atención o seguimiento"
+          value={enAtencion.length}
+          note="Incluye citas programadas"
+          icon={<Clock />}
+        />
+        <Stat
+          label="Atendidas o cerradas"
+          value={cerradas.length}
+          note="Atención concluida"
+          icon={<UserCheck />}
+        />
+        <Stat
+          label="Prioridad alta"
+          value={prioridadAlta.length}
+          note="Acompañamiento cercano"
+          icon={<TriangleAlert />}
+        />
+      </MetricGroup>
       <Card className={`referral-list${tablaCompleta ? ' referral-list--complete' : ''}`}>
         <CardHead
           title={enSeguimiento ? 'Casos en seguimiento' : 'Bandeja de solicitudes'}
@@ -538,9 +541,12 @@ export function TutorReferrals() {
               <button
                 type="button"
                 className="btn btn-primary"
-                onClick={() => setSeleccionId(null)}
+                onClick={() => {
+                  setSeleccionId(null);
+                  if (API_MODE) setAreasAbiertas(true);
+                }}
               >
-                Notificar al área (demostración)
+                {API_MODE ? 'Consultar directorio del área' : 'Notificar al área (demostración)'}
               </button>
             </>
           }
