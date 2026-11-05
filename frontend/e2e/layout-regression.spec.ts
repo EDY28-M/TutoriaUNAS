@@ -10,7 +10,7 @@ const accounts = [
 
 async function login(page: Page, account = accounts[1] as (typeof accounts)[number]) {
   await page.goto('/login');
-  await page.getByRole('tab', { name: account.label, exact: true }).click();
+
   await page.locator('#identifier').fill(account.id);
   await page.locator('#password').fill('tutoria2026');
   await page.locator('button[type="submit"]').click();
@@ -26,6 +26,9 @@ async function noPageOverflow(page: Page) {
 for (const width of widths) {
   test(`calendario y detalles conservan dimensiones legibles a ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 950 });
+    // El calendario abre en el mes de «hoy»: se fija la fecha de referencia de la demostración
+    // (14 oct. 2026) para que «Mes siguiente» siga siendo noviembre cualquier día que se ejecute.
+    await page.clock.setFixedTime(new Date('2026-10-14T12:00:00-05:00'));
     await login(page);
     await page.goto('/tutor/sesiones');
     await expect(page.getByRole('button', { name: 'Semana', exact: true })).toHaveAttribute(
@@ -52,7 +55,8 @@ for (const width of widths) {
       .locator('.calendar__day')
       .filter({ has: page.locator('.calendar__event') })
       .last();
-    await day.click();
+    // La esquina del día lo selecciona; el centro cae sobre una sesión y abre su detalle directamente.
+    await day.click({ position: { x: 6, y: 6 } });
     const detail = page.locator('.calendar__daypanel');
     await expect(detail.locator('.calendar__dayitem').first()).toBeVisible();
     await detail.locator('.calendar__dayitem').first().click();
@@ -142,7 +146,8 @@ for (const account of accounts) {
       .boundingBox();
     expect(toggle!.x).toBeGreaterThanOrEqual(brand!.x + brand!.width);
     await expect(page.locator('.card__heading svg, .card__heading i')).toHaveCount(0);
-    await expect(page.locator('.portal-chart canvas')).toHaveCount(4);
+    // El inicio muestra dos gráficas: sesiones y formularios.
+    await expect(page.locator('.portal-chart canvas')).toHaveCount(2);
     await page
       .getByRole('button', { name: 'Contraer la barra de navegación', exact: true })
       .click();
@@ -158,20 +163,21 @@ for (const account of accounts) {
     expect(Math.max(...centers) - Math.min(...centers)).toBeLessThan(1);
     const firstLink = page.locator('.sidebar__nav .sidebar__link').first();
     await firstLink.hover();
-    await expect(page.getByRole('tooltip')).toHaveText('Panel');
+    await expect(page.getByRole('tooltip')).toHaveText('Inicio');
     await expect
       .poll(async () =>
-        page
-          .locator('.portal-chart canvas')
-          .evaluateAll((canvases) =>
-            canvases.every(
-              (canvas) =>
-                Math.abs(
-                  canvas.getBoundingClientRect().width -
-                    canvas.closest('.portal-chart')!.getBoundingClientRect().width,
-                ) < 2,
-            ),
-          ),
+        page.locator('.portal-chart canvas').evaluateAll((canvases) =>
+          // Al redibujar, la gráfica cambia de lienzo: uno suelto aún no cuenta como medido.
+          canvases.every((canvas) => {
+            const grafica = canvas.closest('.portal-chart');
+            return (
+              grafica !== null &&
+              Math.abs(
+                canvas.getBoundingClientRect().width - grafica.getBoundingClientRect().width,
+              ) < 2
+            );
+          }),
+        ),
       )
       .toBe(true);
     await page
@@ -182,15 +188,12 @@ for (const account of accounts) {
       const alignment = await page.evaluate(() => {
         const frame = document.querySelector('.app-shell')!.getBoundingClientRect();
         const bar = document.querySelector('.topbar')!.getBoundingClientRect();
-        const banner = document.querySelector('.demo-banner')!.getBoundingClientRect();
         const workspace = document.querySelector('.workspace')!.getBoundingClientRect();
         return {
-          unusedWidth: document.documentElement.clientWidth - frame.width,
-          left: frame.left,
+          // La aplicación tiene un ancho máximo: sobra espacio, pero repartido por igual a ambos lados.
+          centrado: (document.documentElement.clientWidth - frame.width) / 2 - frame.left,
           headerLeft: bar.left - workspace.left,
           headerRight: bar.right - workspace.right,
-          bannerLeft: banner.left - workspace.left,
-          bannerRight: banner.right - workspace.right,
         };
       });
       for (const difference of Object.values(alignment)) {
@@ -198,17 +201,17 @@ for (const account of accounts) {
       }
       await expect
         .poll(async () =>
-          page
-            .locator('.portal-chart canvas')
-            .evaluateAll((canvases) =>
-              canvases.every(
-                (canvas) =>
-                  Math.abs(
-                    canvas.getBoundingClientRect().width -
-                      canvas.closest('.portal-chart')!.getBoundingClientRect().width,
-                  ) < 2,
-              ),
-            ),
+          page.locator('.portal-chart canvas').evaluateAll((canvases) =>
+            canvases.every((canvas) => {
+              const grafica = canvas.closest('.portal-chart');
+              return (
+                grafica !== null &&
+                Math.abs(
+                  canvas.getBoundingClientRect().width - grafica.getBoundingClientRect().width,
+                ) < 2
+              );
+            }),
+          ),
         )
         .toBe(true);
       await noPageOverflow(page);

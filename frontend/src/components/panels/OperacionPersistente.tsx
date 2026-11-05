@@ -8,11 +8,13 @@ export function FormularioPersistente({
   guardar,
   alGuardar,
   etiqueta = 'Guardar cambios',
+  deshabilitado = false,
 }: {
   children: ReactNode;
   guardar(): Promise<unknown>;
   alGuardar?(): void;
   etiqueta?: string;
+  deshabilitado?: boolean;
 }) {
   const accion = useAccionPersistente();
   return (
@@ -40,7 +42,11 @@ export function FormularioPersistente({
       )}
       <div className="ui-row ui-row--between ui-row--wrap">
         <span role="status">{accion.mensaje}</span>
-        <button type="submit" className="btn btn-primary" disabled={accion.ocupado}>
+        <button
+          type="submit"
+          className="btn btn-primary"
+          disabled={accion.ocupado || deshabilitado}
+        >
           {accion.ocupado ? 'Guardando…' : etiqueta}
         </button>
       </div>

@@ -3,7 +3,7 @@
 .padron-page label {
   min-width: 0;
 }
-.padron-page label {
+.padron-page label.field {
   display: grid;
   gap: 6px;
 }

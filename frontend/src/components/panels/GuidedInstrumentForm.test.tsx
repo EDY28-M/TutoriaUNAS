@@ -45,6 +45,23 @@ function registro(formato: Instrumento['formato'] = 'F07'): Instrumento {
 }
 
 describe('formulario guiado con RHF y resolver Zod', () => {
+  it('agrupa la vista de lectura compacta por secciones sin perder respuestas', () => {
+    const definicion = definicionPorCodigo('F09')!;
+    const instrumento = {
+      ...registro('F09'),
+      respuestas: { nombreTutor: 'Tutor ficticio', actividad1: 'Realizada' },
+    };
+    render(<GuidedInstrumentForm definicion={definicion} instrumento={instrumento} compacto />);
+    const primera = screen.getByRole('tab', { name: 'Tu grupo de tutoría' });
+    const actividades = screen.getByRole('tab', { name: 'Actividades realizadas' });
+    expect(primera).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tabpanel')).toHaveTextContent('Docente tutor');
+    fireEvent.click(actividades);
+    expect(actividades).toHaveAttribute('aria-selected', 'true');
+    expect(within(screen.getByRole('tabpanel')).getByText('Realizada')).toBeVisible();
+    fireEvent.keyDown(actividades, { key: 'ArrowLeft' });
+    expect(primera).toHaveAttribute('aria-selected', 'true');
+  });
   function editarSeccion(indice: number) {
     const definicion = definicionPorCodigo('F04')!;
     fireEvent.change(screen.getByLabelText('Sección del formulario'), {

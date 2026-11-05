@@ -79,6 +79,22 @@ export function vaciarApi() {
   if (API_MODE) vaciarDatosSistema();
   publicar();
 }
+export function aplicarEstadoApi(datos: EstadoApi) {
+  revisionCarga++;
+  estudiantes.splice(0, estudiantes.length, ...datos.estudiantes);
+  docentes.splice(0, docentes.length, ...datos.docentes);
+  asignaciones.splice(0, asignaciones.length, ...datos.asignaciones);
+  matriculas.splice(0, matriculas.length, ...datos.matriculas);
+  horariosAcademicos.splice(0, horariosAcademicos.length, ...datos.horarios);
+  establecerSemestreActual(datos.semestreId);
+  if (datos.sistema) aplicarDatosSistema(datos.sistema);
+  estado = {
+    datos,
+    error: null,
+    workspace: { registros: datos.registros, momento: datos.momento, aviso: null },
+  };
+  publicar();
+}
 export async function refrescarApi() {
   const token = getApiSession()?.accessToken;
   if (!token) return;
@@ -86,19 +102,7 @@ export async function refrescarApi() {
   try {
     const datos = await apiJson<EstadoApi>('/api/tutoria/estado');
     if (getApiSession()?.accessToken !== token || revision !== revisionCarga) return;
-    estudiantes.splice(0, estudiantes.length, ...datos.estudiantes);
-    docentes.splice(0, docentes.length, ...datos.docentes);
-    asignaciones.splice(0, asignaciones.length, ...datos.asignaciones);
-    matriculas.splice(0, matriculas.length, ...datos.matriculas);
-    horariosAcademicos.splice(0, horariosAcademicos.length, ...datos.horarios);
-    establecerSemestreActual(datos.semestreId);
-    if (datos.sistema) aplicarDatosSistema(datos.sistema);
-    estado = {
-      datos,
-      error: null,
-      workspace: { registros: datos.registros, momento: datos.momento, aviso: null },
-    };
-    publicar();
+    aplicarEstadoApi(datos);
     return datos;
   } catch (e) {
     if (getApiSession()?.accessToken !== token || revision !== revisionCarga) return;

@@ -1,0 +1,486 @@
+/* ==========================================================================
+   Formatos 01–12 · hoja A4 con el diseño de la Resolución N.º 500-2022-CU-R-UNAS
+
+   Es un documento impreso, no una pantalla de la aplicación: va en blanco, negro y
+   gris neutro, con la serifa del anexo original. Lo impreso del formulario va en
+   negrita y mayúsculas; lo que se llenó va en cursiva. No hay colores de acento.
+   ========================================================================== */
+
+.fo-hoja {
+  --fo-tinta: #111;
+  --fo-linea: #1a1a1a;
+  --fo-renglon: #8c8c8c;
+  --fo-sombra: #d9d9d9;
+  --fo-sombra-suave: #efefef;
+  --fo-fuente: 'Times New Roman', 'Liberation Serif', Tinos, 'Nimbus Roman', Times, serif;
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto 18px;
+  padding: 14mm 15mm 11mm 20mm;
+  color: var(--fo-tinta);
+  background: #fff;
+  font-family: var(--fo-fuente);
+  font-size: 9.6pt;
+  line-height: 1.28;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 14%),
+    0 10px 26px rgb(0 0 0 / 10%);
+}
+.fo-hoja:last-child {
+  margin-bottom: 0;
+}
+.fo-hoja *,
+.fo-hoja *::before,
+.fo-hoja *::after {
+  box-sizing: border-box;
+}
+/* La hoja no depende de los estilos del portal para ocultar texto de lectores. */
+.fo-hoja .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.fo-resolucion {
+  margin: 0 0 3.5mm;
+  font-size: 12pt;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.fo-cabecera {
+  margin: 0 0 4mm;
+  text-align: center;
+}
+.fo-cabecera p {
+  margin: 0 0 1mm;
+  font-size: 9.5pt;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.fo-cabecera h2 {
+  margin: 2mm 0 1mm;
+  color: var(--fo-tinta);
+  font-family: inherit;
+  font-size: 11pt;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.fo-cabecera .fo-actor {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.fo-cuerpo {
+  flex: 1;
+}
+.fo-cuerpo > * {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.fo-cuerpo > * + * {
+  margin-top: 3mm;
+}
+/* Tablas que continúan a la anterior: comparten el borde, como en el anexo. */
+.fo-cuerpo > .fo-pegada {
+  margin-top: -0.75pt;
+}
+
+/* —— Tablas —— */
+.fo-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.fo-tabla th,
+.fo-tabla td {
+  padding: 1.2mm 2mm;
+  border: 0.75pt solid var(--fo-linea);
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.fo-tabla th {
+  font-size: 8.8pt;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.fo-rejilla thead th {
+  text-align: center;
+  vertical-align: middle;
+}
+.fo-rejilla tbody td {
+  height: 7mm;
+}
+.fo-tabla .fo-seccion {
+  background: var(--fo-sombra);
+  text-align: center;
+}
+.fo-tabla .fo-seccion--izq {
+  background: transparent;
+  text-align: left;
+}
+.fo-tabla .fo-sombra {
+  background: var(--fo-sombra);
+}
+.fo-tabla .fo-sombra-suave {
+  background: var(--fo-sombra-suave);
+}
+.fo-tabla .fo-subcabecera {
+  font-size: 8pt;
+  letter-spacing: 0;
+  text-align: center;
+  text-transform: none;
+}
+.fo-tabla .fo-centro {
+  text-align: center;
+}
+.fo-tabla .fo-marca {
+  font-size: 10.5pt;
+  line-height: 1;
+  font-weight: 700;
+  text-align: center;
+  vertical-align: middle;
+}
+.fo-fila-alta td {
+  height: 8.6mm;
+  vertical-align: middle;
+}
+.fo-tabla .fo-caja {
+  height: 25mm;
+}
+.fo-tabla .fo-alta {
+  height: 22mm;
+}
+.fo-holgada td {
+  padding-top: 2.8mm;
+  padding-bottom: 2.8mm;
+}
+
+/* —— Etiquetas y respuestas —— */
+.fo-etq {
+  font-size: 8.8pt;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.fo-val {
+  font-style: italic;
+}
+.fo-parrafo {
+  margin: 1.5mm 0 0;
+  white-space: pre-line;
+}
+.fo-par {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1mm 5mm;
+}
+.fo-fecha-derecha {
+  text-align: right;
+}
+.fo-nota {
+  margin: 2mm 0 0;
+}
+
+/* —— Preguntas —— */
+.fo-pregunta__texto {
+  margin: 0 0 0.6mm;
+}
+.fo-pregunta__num {
+  font-weight: 700;
+}
+.fo-pregunta__resp {
+  min-height: 4.4mm;
+  padding-left: 4mm;
+}
+.fo-guiones {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.fo-guiones li::before {
+  content: '-\00a0\00a0';
+}
+.fo-opciones {
+  display: grid;
+  gap: 0.7mm;
+  margin: 1mm 0 0;
+  padding: 0 0 0 4mm;
+  list-style: none;
+}
+.fo-opcion__caja {
+  display: inline-block;
+  min-width: 7mm;
+  font-weight: 700;
+}
+.fo-opcion--activa {
+  font-style: italic;
+  font-weight: 700;
+}
+.fo-actividades {
+  display: grid;
+  gap: 0.6mm;
+  margin: 1.2mm 0 0;
+  padding: 0;
+  list-style: none;
+}
+.fo-actividades li {
+  display: grid;
+  grid-template-columns: 1fr 30%;
+  gap: 4mm;
+  min-height: 4.4mm;
+  border-bottom: 0.5pt dotted var(--fo-renglon);
+}
+.fo-actividades .fo-actividades__cabecera {
+  min-height: 0;
+  border-bottom: 0;
+  font-weight: 700;
+  text-decoration: underline;
+}
+.fo-rasgos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3mm 9mm;
+  margin-top: 1.5mm;
+}
+.fo-rasgo__titulo {
+  margin: 0 0 1mm;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: underline;
+}
+.fo-rasgo ol {
+  margin: 0;
+  padding-left: 5mm;
+}
+.fo-rasgo li {
+  min-height: 4.8mm;
+  border-bottom: 0.5pt dotted var(--fo-renglon);
+}
+
+/* —— Bloques propios de algunos formatos —— */
+.fo-tabla .fo-renglones {
+  /* Siete renglones exactos de 7 mm. */
+  height: 49mm;
+  padding-top: 0;
+  line-height: 7mm;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(7mm - 0.5pt),
+    var(--fo-renglon) calc(7mm - 0.5pt),
+    var(--fo-renglon) 7mm
+  );
+}
+.fo-renglones p {
+  margin: 0;
+}
+.fo-tabla .fo-proceso {
+  height: 52mm;
+  text-align: center;
+}
+.fo-proceso__marca {
+  display: block;
+  margin: 2mm 0 1.5mm;
+  font-size: 18pt;
+  font-weight: 700;
+}
+.fo-leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1mm 6mm;
+  font-size: 8.6pt;
+}
+.fo-tabla .fo-firma-celda {
+  height: 34mm;
+  vertical-align: bottom;
+}
+.fo-cuerpo > .fo-firmas {
+  display: flex;
+  justify-content: space-around;
+  gap: 10mm;
+  margin-top: 14mm;
+}
+.fo-firma {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2mm;
+  width: 70mm;
+  max-width: 100%;
+  margin: 0 auto;
+  font-size: 9.5pt;
+}
+.fo-firma__linea {
+  display: block;
+  width: 100%;
+  min-height: 6mm;
+  border-bottom: 0.75pt solid var(--fo-linea);
+  text-align: center;
+}
+
+/* —— Pie —— */
+.fo-pie {
+  display: flex;
+  justify-content: space-between;
+  gap: 4mm;
+  margin-top: 4mm;
+  padding-top: 1.6mm;
+  border-top: 0.5pt solid #8c8c8c;
+  color: #444;
+  font-size: 8pt;
+}
+.fo-pie__marca {
+  color: var(--fo-tinta);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* —— Portada del cierre del semestre —— */
+.fo-aviso {
+  padding: 2mm 3mm;
+  border-left: 2pt solid var(--fo-linea);
+  background: var(--fo-sombra-suave);
+}
+.fo-estado {
+  font-style: italic;
+  font-weight: 700;
+}
+.fo-tabla .fo-celda-alerta {
+  background: var(--fo-sombra-suave);
+  font-weight: 700;
+}
+.fo-nota-tabla {
+  color: #444;
+  font-size: 8pt;
+  font-style: italic;
+}
+/* Encabezados numéricos: en minúscula y sin cortar palabras. */
+.fo-rejilla-resumen thead th {
+  font-size: 8pt;
+  letter-spacing: 0;
+  overflow-wrap: normal;
+  text-transform: none;
+}
+.fo-tabla .fo-grupo {
+  font-size: 8.6pt;
+  text-transform: none;
+}
+
+/* —— Marca de agua: formato enviado que coordinación aún no aprueba —— */
+.fo-agua {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  pointer-events: none;
+}
+.fo-agua span {
+  padding: 1.5mm 8mm;
+  border: 2.5pt solid rgb(0 0 0 / 13%);
+  color: rgb(0 0 0 / 13%);
+  font-size: 30pt;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: rotate(-32deg);
+}
+
+/* ==========================================================================
+   Vista previa en pantalla
+   ========================================================================== */
+.fo-vista {
+  min-width: 0;
+  padding: 18px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #e6e6e6;
+}
+.fo-vista:focus-visible {
+  outline: 2px solid var(--green-700);
+  outline-offset: 2px;
+}
+.fo-vista__hojas {
+  width: 210mm;
+  margin: 0 auto;
+}
+@media (max-width: 600px) {
+  .fo-vista {
+    padding: 8px;
+  }
+}
+
+/* ==========================================================================
+   Impresión / Guardar como PDF
+   ========================================================================== */
+@media screen {
+  .fo-impresion {
+    display: none;
+  }
+}
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 11mm 12mm 10mm 17mm;
+  }
+  /* Celdas algo más compactas: cada formato cabe en sus hojas, como el anexo. */
+  .fo-impresion .fo-tabla th,
+  .fo-impresion .fo-tabla td {
+    padding-top: 0.9mm;
+    padding-bottom: 0.9mm;
+  }
+  /* global.css reserva 15 px de «scrollbar-gutter» a cada lado; al imprimir recorta el
+     borde derecho de las hojas. En papel no hay barras de desplazamiento. La especificidad
+     extra evita depender del orden en que se cargan las hojas de estilo. */
+  html:root {
+    scrollbar-gutter: auto !important;
+  }
+  html,
+  body.fo-imprimiendo {
+    background: #fff !important;
+  }
+  body.fo-imprimiendo > :not(.fo-impresion) {
+    display: none !important;
+  }
+  .fo-impresion {
+    display: block;
+  }
+  .fo-impresion .fo-hoja {
+    width: auto;
+    min-height: 270mm;
+    margin: 0;
+    /* El borde exterior de una tabla con bordes colapsados sale medio trazo fuera de su caja:
+       el margen mínimo evita que algunos visores corten la línea derecha de la hoja. */
+    padding: 0 1.2mm 0 0.4mm;
+    box-shadow: none;
+    break-after: page;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .fo-impresion .fo-hoja:last-child {
+    break-after: auto;
+  }
+  .fo-impresion .fo-tabla tr,
+  .fo-impresion .fo-rasgo {
+    break-inside: avoid;
+  }
+}

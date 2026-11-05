@@ -18,7 +18,6 @@ try {
       const errores = [];
       page.on('pageerror', e => errores.push(e.message));
       await page.goto(`${base}/login`);
-      await page.locator(`#login-role-${cuenta.rol}`).click();
       await page.locator('#identifier').fill(cuenta.usuario);
       await page.locator('#password').fill('tutoria2026');
       await page.locator('button[type="submit"]').click();

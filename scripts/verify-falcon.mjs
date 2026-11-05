@@ -44,17 +44,11 @@ try {
   for (const width of widths) await check(`login ${width}`, async () => {
     await auth.setViewportSize({ width, height: 900 });
     await auth.goto('http://127.0.0.1:5173/login');
-    await auth.locator('.role-switch').waitFor();
+    await auth.locator('.d01__form').waitFor();
     await auth.evaluate(() => document.fonts.ready);
-    for (const account of accounts) {
-      await auth.getByRole('tab', { name: account.label, exact: true }).click();
-      await overflow(auth);
-      assert.ok(await auth.locator('.d01__photo').isVisible(), 'login photo hidden');
-      assert.ok(await auth.locator('.role-switch__btn').evaluateAll(buttons => buttons.every(button => {
-        const span = button.querySelector('span'); const a = button.getBoundingClientRect(); const b = span.getBoundingClientRect();
-        return b.left >= a.left && b.right <= a.right;
-      })), 'role label clipped');
-    }
+    await overflow(auth);
+    assert.ok(await auth.locator('.d01__photo').isVisible(), 'login photo hidden');
+    assert.equal(await auth.getByRole('tablist').count(), 0, 'login must be role-independent');
     if ([390, 1366].includes(width)) await auth.screenshot({ path: resolve(out, `login-${width}.png`), fullPage: false });
   });
   await auth.setViewportSize({ width: 1366, height: 900 });
@@ -79,7 +73,6 @@ try {
     page.on('pageerror', e => errors.push(e.message));
     await check(`${account.role} login`, async () => {
       await page.goto('http://127.0.0.1:5173/login');
-      await page.getByRole('tab', { name: account.label, exact: true }).click();
       await page.locator('#identifier').fill(account.id);
       await page.locator('#password').fill('tutoria2026');
       await page.locator('.d01__form .d01__cta').click();

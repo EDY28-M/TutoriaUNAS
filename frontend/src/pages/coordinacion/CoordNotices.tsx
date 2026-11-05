@@ -1,6 +1,7 @@
+import { DirectorySearch } from '../../components/ui/DirectoryToolbar';
 import { useState } from 'react';
 import { RedactorAviso } from '../../components/panels/RedactorAviso';
-import { CompactPage, CompactSearch, SecondaryPanel } from '../../components/ui/CompactPage';
+import { CompactPage, SecondaryPanel } from '../../components/ui/CompactPage';
 import { FormsFilters } from '../../components/ui/FormsPanel';
 import { PageHeading } from '../../components/ui/PageHeading';
 import { Card } from '../../components/ui/Card';
@@ -86,7 +87,7 @@ export function CoordNotices() {
         }))}
         value={filtro}
         onChange={setFiltro}
-        acciones={<CompactSearch value={buscar} onChange={setBuscar} label="Buscar aviso" />}
+        acciones={<DirectorySearch value={buscar} onChange={setBuscar} label="Buscar aviso" />}
       />
       <Card>
         {visibles.length ? (

@@ -1,22 +1,22 @@
 import { expect, test } from '@playwright/test';
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 test.describe.configure({ mode: 'serial' });
 const endpoint = 'http://127.0.0.1:5080';
 async function ingresar(page: Page, rol: 'Tutor' | 'Estudiante' | 'Coordinación') {
   await page.goto('/login');
-  await page.getByRole('tab', { name: rol, exact: true }).click();
+
   await page
     .locator('#identifier')
     .fill(
       rol === 'Tutor' ? 'DOC-0421' : rol === 'Coordinación' ? 'coordinacion.tutoria' : '2023010456',
     );
   await page.locator('#password').fill('tutoria2026');
-  const estado = page.waitForResponse(
-    (r) => r.url() === `${endpoint}/api/tutoria/estado` && r.ok(),
+  const acceso = page.waitForResponse(
+    (r) => r.url() === `${endpoint}/api/auth/login` && r.request().method() === 'POST' && r.ok(),
   );
   await page.locator('button[type="submit"]').click();
-  await estado;
+  await acceso;
   await expect(page).toHaveURL(/dashboard/);
 }
 async function headers(page: Page) {
@@ -25,11 +25,21 @@ async function headers(page: Page) {
   );
   return { Authorization: `Bearer ${token}` };
 }
+/** El enlace por sesión redirige a la página propia del formulario. */
 async function abrirEvaluacion(page: Page) {
   await page.goto('/estudiante/instrumentos?sesion=SES-PRUEBA-individual');
-  const modal = page.getByRole('dialog');
-  await expect(modal).toBeVisible();
-  return modal;
+  await expect(page).toHaveURL(/\/estudiante\/instrumentos\/INST-F10-/);
+  const hoja = page.locator('.sf-llenado');
+  await expect(hoja).toBeVisible();
+  return hoja;
+}
+
+/** Abre la sección «Atención y confianza» (la primera con preguntas del formato 10). */
+async function irAPreguntas(hoja: Locator) {
+  await hoja
+    .getByRole('navigation', { name: 'Pasos del formulario' })
+    .getByRole('button', { name: /\. Atención y confianza$/ })
+    .click();
 }
 test('asistencia del tutor libera la evaluación; otro navegador recupera el borrador desde PostgreSQL', async ({
   browser,
@@ -72,7 +82,7 @@ test('asistencia del tutor libera la evaluación; otro navegador recupera el bor
   expect((await savedAttendance).status()).toBe(200);
   await expect(attendance).toHaveCount(0);
   const modal = await abrirEvaluacion(estudiante);
-  await modal.getByLabel('Sección del formulario').selectOption('1');
+  await irAPreguntas(modal);
   const chosen = modal.getByRole('radiogroup').first().getByRole('radio').nth(1);
   await chosen.check();
   const saved = estudiante.waitForResponse(
@@ -91,7 +101,7 @@ test('asistencia del tutor libera la evaluación; otro navegador recupera el bor
   const segundo = await segundoContexto.newPage();
   await ingresar(segundo, 'Estudiante');
   const restored = await abrirEvaluacion(segundo);
-  await restored.getByLabel('Sección del formulario').selectOption('1');
+  await irAPreguntas(restored);
   await expect(restored.getByRole('radiogroup').first().getByRole('radio').nth(1)).toBeChecked();
   await contextoTutor.close();
   await contextoEstudiante.close();
@@ -107,7 +117,10 @@ test('coordinación guarda el formato 01 y consulta la operación persistida en 
   ).toBeVisible();
   const prepare = page.getByRole('button', { name: 'Preparar formato 01', exact: true });
   if (await prepare.isVisible()) await prepare.click();
-  const save = page.getByRole('button', { name: 'Guardar borrador', exact: true });
+  else await page.getByRole('button', { name: 'Abrir formato 01', exact: true }).click();
+  const save = page
+    .getByRole('dialog', { name: 'Informe del semestre' })
+    .getByRole('button', { name: 'Guardar borrador', exact: true });
   await expect(save).toBeVisible();
   for (const width of [320, 375, 390, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 1000 });
@@ -132,7 +145,7 @@ test('un conflicto o una caída de conexión conserva la respuesta editada y no 
 }) => {
   await ingresar(page, 'Estudiante');
   const modal = await abrirEvaluacion(page);
-  await modal.getByLabel('Sección del formulario').selectOption('1');
+  await irAPreguntas(modal);
   const edited = modal.getByRole('radiogroup').first().getByRole('radio').last();
   await edited.check();
   const auth = await headers(page);

@@ -11,7 +11,7 @@ export interface DemoUser {
 }
 
 export interface LoginCredentials {
-  role: Role;
+  role?: Role;
   identifier: string;
   password: string;
 }

@@ -4,8 +4,14 @@ import { MetricGroup } from './MetricGroup';
 import '../../assets/vendor/fontawesome.min.css';
 import '../../styles/directory.css';
 
-export function DirectoryPage({ children }: { children: ReactNode }) {
-  return <div className="directory-page">{children}</div>;
+export function DirectoryPage({
+  children,
+  className = '',
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return <div className={`directory-page ${className}`.trim()}>{children}</div>;
 }
 
 interface DirectoryMetric {

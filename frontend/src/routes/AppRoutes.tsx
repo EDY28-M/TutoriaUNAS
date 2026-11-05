@@ -12,12 +12,14 @@ import { useAuth } from '../hooks/useAuth';
 import { dashboardPath } from '../utils/roles';
 
 import {
+  AppLayout,
   ProfilePage,
   PreferencesPage,
   StudentDashboard,
   StudentSessions,
   StudentTutor,
   StudentInstruments,
+  StudentInstrumentFill,
   StudentRecord,
   StudentReferrals,
   StudentHealth,
@@ -41,6 +43,7 @@ import {
   CoordReports,
   CoordSessions,
   CoordNotices,
+  CoordExports,
   CoordFormats,
   CoordFields,
   CoordPermissions,
@@ -56,9 +59,6 @@ import {
  * cada portal se descargan bajo demanda, de modo que la carga inicial no
  * arrastre las 35 páginas ni los datos ficticios que no se van a consultar.
  */
-const AppLayout = lazy(() =>
-  import('../components/layout/AppLayout').then((m) => ({ default: m.AppLayout })),
-);
 const CoordPadron = lazy(() =>
   import('../pages/coordinacion/CoordPadron').then((m) => ({ default: m.CoordPadron })),
 );
@@ -91,6 +91,10 @@ export function AppRoutes() {
             <Route path="/estudiante/sesiones" element={<StudentSessions />} />
             <Route path="/estudiante/tutor" element={<StudentTutor />} />
             <Route path="/estudiante/instrumentos" element={<StudentInstruments />} />
+            <Route
+              path="/estudiante/instrumentos/:instrumentoId"
+              element={<StudentInstrumentFill />}
+            />
             <Route path="/estudiante/expediente" element={<StudentRecord />} />
             <Route path="/estudiante/derivaciones" element={<StudentReferrals />} />
             <Route path="/estudiante/salud" element={<StudentHealth />} />
@@ -139,6 +143,7 @@ export function AppRoutes() {
             <Route path="/coordinacion/plan" element={<CoordPlan />} />
             <Route path="/coordinacion/revisiones" element={<CoordReviews />} />
             <Route path="/coordinacion/reportes" element={<CoordReports />} />
+            <Route path="/coordinacion/exportar" element={<CoordExports />} />
             <Route
               path="/coordinacion/horarios"
               element={<Navigate to="/coordinacion/sesiones" replace />}

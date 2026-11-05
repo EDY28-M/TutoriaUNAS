@@ -66,7 +66,7 @@ const widths = [320, 375, 390, 768, 1024, 1440];
 
 async function login(page: Page, account: (typeof accounts)[number]) {
   await page.goto('/login');
-  await page.getByRole('tab', { name: account.label, exact: true }).click();
+
   await page.locator('#identifier').fill(account.identifier);
   await page.locator('#password').fill('tutoria2026');
   await page.locator('.d01__form .d01__cta').click();
@@ -104,36 +104,13 @@ async function assertAccessible(page: Page) {
 }
 
 for (const width of widths) {
-  test(`acceso: composición, roles y campos a ${width}px`, async ({ page }) => {
+  test(`acceso: formulario único y campos a ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/login');
     await page.evaluate(() => document.fonts.ready);
-    const inicial = await page.locator('.role-switch').boundingBox();
-    for (const account of accounts) {
-      await page.getByRole('tab', { name: account.label, exact: true }).click();
-      await expect(page.getByRole('tab', { name: account.label, exact: true })).toHaveAttribute(
-        'aria-selected',
-        'true',
-      );
-      expect(await page.locator('.role-switch').boundingBox()).toEqual(inicial);
-      const controles = await page.locator('.role-switch__btn').evaluateAll((botones) =>
-        botones.map((boton) => {
-          const span = boton.querySelector('span');
-          const caja = boton.getBoundingClientRect();
-          const texto = span?.getBoundingClientRect();
-          return {
-            ancho: caja.width,
-            cabe: Boolean(texto && texto.left >= caja.left && texto.right <= caja.right),
-          };
-        }),
-      );
-      expect(controles.every((control) => control.cabe)).toBe(true);
-      expect(
-        Math.max(...controles.map((control) => control.ancho)) -
-          Math.min(...controles.map((control) => control.ancho)),
-      ).toBeLessThan(1);
-      await assertNoPageOverflow(page);
-    }
+    await expect(page.getByRole('form', { name: 'Inicia sesión' })).toHaveCount(1);
+    await expect(page.getByRole('tablist')).toHaveCount(0);
+    await assertNoPageOverflow(page);
     for (const campo of ['identifier', 'password']) {
       const geometria = await page.locator(`#${campo}`).evaluate((input) => {
         const shell = input.parentElement;
@@ -183,7 +160,10 @@ for (const account of accounts) {
     await capturar(page, `../docs/screenshots/${account.role}-1440.png`, 1440);
 
     for (const modulo of account.modules) {
-      const enlace = nav.locator(`a[href="/${account.role}/${modulo}"]`);
+      // Algunos módulos llevan filtros en el enlace (p. ej. instrumentos?ambito=propios).
+      const enlace = nav
+        .locator(`a[href="/${account.role}/${modulo}"], a[href^="/${account.role}/${modulo}?"]`)
+        .first();
       if (!(await enlace.isVisible())) {
         await enlace
           .locator('xpath=ancestor::li[contains(@class, "sidebar__branch")]')
@@ -191,7 +171,7 @@ for (const account of accounts) {
           .click();
       }
       await enlace.click();
-      await expect(page).toHaveURL(`/${account.role}/${modulo}`);
+      await expect(page).toHaveURL(new RegExp(`/${account.role}/${modulo}(\\?.*)?$`));
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
       await assertNoPageOverflow(page);
     }
@@ -236,7 +216,9 @@ for (const account of accounts) {
     // El fondo oscurecido también cierra el cajón al pulsarlo fuera de la barra.
     await page.getByRole('button', { name: 'Expandir menú', exact: true }).click();
     await expect(cajon).toHaveClass(/sidebar--open/);
-    await page.locator('.sidebar-scrim').click({ position: { x: 380, y: 500 } });
+    // El fondo empieza tras el espacio reservado de la barra de desplazamiento: se pulsa
+    // dentro de él (a la derecha del cajón de 297 px) sin depender de ese margen.
+    await page.locator('.sidebar-scrim').click({ position: { x: 330, y: 500 } });
     await expect(cajon).not.toHaveClass(/sidebar--open/);
   });
 }
@@ -259,15 +241,15 @@ test('la barra lateral se colapsa a iconos sin superponerse al contenido', async
   const inicioReducido = (await contenido.boundingBox())?.x ?? 0;
   expect(inicioReducido).toBeLessThan(inicioExpandido);
   expect(inicioReducido).toBeGreaterThanOrEqual((cajaBarra?.x ?? 0) + (cajaBarra?.width ?? 0));
-  expect(await page.locator('.sidebar-scrim').count()).toBe(0);
+  // El fondo del cajón móvil existe siempre en el DOM; en escritorio no debe verse.
+  await expect(page.locator('.sidebar-scrim')).toBeHidden();
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   await assertNoPageOverflow(page);
   await assertAccessible(page);
 
-  // Reducida, cada módulo conserva su etiqueta como texto emergente.
-  await expect(
-    page.getByRole('navigation', { name: 'Navegación principal' }).locator('a').first(),
-  ).toHaveAttribute('title');
+  // Reducida, cada módulo conserva su etiqueta como texto emergente al apuntarlo.
+  await page.getByRole('navigation', { name: 'Navegación principal' }).locator('a').first().hover();
+  await expect(page.getByRole('tooltip')).toHaveText('Inicio');
 
   await page.getByRole('button', { name: 'Expandir la barra de navegación' }).click();
   await expect(barra).not.toHaveClass(/sidebar--mini/);
@@ -303,7 +285,7 @@ test('acceso inválido, recuperación, ayuda, privacidad, sesión y 404', async 
   await page.locator('#identifier').fill('2023010456');
   await page.locator('#password').fill('wrong');
   await page.locator('.d01__form .d01__cta').click();
-  await expect(page.getByRole('alert')).toContainText('no corresponde');
+  await expect(page.getByRole('alert')).toContainText('incorrectos');
 
   for (const nombre of ['Soporte', 'Privacidad']) {
     await page.getByRole('button', { name: nombre, exact: true }).click();
@@ -338,7 +320,7 @@ test('los doce instrumentos oficiales están documentados y son consultables', a
   await login(page, accounts[2]);
   await page.goto('/coordinacion/instrumentos');
   const titulo = page.getByRole('heading', { level: 1 });
-  await expect(titulo).toContainText('Instrumentos');
+  await expect(titulo).toContainText('Formularios de tutoría');
 
   const nombres = [
     'Informe de actividades del proceso tutorial',
@@ -357,8 +339,14 @@ test('los doce instrumentos oficiales están documentados y son consultables', a
   for (const nombre of nombres) {
     await expect(page.getByText(nombre, { exact: false }).first()).toBeVisible();
   }
-  // La vigencia sigue marcada como pendiente de confirmación.
-  await expect(page.getByText(/vigencia.*confirmar/i).first()).toBeVisible();
+  // Cada formato indica su versión y la resolución que lo aprueba.
+  await page.getByRole('button', { name: 'Ver formato 01' }).click();
+  await expect(
+    page
+      .getByRole('dialog')
+      .getByText(/Resolución N\.º 500-2022-CU-R-UNAS/)
+      .first(),
+  ).toBeVisible();
 });
 
 test('seguimiento académico, derivaciones y salud están disponibles para el tutorado', async ({
@@ -367,28 +355,23 @@ test('seguimiento académico, derivaciones y salud están disponibles para el tu
   await login(page, accounts[0]);
 
   await page.goto('/estudiante/expediente');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('expediente académico');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Mis estudios');
   await expect(page.getByText(/DIAA/i).first()).toBeVisible();
-  await expect(page.getByText(/fecha de corte|corte/i).first()).toBeVisible();
+  await expect(page.getByText(/Créditos aprobados/i).first()).toBeVisible();
 
   await page.goto('/estudiante/derivaciones');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('derivaciones');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('solicitudes de apoyo');
 
   await page.goto('/estudiante/salud');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Salud y bienestar');
-  await expect(page.getByText(/historia clínica|diagnóstico/i).first()).toBeVisible();
+  await expect(page.getByText('Mis atenciones', { exact: true }).first()).toBeVisible();
 
   await page.goto('/estudiante/instrumentos');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('instrumentos');
-  await expect(page.locator('table').first()).toBeVisible();
-  const filas = page.locator('tbody tr');
-  expect(await filas.count()).toBeGreaterThan(0);
-  // El tutorado solo ve los instrumentos que él responde.
-  for (const texto of ['Formato 03', 'Formato 04', 'Formato 05', 'Formato 10', 'Formato 11']) {
-    const visibles = await page.getByText(texto, { exact: false }).count();
-    expect(visibles).toBeGreaterThanOrEqual(0);
-  }
-  const contenido = await page.locator('table').innerText();
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Mis formularios');
+  // La entrevista inicial es la tarea principal y se abre en su propia página.
+  await expect(page.getByRole('link', { name: /Entrevista inicial/ })).toBeVisible();
+  // El tutorado solo ve los formularios que él responde: ni asistencias ni registros del tutor.
+  const contenido = await page.locator('main').innerText();
   expect(contenido).not.toContain('Registro de asistencia');
 });
 

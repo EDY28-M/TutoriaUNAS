@@ -24,7 +24,7 @@ for (const cuenta of [
     }) => {
       await page.setViewportSize({ width: ancho, height: 1000 });
       await page.goto('/login');
-      await page.getByRole('tab', { name: cuenta.etiqueta, exact: true }).click();
+
       await page.locator('#identifier').fill(cuenta.usuario);
       await page.locator('#password').fill('tutoria2026');
       await page.locator('.d01__form .d01__cta').click();
@@ -32,8 +32,9 @@ for (const cuenta of [
       await page.goto(`/${cuenta.rol}/sesiones`);
       await page.evaluate(() => document.fonts.ready);
       const titulo = await tipografia(page.locator('.page-head h1'));
-      const estado = await tipografia(page.locator('.badge'));
+      // Sesiones ya no muestra insignias: la referencia se mide en el perfil.
       await page.goto(`/${cuenta.rol}/perfil`);
+      const estado = await tipografia(page.locator('.badge'));
       const tarjeta = await tipografia(page.locator('.card__head h2'));
       const boton = await tipografia(page.locator('.btn-primary'));
       const campo = await tipografia(page.locator('.input'));
@@ -43,21 +44,18 @@ for (const cuenta of [
       ).toBeVisible();
       if (cuenta.rol === 'estudiante')
         await expect(page.getByLabel('Momento del semestre')).toHaveCount(0);
-      expect(await tipografia(page.locator('.forms-panel__header h1'))).toEqual(titulo);
+      const tutor = cuenta.rol === 'tutor';
       expect(
-        await tipografia(
-          page.locator(cuenta.rol === 'tutor' ? '.teacher-task h3' : '.form-tile__content h2'),
-        ),
+        await tipografia(page.locator(tutor ? '.forms-panel__header h1' : '.page-head h1')),
+      ).toEqual(titulo);
+      expect(
+        await tipografia(page.locator(tutor ? '.teacher-task h3' : '.sf-entrevista__titulo')),
       ).toMatchObject({ familia: tarjeta.familia, espaciado: tarjeta.espaciado });
       expect(
-        await tipografia(
-          page.locator(cuenta.rol === 'tutor' ? '.teacher-task .btn' : '.form-tile .btn'),
-        ),
+        await tipografia(page.locator(tutor ? '.teacher-task .btn' : '.sf-entrevista .btn')),
       ).toMatchObject({ familia: boton.familia, espaciado: boton.espaciado });
       expect(
-        await tipografia(
-          page.locator(cuenta.rol === 'tutor' ? '.teacher-task .badge' : '.form-tile .badge'),
-        ),
+        await tipografia(page.locator(tutor ? '.teacher-task .badge' : '.sf-panel .badge')),
       ).toMatchObject({ familia: estado.familia, peso: estado.peso, espaciado: estado.espaciado });
       if (cuenta.rol === 'tutor') {
         expect(
@@ -78,16 +76,16 @@ for (const cuenta of [
           .getByRole('button', { name: 'Continuar', exact: true })
           .click();
       } else {
-        await page
-          .getByRole('button', { name: /^(Comenzar|Continuar|Ver preguntas) · Formato 03$/ })
-          .click();
+        await page.getByRole('link', { name: /Entrevista inicial/ }).click();
       }
-      expect(
-        await tipografia(page.getByRole('dialog').locator('.tutoring-field .input')),
-      ).toMatchObject({ familia: campo.familia, espaciado: campo.espaciado });
-      const fuentes = await page
-        .getByRole('dialog')
-        .locator('h2, h3, p, label, input, select, textarea, button')
+      // El tutor completa en un diálogo; el tutorado, en su propia página.
+      const formulario = tutor ? page.getByRole('dialog') : page.locator('.sf-llenado');
+      expect(await tipografia(formulario.locator('.tutoring-field .input'))).toMatchObject({
+        familia: campo.familia,
+        espaciado: campo.espaciado,
+      });
+      const fuentes = await formulario
+        .locator('h1, h2, h3, p, label, input, select, textarea, button')
         .evaluateAll((elementos) => elementos.map((e) => getComputedStyle(e).fontFamily));
       expect(fuentes.every((familia) => familia.includes('Manrope Variable'))).toBe(true);
     });

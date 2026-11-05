@@ -7,6 +7,8 @@ import { DashboardScope, PortalCharts } from '../../components/ui/PortalCharts';
 import type { DashboardScopeData } from '../../components/ui/PortalCharts';
 import { Stat } from '../../components/ui/Stat';
 import { formatFecha } from '../../utils/fechas';
+import { useInstrumentWorkspace } from '../../hooks/useInstrumentWorkspace';
+import { formulariosDelEstudiante, porResponder } from '../../utils/formulariosEstudiante';
 
 export function StudentDashboard() {
   return <DashboardScope>{(scope) => <StudentPanel scope={scope} />}</DashboardScope>;
@@ -14,7 +16,8 @@ export function StudentDashboard() {
 
 function StudentPanel({ scope }: { scope: DashboardScopeData }) {
   const { portal, proxima } = scope;
-  const { estudiante, sesiones, instrumentos, derivaciones, contadores } = portal;
+  const { momento } = useInstrumentWorkspace();
+  const { estudiante, sesiones, instrumentos, derivaciones } = portal;
   if (!estudiante)
     return (
       <EmptyState
@@ -29,7 +32,16 @@ function StudentPanel({ scope }: { scope: DashboardScopeData }) {
     ),
   );
   const abiertas = derivaciones.filter((d) => !['atendida', 'cerrada'].includes(d.estado));
-  const observados = instrumentos.filter((i) => i.estado === 'observado').length;
+  // Misma regla que «Mis formularios»: solo cuenta lo que el estudiante puede responder hoy.
+  const formularios = formulariosDelEstudiante(
+    instrumentos,
+    estudiante.ciclo,
+    sesiones,
+    momento,
+    scope.referencia,
+  );
+  const porCorregir = formularios.filter((f) => f.disponibilidad === 'corregir').length;
+  const pendientes = formularios.filter(porResponder).length;
   return (
     <div className="dashboard-page dashboard-page--student">
       <PageHeading
@@ -61,8 +73,8 @@ function StudentPanel({ scope }: { scope: DashboardScopeData }) {
         />
         <Stat
           label="Pendientes"
-          value={contadores.pendientes}
-          note="Formularios"
+          value={pendientes}
+          note="Formularios por responder"
           icon={<ClipboardList />}
         />
         <Stat
@@ -78,12 +90,12 @@ function StudentPanel({ scope }: { scope: DashboardScopeData }) {
           items={[
             {
               label: 'Formularios por completar',
-              count: contadores.pendientes - observados,
+              count: pendientes - porCorregir,
               href: '/estudiante/instrumentos?estado=pendiente',
             },
             {
               label: 'Observaciones por corregir',
-              count: observados,
+              count: porCorregir,
               href: '/estudiante/instrumentos?estado=observado',
               urgent: true,
             },

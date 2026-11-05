@@ -21,7 +21,6 @@ import { Sheet } from '../ui/Sheet';
 import { SearchableSelect } from '../ui/SearchableSelect';
 import { ArrowRight, Check, CircleCheck } from '../ui/icons';
 import { GuidedInstrumentForm } from './GuidedInstrumentForm';
-import { StudentFormsPanel } from './StudentFormsPanel';
 import { TeacherFormsPanel } from './TeacherFormsPanel';
 import { tituloFormulario } from './teacherFormTasks';
 import '../../styles/tutoring-workspace.css';
@@ -256,7 +255,8 @@ export function TutoringWorkspace() {
           </button>
         </div>
       )}
-      {docente ? (
+      {/* El tutorado responde en su propia página (/estudiante/instrumentos). */}
+      {docente && (
         <TeacherFormsPanel
           registros={registros}
           tutorados={tutorados}
@@ -265,18 +265,11 @@ export function TutoringWorkspace() {
           onAbrir={abrir}
           onPreparar={preparar}
         />
-      ) : (
-        <StudentFormsPanel
-          registros={propios}
-          ciclo={portal.estudiante!.ciclo}
-          momento={workspace.momento}
-          sesiones={portal.sesiones}
-          onAbrir={abrir}
-        />
       )}
       {nuevo && (
         <Sheet
           title={`Formato ${nuevo.slice(1)} · ${tituloFormulario(nuevo)}`}
+          className={['F06', 'F08', 'F12'].includes(nuevo) ? 'tutoring-search-sheet' : undefined}
           description={
             nuevo === 'F07'
               ? 'Marca a los estudiantes que participaron.'
@@ -371,6 +364,7 @@ export function TutoringWorkspace() {
       {actual && definicion && (
         <Sheet
           title={`Formato ${definicion.numero} · ${tituloFormulario(actual.formato)}`}
+          className={!editar ? 'tutoring-preview-sheet' : undefined}
           wide
           onClose={cerrarFormulario}
         >
@@ -399,9 +393,9 @@ export function TutoringWorkspace() {
             </Alert>
           )}
           {esPropio && !editar && !['enviado', 'aprobado'].includes(actual.estado) && (
-            <Alert tone={esEvaluacion ? 'alerta' : 'info'} title="Vista previa">
-              {bloqueo ?? 'Podrás enviar este informe al cierre del semestre.'}
-            </Alert>
+            <p className="tutoring-preview-note">
+              Vista previa · {bloqueo ?? 'Envío disponible al cierre del semestre.'}
+            </p>
           )}
           <GuidedInstrumentForm
             key={actual.id}

@@ -19,6 +19,9 @@ export const ProfilePage = precargable(() =>
 export const PreferencesPage = precargable(() =>
   import('../pages/comun/PreferencesPage').then((m) => ({ default: m.PreferencesPage })),
 );
+export const AppLayout = precargable(() =>
+  import('../components/layout/AppLayout').then((m) => ({ default: m.AppLayout })),
+);
 
 // Tutorado
 export const StudentDashboard = precargable(() =>
@@ -32,6 +35,11 @@ export const StudentTutor = precargable(() =>
 );
 export const StudentInstruments = precargable(() =>
   import('../pages/estudiante/StudentInstruments').then((m) => ({ default: m.StudentInstruments })),
+);
+export const StudentInstrumentFill = precargable(() =>
+  import('../pages/estudiante/StudentInstrumentFill').then((m) => ({
+    default: m.StudentInstrumentFill,
+  })),
 );
 export const StudentRecord = precargable(() =>
   import('../pages/estudiante/StudentRecord').then((m) => ({ default: m.StudentRecord })),
@@ -106,6 +114,9 @@ export const CoordSessions = precargable(() =>
 export const CoordNotices = precargable(() =>
   import('../pages/coordinacion/CoordNotices').then((m) => ({ default: m.CoordNotices })),
 );
+export const CoordExports = precargable(() =>
+  import('../pages/coordinacion/CoordExports').then((m) => ({ default: m.CoordExports })),
+);
 export const CoordFormats = precargable(() =>
   import('../pages/coordinacion/CoordFormats').then((m) => ({ default: m.CoordFormats })),
 );
@@ -165,6 +176,7 @@ const pages: Record<string, Record<string, { preload(): Promise<unknown> }>> = {
     plan: CoordPlan,
     revisiones: CoordReviews,
     reportes: CoordReports,
+    exportar: CoordExports,
     sesiones: CoordSessions,
     calendario: CoordSessions,
     horarios: CoordSessions,
@@ -182,7 +194,18 @@ const pages: Record<string, Record<string, { preload(): Promise<unknown> }>> = {
 export function preloadPortalRoute(path: string) {
   const [, role = '', module = '', detail] = path.split('?')[0]!.split('/');
   const page =
-    role === 'tutor' && module === 'tutorados' && detail ? TuteeRecord : pages[role]?.[module];
+    role === 'tutor' && module === 'tutorados' && detail
+      ? TuteeRecord
+      : role === 'estudiante' && module === 'instrumentos' && detail
+        ? StudentInstrumentFill
+        : pages[role]?.[module];
   // Una precarga fallida no interrumpe la página actual. El clic puede reintentar.
   void page?.preload().catch(() => undefined);
+}
+
+/** Los tres paneles son pequeños y comparten sus dependencias. Se descargan al enviar el acceso. */
+export function preloadLoginDestination() {
+  for (const page of [AppLayout, StudentDashboard, TutorDashboard, CoordDashboard]) {
+    void page.preload().catch(() => undefined);
+  }
 }

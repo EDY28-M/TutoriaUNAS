@@ -946,6 +946,7 @@
 }
 
 .meter__bar {
+  display: block;
   height: 100%;
   border-radius: var(--r-full);
   background: var(--green-600);

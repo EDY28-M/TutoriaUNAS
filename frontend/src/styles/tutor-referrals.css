@@ -150,42 +150,6 @@
   gap: 12px;
   min-width: 0;
 }
-.referral-list .toolbar {
-  display: grid;
-  grid-template-columns: minmax(0, 1.8fr) repeat(3, minmax(0, 1fr)) auto;
-  gap: 10px;
-  margin: 0;
-}
-.referral-list .toolbar .field {
-  min-width: 0;
-  gap: 4px;
-}
-.referral-list .toolbar .field label {
-  margin: 0;
-  color: var(--ink-500);
-  font-size: 0.65rem;
-  letter-spacing: 0.04em;
-}
-.referral-list .toolbar__spacer {
-  display: none;
-}
-.referral-list .toolbar > .ui-row {
-  align-self: end;
-  justify-content: flex-end;
-  min-height: 44px;
-}
-.referral-list .toolbar .select,
-.referral-list .search-field {
-  min-height: 44px;
-  font-size: 0.76rem;
-  border-color: var(--referral-line);
-}
-.referral-list .search-field input {
-  font-size: 0.76rem;
-}
-.referral-list .toolbar .small {
-  font-size: 0.67rem;
-}
 .referral-list .data-table-panel__scroll {
   max-height: min(660px, max(240px, calc(100dvh - 12rem)));
   overscroll-behavior-y: auto;
@@ -585,15 +549,8 @@
   font-size: 0.75rem;
 }
 @container referral-list (max-width: 850px) {
-  .referral-list .toolbar {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
-  }
   .referral-list .filter-search {
     grid-column: 1/4;
-  }
-  .referral-list .toolbar > .ui-row {
-    grid-column: 4;
-    grid-row: 1;
   }
 }
 @container tutor-referrals (max-width: 680px) {
@@ -630,17 +587,8 @@
   .referral-list .card__body {
     padding: 14px 16px;
   }
-  .referral-list .toolbar {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
   .referral-list .filter-search {
     grid-column: 1/-1;
-  }
-  .referral-list .toolbar > .ui-row {
-    grid-column: 2;
-    grid-row: 3;
-    flex-wrap: wrap;
-    gap: 4px;
   }
   .referral-list .card__foot {
     padding-inline: 16px;

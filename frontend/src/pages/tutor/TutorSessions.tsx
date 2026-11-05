@@ -10,6 +10,7 @@ import { Alert } from '../../components/ui/Alert';
 
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Sheet } from '../../components/ui/Sheet';
+import { SearchableSelect } from '../../components/ui/SearchableSelect';
 import { usePortal } from '../../hooks/usePortal';
 import { SessionCalendar } from '../../components/panels/SessionCalendar';
 import { SessionDetails } from '../../components/panels/SessionDetails';
@@ -20,6 +21,7 @@ import { estudiantePorId, nombreCompleto } from '../../data/personas';
 import { hayCruce } from '../../data/academico';
 import type { ModalidadSesion, Sesion } from '../../types/domain';
 import { fechaActualLima, formatFechaLarga, formatHora, formatRangoHora } from '../../utils/fechas';
+import '../../styles/coord-modals.css';
 
 /** Sesiones del docente: un solo calendario con detalle y programación. */
 
@@ -193,7 +195,8 @@ export function TutorSessions() {
       {ventana?.tipo === 'programar' && (
         <Sheet
           title="Programar sesión de tutoría"
-          description="Elige la fecha y la hora. Revisaremos si coincide con alguna clase."
+          description="Elige el horario y los participantes."
+          className="coord-form-sheet"
           onClose={() => setVentana(null)}
           wide
           footer={
@@ -209,7 +212,7 @@ export function TutorSessions() {
                 type="button"
                 className="btn btn-primary"
                 onClick={programar}
-                disabled={guardando}
+                disabled={guardando || (nuevoTipo === 'individual' && !nuevoEstudiante)}
               >
                 Guardar programación
               </button>
@@ -294,25 +297,19 @@ export function TutorSessions() {
             </div>
 
             {nuevoTipo === 'individual' && (
-              <div className="field">
-                <label htmlFor="programar-estudiante">Estudiante convocado</label>
-                <select
-                  id="programar-estudiante"
-                  className="select"
-                  value={nuevoEstudiante}
-                  onChange={(evento) => setNuevoEstudiante(evento.target.value)}
-                >
-                  <option value="">Elige un estudiante</option>
-                  {tutoradosResueltos.map((fila) => (
-                    <option key={fila.estudiante.id} value={fila.estudiante.id}>
-                      {nombreCompleto(fila.estudiante)} · {fila.estudiante.codigo}
-                    </option>
-                  ))}
-                </select>
-                <span className="field__hint">
-                  La verificación compara el horario propuesto con las clases del estudiante.
-                </span>
-              </div>
+              <SearchableSelect
+                label="Estudiante convocado"
+                placeholder="Buscar por nombre o código"
+                options={tutoradosResueltos.map(({ estudiante }) => ({
+                  value: estudiante.id,
+                  label: nombreCompleto(estudiante),
+                  description: estudiante.codigo,
+                }))}
+                value={nuevoEstudiante}
+                onChange={setNuevoEstudiante}
+                autoFocus={false}
+                required
+              />
             )}
             {nuevoTipo === 'grupal' && (
               <label className="field" htmlFor="programar-grupo">
@@ -350,8 +347,7 @@ export function TutorSessions() {
               </Alert>
             ) : nuevoTipo === 'individual' && nuevoEstudiante !== '' && nuevaInicio < nuevaFin ? (
               <Alert tone="ok" title="Horario sin cruces">
-                El horario propuesto no coincide con clases del estudiante. Al guardar se verifican
-                también las sesiones del tutor y de los convocados.
+                Se revisará la disponibilidad al guardar.
               </Alert>
             ) : null}
 
@@ -364,11 +360,13 @@ export function TutorSessions() {
                 value={tema}
                 onChange={(e) => setTema(e.target.value)}
                 maxLength={200}
-                aria-describedby="programar-tema-ayuda"
+                aria-describedby={nuevoTipo === 'grupal' ? 'programar-tema-ayuda' : undefined}
               />
-              <span className="field__hint" id="programar-tema-ayuda">
-                En las actividades grupales este campo es obligatorio (formato 07).
-              </span>
+              {nuevoTipo === 'grupal' && (
+                <span className="field__hint" id="programar-tema-ayuda">
+                  Obligatorio para sesiones grupales.
+                </span>
+              )}
             </div>
             <div className="field">
               <label htmlFor="programar-objetivo">Objetivo de la sesión</label>

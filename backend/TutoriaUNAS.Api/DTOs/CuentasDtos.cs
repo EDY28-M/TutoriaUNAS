@@ -8,5 +8,5 @@ public sealed record VincularCuentaInput(int Version);
 public sealed record CodigoEnCaminoDto(string RetoId, int ExpiraEn, int ReenviarEn, string Mensaje);
 public sealed record CodigoValidadoDto(string Ticket, int ExpiraEn);
 public sealed record CuentaCompletadaDto(string Identifier, string Role, bool PendienteVinculacion);
-public sealed record ActivacionRequeridaDto(bool ActivacionRequerida, string TokenActivacion, string Correo, int ExpiraEn);
+public sealed record ActivacionRequeridaDto(bool ActivacionRequerida, string TokenActivacion, string Correo, int ExpiraEn, string Role);
 public sealed record CuentaCreadaDto(string Id, string Identifier, string PasswordTemporal, int ExpiraEn, string EstadoCorreo);

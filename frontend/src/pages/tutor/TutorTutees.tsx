@@ -11,8 +11,9 @@ import { Badge, StatusBadge } from '../../components/ui/StatusBadge';
 import { DataTable } from '../../components/ui/DataTable';
 import type { Column } from '../../components/ui/DataTable';
 import { PersonCell } from '../../components/ui/PersonCell';
-import { PanelFiltros, useFiltro } from '../../components/panels/PanelFiltros';
-import type { DefinicionSelect } from '../../components/panels/PanelFiltros';
+import { useFiltro } from '../../hooks/useFiltro';
+import { DirectoryToolbar } from '../../components/ui/DirectoryToolbar';
+import type { DefinicionSelect } from '../../hooks/useFiltro';
 import { usePortal } from '../../hooks/usePortal';
 import { semestreActual } from '../../data/catalogos';
 import {
@@ -30,7 +31,7 @@ import '../../styles/tutor-tutees.css';
 /**
  * Listado de tutorados del docente: datos de contacto y académicos, alertas,
  * asistencia a tutoría e instrumentos pendientes, con acceso a cada expediente.
- * La búsqueda y los filtros se apoyan en `PanelFiltros` y `useFiltro`.
+ * La búsqueda y los filtros se apoyan en `DirectoryToolbar` y `useFiltro`.
  */
 
 interface FilaTutorado {
@@ -448,15 +449,15 @@ export function TutorTutees() {
         </div>
         <CardBody>
           <div className="stack tutor-tutees-list__content">
-            <PanelFiltros<FilaTutorado>
+            <DirectoryToolbar
               busqueda={filtro.busqueda}
               onBusqueda={filtro.setBusqueda}
               selects={selects}
               valores={filtro.valores}
-              onValor={(id, valor) => filtro.setValores((actual) => ({ ...actual, [id]: valor }))}
+              onValores={filtro.setValores}
               mostrados={visibles.length}
               total={filas.length}
-              activos={filtro.activos || vista !== 'todos'}
+              filtrosAdicionalesActivos={vista !== 'todos'}
               onLimpiar={limpiarFiltros}
               etiqueta="Filtros de estudiantes"
               placeholder="Nombre, apellidos o código…"
@@ -474,6 +475,7 @@ export function TutorTutees() {
               emptyDescription="Ajusta la búsqueda o limpia los filtros para ver la lista completa."
               initialSort={{ key: 'alertas', direction: 'asc' }}
               pagination="auto"
+              paginationPosition="bottom"
             />
           </div>
         </CardBody>

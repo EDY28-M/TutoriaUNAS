@@ -9,13 +9,16 @@ export class DemoAuthService implements AuthService {
   ) {}
 
   async login(credentials: LoginCredentials, remember: boolean): Promise<DemoUser> {
-    const account = demoAccounts.find(
+    const identifier = credentials.identifier.trim().toLowerCase();
+    const matches = demoAccounts.filter(
       (candidate) =>
-        candidate.identifier === credentials.identifier.trim() &&
-        candidate.role === credentials.role,
+        (candidate.identifier.toLowerCase() === identifier ||
+          candidate.email.toLowerCase() === identifier) &&
+        (!credentials.role || candidate.role === credentials.role),
     );
-    if (!account || credentials.password !== DEMO_PASSWORD) {
-      throw new Error('La cuenta de prueba o la contraseña no corresponde al rol seleccionado.');
+    const account = matches[0];
+    if (matches.length !== 1 || !account || credentials.password !== DEMO_PASSWORD) {
+      throw new Error('El usuario o la contraseña de prueba son incorrectos.');
     }
     this.logout();
     if (remember) {

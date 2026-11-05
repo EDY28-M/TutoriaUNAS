@@ -67,6 +67,57 @@
 .directory-toolbar {
   min-width: 0;
 }
+.directory-controls {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 0 0 16px;
+}
+.directory-controls .field {
+  min-width: 0;
+  max-width: min(100%, 26rem);
+  margin: 0;
+}
+.directory-controls .select {
+  width: 100%;
+  min-height: 42px;
+  padding-block: 8px;
+  font-size: 0.78rem;
+  border-radius: 7px;
+}
+.directory-controls label {
+  font-size: 0.75rem;
+  text-transform: none;
+}
+.directory-toolbar .tabs {
+  flex-wrap: wrap;
+  gap: 0 14px;
+  padding-inline: 0;
+}
+.directory-toolbar .tabs [role='tab'] {
+  min-height: 44px;
+  padding-inline: 0;
+  font-size: 0.75rem;
+}
+.directory-toolbar .tabs__count {
+  background: transparent;
+}
+.directory-toolbar .directory-filter-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 12px;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+.directory-disclosure {
+  --directory-line: #dde3df;
+}
 .directory-views {
   display: flex;
   flex-wrap: wrap;
@@ -106,6 +157,7 @@
 }
 .directory-toolbar__search {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   padding: 16px 0;
@@ -115,12 +167,14 @@
   align-items: center;
   gap: 10px;
   min-width: 0;
-  flex: 1;
+  flex: 1 1 140px;
   max-width: 420px;
-  min-height: 42px;
+  height: 44px;
+  min-height: 44px;
+  margin: 0;
   padding: 9px 12px;
   background: transparent;
-  border: 1px solid var(--directory-line);
+  border: 1px solid var(--directory-line, var(--line));
   border-radius: 7px;
   font-size: 0.75rem;
   color: #617368;
@@ -392,10 +446,6 @@ dialog.directory-filter-sheet {
 .directory-filter-sheet .sheet__head h2 {
   font-size: 1.12rem;
 }
-.directory-filter-sheet .sheet__head p {
-  font-size: 0.73rem;
-  margin-top: 7px;
-}
 .directory-filter-form {
   display: grid;
   gap: 24px;
@@ -410,12 +460,6 @@ dialog.directory-filter-sheet {
   text-transform: none;
   font-size: 0.78rem;
   letter-spacing: 0;
-}
-.directory-filter-index {
-  font:
-    0.62rem 'JetBrains Mono',
-    monospace;
-  color: #617368;
 }
 .directory-filter-form .select {
   width: 100%;

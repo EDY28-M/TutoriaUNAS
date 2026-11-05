@@ -1,8 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using TutoriaUNAS.Api.Data;
+using TutoriaUNAS.Api.DTOs;
 using TutoriaUNAS.Api.Entities;
 using TutoriaUNAS.Api.Services;
 
@@ -22,6 +24,36 @@ public sealed class PadronTests(PostgresFixture fixture) : IClassFixture<Postgre
         Assert.Equal(HttpStatusCode.BadRequest, (await coordinacion.GetAsync("/api/padron?tipo=otro")).StatusCode);
         var vacio = await coordinacion.GetFromJsonAsync<JsonElement>("/api/padron?tipo=tutor");
         Assert.Equal(0, vacio.GetProperty("total").GetInt32());
+    }
+
+    [PostgresFact]
+    public async Task CoordinacionRecibeLaMatriculaDeEstudiantesSinTutorAsignado()
+    {
+        string estudianteId;
+        await using (var scope = fixture.App.Services.CreateAsyncScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<TutoriaDbContext>();
+            var asignacion = await db.Asignaciones.FirstAsync(a => a.Activa);
+            estudianteId = asignacion.EstudianteId;
+            asignacion.Activa = false;
+            await db.SaveChangesAsync();
+        }
+        using var coordinacion = await fixture.Login("coordinacion.tutoria", "coordinacion");
+        var estado = (await coordinacion.GetFromJsonAsync<EstadoTutoriaDto>("/api/tutoria/estado"))!;
+        Assert.DoesNotContain(estado.Asignaciones, a => a.GetProperty("estudianteId").GetString() == estudianteId);
+        // Sin tutor, la ficha de «Estudiantes» igual debe mostrar los cursos que ya están cargados.
+        Assert.Contains(estado.Matriculas, m => m.GetProperty("estudianteId").GetString() == estudianteId);
+        Assert.Contains(estado.Estudiantes, e => e.GetProperty("id").GetString() == estudianteId);
+    }
+
+    [Fact]
+    public void ElEstadoNoArrastraElDetalleDeAulasDeLaMatricula()
+    {
+        const string json = """{"semestreId":"2026-II","cursos":[{"cursoId":"X","docente":"D","horario":"Día 1 09-01 pm.","horariosOriginales":[{"aula":"A"}]}]}""";
+        var curso = JsonDocument.Parse(EstadoTutoriaService.SinHorariosOriginales(json)).RootElement.GetProperty("cursos")[0];
+        Assert.False(curso.TryGetProperty("horariosOriginales", out _));
+        Assert.Equal("Día 1 09-01 pm.", curso.GetProperty("horario").GetString());
+        Assert.Equal("{}", EstadoTutoriaService.SinHorariosOriginales("{}"));
     }
 
     [PostgresFact]

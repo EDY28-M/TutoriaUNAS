@@ -20,6 +20,7 @@ import {
   Mail,
   Plug,
   Presentation,
+  Printer,
   ScrollText,
   Send,
   ShieldCheck,
@@ -195,6 +196,7 @@ export const navigation: Record<Role, NavigationGroup[]> = {
       title: 'Seguimiento',
       items: [
         { path: 'reportes', label: 'Reportes', icon: ChartNoAxesCombined },
+        { path: 'exportar', label: 'Exportar formatos', icon: Printer },
         { path: 'sesiones', label: 'Sesiones', icon: CalendarCheck, counter: 'sesiones' },
         { path: 'avisos', label: 'Avisos', icon: Mail, counter: 'avisos' },
       ],

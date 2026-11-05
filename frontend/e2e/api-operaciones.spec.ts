@@ -7,7 +7,7 @@ async function login(
   identifier?: string,
 ) {
   await page.goto('/login');
-  await page.locator(`#login-role-${role}`).click();
+
   await page
     .locator('#identifier')
     .fill(
@@ -187,8 +187,9 @@ test('coordinación guarda, recupera y elimina una actividad planificada', async
   await modal.getByRole('button', { name: 'Guardar cambios', exact: true }).click();
   await expect(modal).toHaveCount(0);
   await page.reload();
+  await page.getByRole('searchbox', { name: 'Buscar actividad' }).fill(nombre);
   const row = page
-    .locator('.ui-row')
+    .getByRole('row')
     .filter({ has: page.getByText(nombre, { exact: true }) })
     .filter({ has: page.getByRole('button', { name: 'Editar actividad', exact: true }) });
   await row.getByRole('button', { name: 'Editar actividad', exact: true }).click();
@@ -327,9 +328,7 @@ test('coordinación cambia el acceso y el plazo del periodo y los recupera tras 
 
     await page.goto('/coordinacion/semestres');
     await page.getByRole('button', { name: 'Editar fechas', exact: true }).click();
-    const configuracion = page.locator('.card').filter({
-      has: page.getByRole('heading', { name: 'Configuración del semestre activo', exact: true }),
-    });
+    const configuracion = page.getByRole('dialog', { name: 'Editar fechas', exact: true });
     const fecha = new Date(`${original.configuracionPeriodo.fin}T12:00:00Z`);
     fecha.setUTCDate(fecha.getUTCDate() + 1);
     const plazo = fecha.toISOString().slice(0, 10);

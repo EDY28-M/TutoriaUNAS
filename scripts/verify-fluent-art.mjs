@@ -55,7 +55,7 @@ try {
   const publicPage = await publicContext.newPage();
   watch(publicPage, 'publico');
   await publicPage.goto(`${base}/login`);
-  await publicPage.locator('.role-switch').waitFor();
+  await publicPage.locator('.d01__form').waitFor();
   await inspect(publicPage, 'login');
   await accessible(publicPage, 'login');
   await publicPage.screenshot({ path: resolve(out, 'login-desktop.png') });
@@ -76,7 +76,6 @@ try {
     const page = await context.newPage();
     watch(page, account.role);
     await page.goto(`${base}/login`);
-    await page.getByRole('tab', { name: account.label, exact: true }).click();
     await page.locator('#identifier').fill(account.id);
     await page.locator('#password').fill('tutoria2026');
     await page.locator('.d01__form .d01__cta').click();

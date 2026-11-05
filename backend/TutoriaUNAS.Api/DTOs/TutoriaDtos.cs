@@ -23,4 +23,4 @@ public sealed record GuardarInstrumentoDto(int Version, Dictionary<string, strin
 public sealed record RevisarInstrumentoDto(int Version, string Decision, string Comentario);
 public sealed record CambiarMomentoDto(int Version, string Momento);
 public sealed record AsignarTutorDto(string EstudianteId, string TutorId, string? Grupo, string Referencia, int? Version = null, string? SolicitudId = null, int? SolicitudVersion = null);
-public sealed record LoginLocalDto(string Identifier, string Password, string Role);
+public sealed record LoginLocalDto(string Identifier, string Password, string? Role = null, bool IncluirEstado = false);

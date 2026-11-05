@@ -1,8 +1,11 @@
+import { DirectoryDisclosure, DirectoryPage } from '../../components/ui/DirectoryPage';
+import { MetricGroup } from '../../components/ui/MetricGroup';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { API_MODE } from '../../services/apiConfig';
 import { apiJson } from '../../services/apiClient';
-import type { DefinicionSelect } from '../../components/panels/PanelFiltros';
-import { PanelFiltros, useFiltro } from '../../components/panels/PanelFiltros';
+import type { DefinicionSelect } from '../../hooks/useFiltro';
+import { useFiltro } from '../../hooks/useFiltro';
+import { DirectoryToolbar } from '../../components/ui/DirectoryToolbar';
 import { Alert } from '../../components/ui/Alert';
 import { Card, CardBody, CardFoot, CardHead } from '../../components/ui/Card';
 import type { Column } from '../../components/ui/DataTable';
@@ -51,7 +54,18 @@ interface RegistroServidor {
   accion: string;
   recursoId: string;
   version: number;
+  identificador?: string | null;
+  nombre?: string | null;
+  rol?: string | null;
+  dispositivo?: string | null;
 }
+
+const accionesAcceso: Record<string, string> = {
+  'iniciar-sesion': 'Inicio de sesión',
+  'iniciar-activacion': 'Inicio de verificación',
+  'acceso-pendiente-vinculacion': 'Acceso pendiente de vinculación',
+};
+
 function AuditoriaPersistente() {
   const [registros, setRegistros] = useState<RegistroServidor[]>([]);
   const [error, setError] = useState('');
@@ -76,11 +90,11 @@ function AuditoriaPersistente() {
     return () => controller.abort();
   }, [revision]);
   return (
-    <div className="stack">
+    <DirectoryPage>
       <PageHeading
         eyebrow="Coordinación"
         title="Auditoría de tutoría"
-        description="Últimas 200 operaciones confirmadas de tu escuela, sin contenido de las respuestas del expediente."
+        description="Últimas 200 operaciones de tu escuela."
         actions={
           <button
             type="button"
@@ -106,16 +120,35 @@ function AuditoriaPersistente() {
         rowKey={(r) => String(r.id)}
         caption="Operaciones persistidas en el servidor"
         pagination="auto"
+        paginationPosition="bottom"
         emptyTitle="Sin operaciones registradas"
         columns={[
-          { key: 'fecha', header: 'Fecha', render: (r) => formatFechaHora(r.fecha) },
-          { key: 'cuenta', header: 'Cuenta', render: (r) => r.usuarioId },
-          { key: 'accion', header: 'Acción', render: (r) => r.accion },
+          { key: 'fecha', header: 'Fecha y hora', render: (r) => formatFechaHora(r.fecha) },
+          {
+            key: 'cuenta',
+            header: 'Usuario',
+            render: (r) => (
+              <>
+                <strong>{r.nombre || r.identificador || r.usuarioId}</strong>
+                {r.nombre && r.identificador && (
+                  <span className="cell-note d-block">{r.identificador}</span>
+                )}
+                {r.rol && <span className="cell-note d-block">{etiquetaRol(r.rol)}</span>}
+              </>
+            ),
+          },
+          { key: 'accion', header: 'Acción', render: (r) => accionesAcceso[r.accion] ?? r.accion },
+          {
+            key: 'dispositivo',
+            header: 'Dispositivo',
+            render: (r) =>
+              accionesAcceso[r.accion] ? (r.dispositivo ?? 'Dispositivo no registrado') : '—',
+          },
           { key: 'recurso', header: 'Registro', render: (r) => r.recursoId },
           { key: 'version', header: 'Versión', render: (r) => String(r.version) },
         ]}
       />
-    </div>
+    </DirectoryPage>
   );
 }
 
@@ -305,7 +338,7 @@ function AuditoriaDemostracion() {
   ];
 
   return (
-    <>
+    <DirectoryPage>
       <PageHeading
         eyebrow={`Gestión institucional · Auditoría y historial de cambios · Semestre ${semestreActual}`}
         title="Historial de cambios"
@@ -320,7 +353,7 @@ function AuditoriaDemostracion() {
         }
       />
 
-      <div className="grid grid--4">
+      <MetricGroup label="Resumen de auditoría">
         <Stat
           label="Eventos de auditoría"
           value={eventos.length}
@@ -348,7 +381,7 @@ function AuditoriaDemostracion() {
           icon={<UserRound aria-hidden="true" />}
           tone="violeta"
         />
-      </div>
+      </MetricGroup>
 
       {bloqueados.length > 0 && (
         <Alert tone="riesgo" title={`${bloqueados.length} intento(s) de acceso no autorizado`}>
@@ -376,17 +409,15 @@ function AuditoriaDemostracion() {
         />
         <CardBody>
           <div className="stack">
-            <PanelFiltros<EventoAuditoria>
+            <DirectoryToolbar
               busqueda={filtro.busqueda}
               onBusqueda={filtro.setBusqueda}
               selects={selects}
               valores={filtro.valores}
-              onValor={(id, valor) =>
-                filtro.setValores((actuales) => ({ ...actuales, [id]: valor }))
-              }
+              onValores={filtro.setValores}
               mostrados={visibles.length}
               total={eventos.length}
-              activos={filtro.activos || soloDescargas}
+              filtrosAdicionalesActivos={soloDescargas}
               onLimpiar={() => {
                 filtro.limpiar();
                 setSoloDescargas(false);
@@ -400,104 +431,102 @@ function AuditoriaDemostracion() {
               caption="Eventos de auditoría y historial de cambios del sistema de tutoría"
               rowKey={(evento) => evento.id}
               pageSize={10}
+              pagination="auto"
+              paginationPosition="bottom"
               initialSort={{ key: 'fecha', direction: 'desc' }}
               emptyTitle="Sin eventos con estos filtros"
               emptyDescription="Ajusta el rol, la acción o el tipo de evento seleccionado."
             />
           </div>
         </CardBody>
-        <CardFoot>
-          <span>
-            Los eventos se conservan como evidencia del tratamiento de datos personales y no pueden
-            editarse desde el portal.
-          </span>
-          <button type="button" className="btn btn-falcon-default btn-sm" onClick={exportar}>
-            <Download aria-hidden="true" /> Exportar {visibles.length} registro(s)
-          </button>
-        </CardFoot>
       </Card>
 
-      <div className="grid grid--2">
-        <Card>
-          <CardHead
-            title="Actividad por perfil"
-            description="Acciones y descargas realizadas por cada perfil."
-          />
-          <CardBody flush>
-            <ul className="list">
-              {porRol.map((fila) => (
-                <li className="list__item" key={fila.rol}>
-                  <span className="list__body">
-                    <strong>{etiquetaRol(fila.rol)}</strong>
-                    <p>
-                      {fila.total} evento(s) registrados · {fila.descargas} con descarga de
-                      información
-                    </p>
-                  </span>
-                  <span className="list__aside">
-                    <Badge tone={fila.descargas ? 'alerta' : 'ok'}>
-                      {fila.descargas} descargas
-                    </Badge>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </CardBody>
-        </Card>
+      <DirectoryDisclosure title="Detalle de auditoría">
+        <div className="grid grid--2">
+          <Card>
+            <CardHead
+              title="Actividad por perfil"
+              description="Acciones y descargas realizadas por cada perfil."
+            />
+            <CardBody flush>
+              <ul className="list">
+                {porRol.map((fila) => (
+                  <li className="list__item" key={fila.rol}>
+                    <span className="list__body">
+                      <strong>{etiquetaRol(fila.rol)}</strong>
+                      <p>
+                        {fila.total} evento(s) registrados · {fila.descargas} con descarga de
+                        información
+                      </p>
+                    </span>
+                    <span className="list__aside">
+                      <Badge tone={fila.descargas ? 'alerta' : 'ok'}>
+                        {fila.descargas} descargas
+                      </Badge>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </CardBody>
+          </Card>
 
-        <Card accent>
-          <CardHead
-            title="Qué se guarda en el historial"
-            description="Acciones que quedan registradas."
-          />
-          <CardBody>
-            <dl className="def-list">
-              <div>
-                <dt>Quién</dt>
-                <dd>La persona que realizó la acción y su perfil.</dd>
-              </div>
-              <div>
-                <dt>Qué</dt>
-                <dd>
-                  La acción ejecutada y la entidad afectada (formato, asignación, regla o reporte).
-                </dd>
-              </div>
-              <div>
-                <dt>Cuándo</dt>
-                <dd>Fecha y hora del evento con la zona horaria institucional.</dd>
-              </div>
-              <div>
-                <dt>Desde dónde</dt>
-                <dd>Dirección IP de origen de la sesión.</dd>
-              </div>
-              <div>
-                <dt>Descarga</dt>
-                <dd>Marca específica cuando el evento implicó exportar información del sistema.</dd>
-              </div>
-              <div>
-                <dt>Conservación</dt>
-                <dd>
-                  El registro se mantiene como evidencia y solo la administración puede consultarlo
-                  o descargarlo.
-                </dd>
-              </div>
-              <div>
-                <dt>Accesos bloqueados</dt>
-                <dd>
-                  Los intentos de consulta no autorizados se registran con su motivo y se revisan
-                  con la coordinación.
-                </dd>
-              </div>
-            </dl>
-          </CardBody>
-          <CardFoot>
-            <span>
-              Base normativa: Ley N.º 29733 de Protección de Datos Personales y directiva
-              institucional de seguridad de la información.
-            </span>
-          </CardFoot>
-        </Card>
-      </div>
-    </>
+          <Card accent>
+            <CardHead
+              title="Qué se guarda en el historial"
+              description="Acciones que quedan registradas."
+            />
+            <CardBody>
+              <dl className="def-list">
+                <div>
+                  <dt>Quién</dt>
+                  <dd>La persona que realizó la acción y su perfil.</dd>
+                </div>
+                <div>
+                  <dt>Qué</dt>
+                  <dd>
+                    La acción ejecutada y la entidad afectada (formato, asignación, regla o
+                    reporte).
+                  </dd>
+                </div>
+                <div>
+                  <dt>Cuándo</dt>
+                  <dd>Fecha y hora del evento con la zona horaria institucional.</dd>
+                </div>
+                <div>
+                  <dt>Desde dónde</dt>
+                  <dd>Dirección IP de origen de la sesión.</dd>
+                </div>
+                <div>
+                  <dt>Descarga</dt>
+                  <dd>
+                    Marca específica cuando el evento implicó exportar información del sistema.
+                  </dd>
+                </div>
+                <div>
+                  <dt>Conservación</dt>
+                  <dd>
+                    El registro se mantiene como evidencia y solo la administración puede
+                    consultarlo o descargarlo.
+                  </dd>
+                </div>
+                <div>
+                  <dt>Accesos bloqueados</dt>
+                  <dd>
+                    Los intentos de consulta no autorizados se registran con su motivo y se revisan
+                    con la coordinación.
+                  </dd>
+                </div>
+              </dl>
+            </CardBody>
+            <CardFoot>
+              <span>
+                Base normativa: Ley N.º 29733 de Protección de Datos Personales y directiva
+                institucional de seguridad de la información.
+              </span>
+            </CardFoot>
+          </Card>
+        </div>
+      </DirectoryDisclosure>
+    </DirectoryPage>
   );
 }

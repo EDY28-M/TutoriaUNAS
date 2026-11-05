@@ -34,28 +34,41 @@ public sealed class CredencialesCuentaService(TutoriaDbContext db, IPasswordHash
         CambiarPassword(credencial, password); db.Usuarios.Add(usuario); db.CredencialesCuenta.Add(credencial);
         return usuario;
     }
-    public async Task<DecisionAcceso?> IntentarLogin(LoginLocalDto input, CancellationToken ct)
+    public async Task<DecisionAcceso?> IntentarLogin(LoginLocalDto input, OrigenAcceso origen, CancellationToken ct)
     {
         if (!options.Value.Enabled) return null;
-        TutoriaError.Exigir(input.Identifier.Length <= 254 && input.Password.Length <= 128 && input.Role is "estudiante" or "tutor" or "coordinacion", "Datos de acceso incorrectos.", 401);
+        TutoriaError.Exigir(input.Identifier.Length <= 254 && input.Password.Length <= 128 &&
+            input.Role is null or "estudiante" or "tutor" or "coordinacion", "Datos de acceso incorrectos.", 401);
         var identifier = input.Identifier.Trim().ToLowerInvariant();
-        var email = await (from c in db.CredencialesCuenta.AsNoTracking() join u in db.Usuarios on c.UsuarioId equals u.Id
-            where c.Rol == input.Role && (c.CorreoNormalizado == identifier || u.Identificador == identifier)
-            select c.CorreoNormalizado).SingleOrDefaultAsync(ct);
-        if (email is null) { _ = hasher.VerifyHashedPassword(new(), DummyHash.Value, input.Password); return null; }
+        var correos = await (from c in db.CredencialesCuenta.AsNoTracking() join u in db.Usuarios on c.UsuarioId equals u.Id
+            where (input.Role == null || c.Rol == input.Role) && (c.CorreoNormalizado == identifier || u.Identificador == identifier)
+            select c.CorreoNormalizado).Distinct().Take(2).ToArrayAsync(ct);
+        if (correos.Length == 0) { _ = hasher.VerifyHashedPassword(new(), DummyHash.Value, input.Password); return null; }
+        TutoriaError.Exigir(correos.Length == 1, "Ingresa tu correo institucional para continuar.", 401);
+        var email = correos[0];
         await using var tx = await Bloquear(email, ct);
-        var cred = await db.CredencialesCuenta.SingleAsync(c => c.CorreoNormalizado == email && c.Rol == input.Role, ct);
-        var user = await db.Usuarios.SingleAsync(u => u.Id == cred.UsuarioId, ct);
-        var persona = await db.Personas.SingleAsync(p => p.Id == user.PersonaId, ct);
+        var credenciales = await db.CredencialesCuenta.Where(c => c.CorreoNormalizado == email &&
+            (input.Role == null || c.Rol == input.Role)).ToArrayAsync(ct);
         var ahora = clock.GetUtcNow();
-        if (cred.BloqueadaHasta > ahora) throw new TutoriaError(401, "Datos de acceso incorrectos o acceso temporalmente limitado.");
-        if (!PasswordValida(cred, input.Password))
+        var coincidencias = credenciales.Where(c => PasswordValida(c, input.Password)).ToArray();
+        TutoriaError.Exigir(coincidencias.Length <= 1,
+            "Esta contraseña coincide con más de un perfil. Recupera la clave de uno de ellos y elige una diferente.", 409);
+        if (coincidencias.Length == 0)
         {
-            cred.IntentosFallidos++;
-            if (cred.IntentosFallidos >= 5) { cred.BloqueadaHasta = ahora.AddMinutes(15); cred.IntentosFallidos = 0; }
+            foreach (var candidata in credenciales.Where(c => c.BloqueadaHasta is null || c.BloqueadaHasta <= ahora))
+            {
+                candidata.IntentosFallidos++;
+                if (candidata.IntentosFallidos < 5) continue;
+                candidata.BloqueadaHasta = ahora.AddMinutes(15);
+                candidata.IntentosFallidos = 0;
+            }
             await db.SaveChangesAsync(ct); await tx.CommitAsync(ct);
             throw new TutoriaError(401, "Datos de acceso incorrectos.");
         }
+        var cred = coincidencias[0];
+        if (cred.BloqueadaHasta > ahora) throw new TutoriaError(401, "Datos de acceso incorrectos o acceso temporalmente limitado.");
+        var user = await db.Usuarios.SingleAsync(u => u.Id == cred.UsuarioId, ct);
+        var persona = await db.Personas.SingleAsync(p => p.Id == user.PersonaId, ct);
         TutoriaError.Exigir(persona.Activa && (user.Activo || (user.EscuelaId == "" && cred.Verificada)), "La cuenta no está habilitada.", 403);
         cred.IntentosFallidos = 0; cred.BloqueadaHasta = null;
         DecisionAcceso decision;
@@ -66,11 +79,13 @@ public sealed class CredencialesCuentaService(TutoriaDbContext db, IPasswordHash
             var prueba = SeguridadCuenta.Aleatorio();
             db.RetosCorreo.Add(new() { Id = SeguridadCuenta.Aleatorio(), Correo = email, Rol = user.Rol, Proposito = "activacion",
                 UsuarioId = user.Id, PersonaId = user.PersonaId, VersionUsuario = user.Version, PruebaHash = SeguridadCuenta.Hash(prueba), Creado = ahora, Expira = ahora.AddMinutes(15) });
-            decision = new(Activacion: new(true, prueba, email, 900));
+            decision = new(Activacion: new(true, prueba, email, 900, user.Rol));
         }
         else if (user.EscuelaId.Length == 0) decision = new(PendienteVinculacion: true);
         else decision = new(Usuario: user);
-        db.Auditoria.Add(new() { Fecha = ahora, UsuarioId = user.Id, EscuelaId = user.EscuelaId, Accion = decision.Activacion is null ? "iniciar-sesion" : "iniciar-activacion", RecursoId = user.Id, Version = user.Version });
+        var accion = decision.Activacion is not null ? "iniciar-activacion" :
+            decision.PendienteVinculacion ? "acceso-pendiente-vinculacion" : "iniciar-sesion";
+        db.Auditoria.Add(origen.Registrar(user, ahora, accion));
         await db.SaveChangesAsync(ct); await tx.CommitAsync(ct);
         return decision;
     }

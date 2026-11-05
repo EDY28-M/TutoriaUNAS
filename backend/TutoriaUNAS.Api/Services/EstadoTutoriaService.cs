@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using TutoriaUNAS.Api.Data;
 using TutoriaUNAS.Api.Domain;
 using TutoriaUNAS.Api.DTOs;
@@ -56,7 +57,10 @@ public sealed class EstadoTutoriaService(TutoriaDbContext db, TutoriaContext con
             {
                 precargas[$"{estudiante.Id}|{periodo.SemestreId}|{formato}"] = DocumentosService.Precargar(DocumentosService.DatosParaPeriodo(expediente.Where(e => e.EstudianteId == estudiante.Id), periodo.SemestreId), formato);
             }
-        var matriculas = await db.Matriculas.AsNoTracking().Where(m => ids.Contains(m.EstudianteId)).ToArrayAsync(ct);
+        // Coordinación consulta la matrícula de todo el padrón de su escuela, no solo de quienes ya tienen
+        // tutor asignado; tutor y estudiante conservan su alcance.
+        var idsMatricula = actor.Rol == "coordinacion" ? personas.Where(p => p.Tipo == "estudiante").Select(p => p.Id).ToArray() : ids;
+        var matriculas = await db.Matriculas.AsNoTracking().Where(m => idsMatricula.Contains(m.EstudianteId)).ToArrayAsync(ct);
         foreach (var d in candidatas.Where(d => d.SemestreId == periodo.SemestreId && ((actor.Rol == "tutor" && d.TutorId == actor.Id && d.Formato == "F02") || (actor.Rol == "coordinacion" && d.Formato == "F01"))))
             precargas[$"{d.TutorId}|{d.SemestreId}|{d.Formato}"] = await documentos.Canonizar(d, [], ct);
         var horarios = await db.Horarios.AsNoTracking().Where(h => ids.Contains(h.EstudianteId)).ToArrayAsync(ct);
@@ -66,16 +70,25 @@ public sealed class EstadoTutoriaService(TutoriaDbContext db, TutoriaContext con
         {
             var data = JsonDatos.Leer<Dictionary<string, object?>>(p.DatosJson);
             if (p.Tipo == "estudiante") data["ciclo"] = p.Ciclo;
+            if (p.Tipo == "tutor") data["activo"] = p.Activa;
             if (contactos.TryGetValue(p.Id, out var contacto)) { data["correo"] = contacto.Correo; data["telefono"] = contacto.Telefono; }
             return SistemaService.Elemento(data);
         }
         return new(actor.Dto, periodo.SemestreId, periodo.Momento, periodo.Version,
             personas.Where(p => p.Tipo == "estudiante").Select(Persona).ToArray(),
             personas.Where(p => p.Tipo == "tutor").Select(Persona).ToArray(),
-            asignaciones.Select(a => { var datos = JsonDatos.Leer<Dictionary<string, object?>>(a.DatosJson); datos["version"] = a.Version; return JsonDatos.Elemento(JsonDatos.Serializar(datos)); }).ToArray(), matriculas.Select(m => JsonDatos.Elemento(m.DatosJson)).ToArray(),
+            asignaciones.Select(a => { var datos = JsonDatos.Leer<Dictionary<string, object?>>(a.DatosJson); datos["version"] = a.Version; return JsonDatos.Elemento(JsonDatos.Serializar(datos)); }).ToArray(), matriculas.Select(m => JsonDatos.Elemento(SinHorariosOriginales(m.DatosJson))).ToArray(),
             horarios.Select(h => JsonDatos.Elemento(h.DatosJson)).ToArray(), registros.ToArray(),
             actor.Puede("sesiones", "ver") ? sesiones.Select(s => JsonDatos.Dto(s, actor.Rol == "estudiante" ? actor.Id : null)).ToArray() : [], precargas,
             await sistema.Obtener(actor, periodo, ct), historial.ToArray());
+    }
+    /// <summary>El detalle de aulas por curso solo lo consulta el padrón; el estado lleva el resumen del horario.</summary>
+    public static string SinHorariosOriginales(string json)
+    {
+        if (JsonNode.Parse(json) is not JsonObject matricula) return json;
+        if (matricula["cursos"] is JsonArray cursos)
+            foreach (var curso in cursos.OfType<JsonObject>()) curso.Remove("horariosOriginales");
+        return matricula.ToJsonString();
     }
     public async Task CambiarMomento(CambiarMomentoDto request, CancellationToken ct)
     {

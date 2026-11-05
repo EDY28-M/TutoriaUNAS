@@ -1,11 +1,38 @@
 import { useId, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Sheet } from './Sheet';
+import '../../styles/directory.css';
 
 interface FilterDefinition {
   id: string;
   etiqueta: string;
   opciones: { valor: string; etiqueta: string }[];
+}
+
+export function DirectorySearch({
+  value,
+  onChange,
+  label,
+  maxLength,
+}: {
+  value: string;
+  onChange(value: string): void;
+  label: string;
+  maxLength?: number;
+}) {
+  return (
+    <label className="directory-search">
+      <i className="fa-solid fa-magnifying-glass" aria-hidden="true" />
+      <input
+        type="search"
+        aria-label={label}
+        placeholder={label}
+        value={value}
+        maxLength={maxLength}
+        onChange={(event) => onChange(event.target.value)}
+      />
+    </label>
+  );
 }
 
 /** Búsqueda inmediata y filtros por lotes, con etiquetas removibles a la vista. */
@@ -21,6 +48,7 @@ export function DirectoryToolbar({
   etiqueta,
   placeholder,
   views,
+  filtrosAdicionalesActivos = false,
 }: {
   busqueda: string;
   onBusqueda(value: string): void;
@@ -33,6 +61,7 @@ export function DirectoryToolbar({
   etiqueta: string;
   placeholder: string;
   views?: ReactNode;
+  filtrosAdicionalesActivos?: boolean;
 }) {
   const id = useId();
   const [open, setOpen] = useState(false);
@@ -42,16 +71,7 @@ export function DirectoryToolbar({
     <div className="directory-toolbar">
       {views}
       <div className="directory-toolbar__search" role="search" aria-label={etiqueta}>
-        <label className="directory-search">
-          <i className="fa-solid fa-magnifying-glass" aria-hidden="true" />
-          <span className="sr-only">{placeholder}</span>
-          <input
-            type="search"
-            placeholder={placeholder}
-            value={busqueda}
-            onChange={(event) => onBusqueda(event.target.value)}
-          />
-        </label>
+        <DirectorySearch value={busqueda} onChange={onBusqueda} label={placeholder} />
         <button
           type="button"
           className="btn btn-falcon-default directory-filter-button"
@@ -69,7 +89,7 @@ export function DirectoryToolbar({
           {mostrados} de {total}
         </span>
       </div>
-      {(active.length > 0 || busqueda) && (
+      {(active.length > 0 || busqueda || filtrosAdicionalesActivos) && (
         <div className="directory-filter-tags" aria-label="Filtros aplicados">
           {active.map((select) => (
             <button
@@ -96,7 +116,6 @@ export function DirectoryToolbar({
       {open && (
         <Sheet
           title={etiqueta}
-          description="Combina los campos y aplica los filtros al listado."
           className="directory-filter-sheet"
           onClose={() => setOpen(false)}
           footer={
@@ -119,24 +138,18 @@ export function DirectoryToolbar({
               setOpen(false);
             }}
           >
-            {selects.map((select, index) => (
+            {selects.map((select) => (
               <div className="field" key={select.id}>
-                <label htmlFor={`${id}-${select.id}`}>
-                  <span className="directory-filter-index" aria-hidden="true">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  {select.etiqueta}
-                </label>
+                <label htmlFor={`${id}-${select.id}`}>{select.etiqueta}</label>
                 <select
                   id={`${id}-${select.id}`}
-                  aria-label={select.etiqueta}
                   className="select"
                   value={draft[select.id] ?? ''}
                   onChange={(event) =>
                     setDraft((current) => ({ ...current, [select.id]: event.target.value }))
                   }
                 >
-                  <option value="">Todas las opciones</option>
+                  <option value="">Sin filtro</option>
                   {select.opciones.map((option) => (
                     <option key={option.valor} value={option.valor}>
                       {option.etiqueta}

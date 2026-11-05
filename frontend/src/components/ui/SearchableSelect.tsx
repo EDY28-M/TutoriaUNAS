@@ -1,4 +1,5 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Check, ChevronRight, Search, X } from './icons';
 import '../../styles/searchable-select.css';
 
@@ -14,6 +15,9 @@ interface Props {
   options: Option[];
   value: string;
   onChange(value: string): void;
+  autoFocus?: boolean;
+  required?: boolean;
+  tipoResultado?: 'estudiante' | 'docente';
 }
 
 const normalizar = (texto: string) =>
@@ -23,18 +27,71 @@ const normalizar = (texto: string) =>
     .toLocaleLowerCase('es-PE');
 
 /** Selección por escritura o lista, con navegación de teclado y valor confirmado. */
-export function SearchableSelect({ label, placeholder, options, value, onChange }: Props) {
+export function SearchableSelect({
+  label,
+  placeholder,
+  options,
+  value,
+  onChange,
+  autoFocus = true,
+  required = false,
+  tipoResultado = 'estudiante',
+}: Props) {
   const id = useId();
   const input = useRef<HTMLInputElement>(null);
   const list = useRef<HTMLUListElement>(null);
   const [consulta, setConsulta] = useState<string | null>(null);
   const [abierto, setAbierto] = useState(false);
   const [activo, setActivo] = useState(0);
+  const [posicion, setPosicion] = useState<{
+    left: number;
+    width: number;
+    top?: number;
+    bottom?: number;
+    maxHeight: number;
+    contenedor: HTMLElement;
+  } | null>(null);
   useEffect(() => {
+    if (!autoFocus) return;
     // El diálogo nativo debe estar abierto antes de enfocar su buscador.
     const frame = requestAnimationFrame(() => input.current?.focus());
     return () => cancelAnimationFrame(frame);
-  }, []);
+  }, [autoFocus]);
+  useLayoutEffect(() => {
+    if (!abierto || !input.current) return;
+    const elemento = input.current;
+    const dialogo = elemento.closest('dialog');
+    const contenedor = dialogo ?? document.body;
+    const actualizar = () => {
+      const campo = elemento.getBoundingClientRect();
+      const limites = (dialogo?.querySelector('.sheet__body') ?? dialogo)?.getBoundingClientRect();
+      const arriba = Math.max(0, limites?.top ?? 0);
+      const abajo = Math.min(window.innerHeight, limites?.bottom ?? window.innerHeight);
+      const espacioAbajo = Math.max(0, abajo - campo.bottom - 8);
+      const espacioArriba = Math.max(0, campo.top - arriba - 8);
+      const abrirArriba = espacioAbajo < 180 && espacioArriba > espacioAbajo;
+      const espacio = abrirArriba ? espacioArriba : espacioAbajo;
+      const alto = Math.min(240, espacio);
+      setPosicion({
+        left: campo.left - document.documentElement.getBoundingClientRect().left,
+        width: campo.width,
+        top: abrirArriba ? undefined : campo.bottom + 4,
+        bottom: abrirArriba ? window.innerHeight - campo.top + 4 : undefined,
+        maxHeight: alto,
+        contenedor,
+      });
+    };
+    actualizar();
+    window.addEventListener('resize', actualizar);
+    document.addEventListener('scroll', actualizar, true);
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(actualizar);
+    observer?.observe(elemento);
+    return () => {
+      window.removeEventListener('resize', actualizar);
+      document.removeEventListener('scroll', actualizar, true);
+      observer?.disconnect();
+    };
+  }, [abierto]);
   const seleccionado = options.find((opcion) => opcion.value === value);
   const palabras = normalizar(consulta ?? '')
     .trim()
@@ -67,7 +124,9 @@ export function SearchableSelect({ label, placeholder, options, value, onChange 
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setAbierto(false);
       }}
     >
-      <label htmlFor={id}>{label}</label>
+      <label htmlFor={id}>
+        {label} {required && <span className="field__required">*</span>}
+      </label>
       <div className="searchable-select__input">
         <Search aria-hidden="true" />
         <input
@@ -78,6 +137,7 @@ export function SearchableSelect({ label, placeholder, options, value, onChange 
           autoComplete="off"
           placeholder={placeholder}
           aria-autocomplete="list"
+          aria-required={required}
           aria-expanded={abierto}
           aria-controls={`${id}-list`}
           aria-activedescendant={
@@ -134,44 +194,56 @@ export function SearchableSelect({ label, placeholder, options, value, onChange 
           {seleccionado.description}
         </p>
       )}
-      {abierto && (
-        <>
-          <ul
-            id={`${id}-list`}
-            ref={list}
-            className="searchable-select__list"
-            role="listbox"
-            aria-label={label}
+      {abierto &&
+        posicion &&
+        createPortal(
+          <div
+            className="searchable-select__popup"
+            style={{
+              left: posicion.left,
+              top: posicion.top,
+              bottom: posicion.bottom,
+              width: posicion.width,
+              maxHeight: posicion.maxHeight,
+            }}
           >
-            {resultados.map((opcion, indice) => (
-              <li
-                key={opcion.value}
-                id={`${id}-option-${indice}`}
-                role="option"
-                aria-selected={value === opcion.value}
-                data-active={indice === indiceActivo}
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => elegir(opcion)}
-              >
-                <span>
-                  <strong>{opcion.label}</strong>
-                  {opcion.description && <small>{opcion.description}</small>}
-                </span>
-                {value === opcion.value ? (
-                  <Check aria-hidden="true" />
-                ) : (
-                  <ChevronRight aria-hidden="true" />
-                )}
-              </li>
-            ))}
-          </ul>
-          <p className="searchable-select__results" role="status">
-            {resultados.length
-              ? `${resultados.length} ${resultados.length === 1 ? 'estudiante encontrado' : 'estudiantes encontrados'}`
-              : 'No se encontraron estudiantes. Prueba otro nombre o código.'}
-          </p>
-        </>
-      )}
+            <ul
+              id={`${id}-list`}
+              ref={list}
+              className="searchable-select__list"
+              role="listbox"
+              aria-label={label}
+            >
+              {resultados.map((opcion, indice) => (
+                <li
+                  key={opcion.value}
+                  id={`${id}-option-${indice}`}
+                  role="option"
+                  aria-selected={value === opcion.value}
+                  data-active={indice === indiceActivo}
+                  onPointerDown={(e) => e.preventDefault()}
+                  onClick={() => elegir(opcion)}
+                >
+                  <span>
+                    <strong>{opcion.label}</strong>
+                    {opcion.description && <small>{opcion.description}</small>}
+                  </span>
+                  {value === opcion.value ? (
+                    <Check aria-hidden="true" />
+                  ) : (
+                    <ChevronRight aria-hidden="true" />
+                  )}
+                </li>
+              ))}
+            </ul>
+            <p className="searchable-select__results" role="status">
+              {resultados.length
+                ? `${resultados.length} ${tipoResultado}${resultados.length === 1 ? '' : 's'}`
+                : `No se encontraron ${tipoResultado}s. Prueba otro nombre o código.`}
+            </p>
+          </div>,
+          posicion.contenedor,
+        )}
     </div>
   );
 }

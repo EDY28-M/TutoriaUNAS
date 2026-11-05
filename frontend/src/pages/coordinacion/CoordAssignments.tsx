@@ -1,8 +1,8 @@
 import { SolicitudesCambioPendientes } from '../../components/panels/GestionCoordinacion';
 import type { FormEvent } from 'react';
 import { useCallback, useId, useMemo, useState } from 'react';
-import type { DefinicionSelect } from '../../components/panels/PanelFiltros';
-import { useFiltro } from '../../components/panels/PanelFiltros';
+import type { DefinicionSelect } from '../../hooks/useFiltro';
+import { useFiltro } from '../../hooks/useFiltro';
 import {
   DirectoryPage,
   DirectorySummary,
@@ -29,23 +29,19 @@ import { PageHeading } from '../../components/ui/PageHeading';
 import { PersonCell } from '../../components/ui/PersonCell';
 import { Progress } from '../../components/ui/Progress';
 import { Sheet } from '../../components/ui/Sheet';
+import { SearchableSelect } from '../../components/ui/SearchableSelect';
 import { Badge, StatusBadge } from '../../components/ui/StatusBadge';
 import { escuelas, semestreActual } from '../../data/catalogos';
-import {
-  abreviaturaEscuela,
-  docentePorId,
-  docentes,
-  estudiantes,
-  iniciales,
-  nombreCompleto,
-} from '../../data/personas';
+import { abreviaturaEscuela, docentePorId, iniciales, nombreCompleto } from '../../data/personas';
 import { asignaciones } from '../../data/tutoria';
 import { usePortal } from '../../hooks/usePortal';
+import { usePersonasPortal } from '../../hooks/usePersonasPortal';
 import { API_MODE } from '../../services/apiConfig';
 import { asignarTutorApi } from '../../services/apiTutoria';
-import type { Asignacion, CambioTutor, Estudiante } from '../../types/domain';
+import type { Asignacion, CambioTutor } from '../../types/domain';
 import { downloadCsv } from '../../utils/csv';
 import { HOY_ISO, formatFecha } from '../../utils/fechas';
+import '../../styles/coord-assignments.css';
 
 const CRITERIOS: Array<Asignacion['criterio']> = [
   'asignación directiva',
@@ -90,6 +86,7 @@ interface CambioRegistrado extends CambioTutor {
  */
 export function CoordAssignments() {
   const portal = usePortal();
+  const { estudiantes, docentes } = usePersonasPortal();
   const idFormulario = useId();
 
   const [registrosLocales, setRegistros] = useState<Asignacion[]>(() =>
@@ -116,17 +113,20 @@ export function CoordAssignments() {
   const [tutorDestino, setTutorDestino] = useState('');
   const [motivoCambio, setMotivoCambio] = useState('');
 
-  const buscarEn = useCallback((asignacion: Asignacion) => {
-    const estudiante = estudiantes.find((item) => item.id === asignacion.estudianteId);
-    const tutor = docentePorId(asignacion.tutorId);
-    return [
-      estudiante?.codigo ?? '',
-      estudiante ? `${estudiante.apellidos} ${estudiante.nombres}` : '',
-      tutor ? `${tutor.apellidos} ${tutor.nombres}` : '',
-      asignacion.referenciaAprobacion,
-      asignacion.grupo ?? '',
-    ].join(' ');
-  }, []);
+  const buscarEn = useCallback(
+    (asignacion: Asignacion) => {
+      const estudiante = estudiantes.find((item) => item.id === asignacion.estudianteId);
+      const tutor = docentePorId(asignacion.tutorId);
+      return [
+        estudiante?.codigo ?? '',
+        estudiante ? `${estudiante.apellidos} ${estudiante.nombres}` : '',
+        tutor ? `${tutor.apellidos} ${tutor.nombres}` : '',
+        asignacion.referenciaAprobacion,
+        asignacion.grupo ?? '',
+      ].join(' ');
+    },
+    [estudiantes],
+  );
 
   const selects = useMemo<Array<DefinicionSelect<Asignacion>>>(
     () => [
@@ -164,7 +164,7 @@ export function CoordAssignments() {
         valorDe: (asignacion) => asignacion.estado,
       },
     ],
-    [],
+    [docentes],
   );
 
   const filtro = useFiltro(registros, buscarEn, selects);
@@ -182,7 +182,7 @@ export function CoordAssignments() {
           (estudiante) => !activas.some((asignacion) => asignacion.estudianteId === estudiante.id),
         )
         .sort((a, b) => a.apellidos.localeCompare(b.apellidos, 'es')),
-    [activas],
+    [activas, estudiantes],
   );
 
   const tutoresDisponibles = useMemo(
@@ -190,7 +190,7 @@ export function CoordAssignments() {
       [...docentes]
         .filter((docente) => docente.activo)
         .sort((a, b) => a.apellidos.localeCompare(b.apellidos, 'es')),
-    [],
+    [docentes],
   );
 
   const docenteElegido = nuevoTutor ? docentePorId(nuevoTutor) : undefined;
@@ -733,7 +733,8 @@ export function CoordAssignments() {
       {altaAbierta && (
         <Sheet
           title="Asignar un tutor"
-          description={`Registro de la asignación del semestre ${semestreActual}`}
+          description={`Semestre ${semestreActual}`}
+          className="assignment-sheet"
           onClose={() => setAltaAbierta(false)}
           footer={
             <>
@@ -746,61 +747,47 @@ export function CoordAssignments() {
                 className="btn btn-primary"
                 disabled={guardando || !puedeRegistrar}
               >
-                <Save aria-hidden="true" /> Registrar asignación
+                <Save aria-hidden="true" /> Guardar asignación
               </button>
             </>
           }
         >
-          <form id={idFormulario} className="stack" onSubmit={registrarAsignacion}>
+          <form id={idFormulario} className="assignment-form" onSubmit={registrarAsignacion}>
             {error && (
               <Alert tone="riesgo" title="No se guardó la asignación">
                 {error}
               </Alert>
             )}
+            <div className="assignment-people">
+              <SearchableSelect
+                label="Estudiante"
+                placeholder="Buscar por nombre o código"
+                options={estudiantesSinAsignar.map((estudiante) => ({
+                  value: estudiante.id,
+                  label: `${estudiante.apellidos}, ${estudiante.nombres}`,
+                  description: `${estudiante.codigo} · Ciclo ${estudiante.ciclo ?? 'sin informar'}`,
+                }))}
+                value={nuevoEstudiante}
+                onChange={setNuevoEstudiante}
+                required
+                autoFocus={false}
+              />
+              <SearchableSelect
+                label="Docente tutor"
+                placeholder="Buscar por nombre o código"
+                options={tutoresDisponibles.map((docente) => ({
+                  value: docente.id,
+                  label: `${docente.apellidos}, ${docente.nombres}`,
+                  description: `${docente.codigo} · ${abreviaturaEscuela(docente.escuelaId)}`,
+                }))}
+                value={nuevoTutor}
+                onChange={setNuevoTutor}
+                required
+                autoFocus={false}
+                tipoResultado="docente"
+              />
+            </div>
             <div className="field-grid">
-              <div className="field">
-                <label htmlFor={`${idFormulario}-estudiante`}>
-                  Estudiante <span className="field__required">*</span>
-                </label>
-                <select
-                  id={`${idFormulario}-estudiante`}
-                  className="select"
-                  value={nuevoEstudiante}
-                  onChange={(evento) => setNuevoEstudiante(evento.target.value)}
-                >
-                  <option value="">Elige un estudiante…</option>
-                  {estudiantesSinAsignar.map((estudiante: Estudiante) => (
-                    <option key={estudiante.id} value={estudiante.id}>
-                      {estudiante.apellidos}, {estudiante.nombres} · {estudiante.codigo} · ciclo{' '}
-                      {estudiante.ciclo ?? 'Sin informar'}
-                    </option>
-                  ))}
-                </select>
-                <span className="field__hint">
-                  Solo se listan estudiantes sin asignación activa ({estudiantesSinAsignar.length}).
-                </span>
-              </div>
-
-              <div className="field">
-                <label htmlFor={`${idFormulario}-tutor`}>
-                  Docente tutor <span className="field__required">*</span>
-                </label>
-                <select
-                  id={`${idFormulario}-tutor`}
-                  className="select"
-                  value={nuevoTutor}
-                  onChange={(evento) => setNuevoTutor(evento.target.value)}
-                >
-                  <option value="">Elige un docente…</option>
-                  {tutoresDisponibles.map((docente) => (
-                    <option key={docente.id} value={docente.id}>
-                      {docente.apellidos}, {docente.nombres} ·{' '}
-                      {abreviaturaEscuela(docente.escuelaId)} · cupos {docente.aforoMaximo}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
               <div className="field">
                 <label htmlFor={`${idFormulario}-criterio`}>Criterio de asignación</label>
                 <select
@@ -820,7 +807,9 @@ export function CoordAssignments() {
               </div>
 
               <div className="field">
-                <label htmlFor={`${idFormulario}-grupo`}>Grupo</label>
+                <label htmlFor={`${idFormulario}-grupo`}>
+                  Grupo <span className="assignment-optional">· Opcional</span>
+                </label>
                 <input
                   id={`${idFormulario}-grupo`}
                   className="input"
@@ -828,9 +817,6 @@ export function CoordAssignments() {
                   onChange={(evento) => setNuevoGrupo(evento.target.value)}
                   placeholder="Ej.: G-IIS-2"
                 />
-                <span className="field__hint">
-                  Puede dejarse vacío si el grupo se define después.
-                </span>
               </div>
             </div>
 
@@ -845,14 +831,11 @@ export function CoordAssignments() {
                 onChange={(evento) => setNuevaReferencia(evento.target.value)}
                 placeholder="Acta de asignación tutorial · 2026-II"
               />
-              <span className="field__hint">
-                Documento de la comisión de tutoría que sustenta la asignación.
-              </span>
             </div>
 
-            <div className="field">
-              <span className="field__label">Aviso de cupos del docente tutor</span>
-              {docenteElegido ? (
+            {docenteElegido && (
+              <div className="assignment-capacity">
+                <span className="field__label">Cupos del tutor</span>
                 <div className="stack stack--sm">
                   <Progress
                     valor={porcentajeAforo}
@@ -862,64 +845,17 @@ export function CoordAssignments() {
                     }
                   />
                   {cuposLibres > 0 ? (
-                    <Alert
-                      tone={porcentajeAforo >= 80 ? 'alerta' : 'info'}
-                      title={`${cuposLibres} cupo(s) disponible(s) según los cupos registrados`}
-                    >
-                      El límite de estudiantes proviene del registro docente. El acta del 7 de
-                      octubre de 2026 propone un rango de 10 a 14 estudiantes por docente y está
-                      pendiente de validación: el sistema avisa, pero no bloquea la asignación.
-                    </Alert>
+                    <span className="field__hint">
+                      {cuposLibres} {cuposLibres === 1 ? 'cupo disponible' : 'cupos disponibles'}
+                    </span>
                   ) : (
                     <Alert tone="riesgo" title="El tutor ya tiene todos sus cupos ocupados">
-                      {cargaElegida} de {aforo} estudiantes registrados. Solicite la ampliación del
-                      cupos o elija otro docente antes de continuar.
+                      Elige otro tutor o solicita una ampliación de cupos.
                     </Alert>
                   )}
                 </div>
-              ) : (
-                <Alert tone="info" title="Elige un tutor">
-                  Al elegir al docente se comparará su carga actual con el límite de estudiantes
-                  registrado en su registro.
-                </Alert>
-              )}
-            </div>
-
-            {estudianteElegido && (
-              <dl className="def-list">
-                <div>
-                  <dt>Estudiante</dt>
-                  <dd>
-                    {estudianteElegido.apellidos}, {estudianteElegido.nombres} ·{' '}
-                    {estudianteElegido.codigo}
-                  </dd>
-                </div>
-                <div>
-                  <dt>Escuela y ciclo</dt>
-                  <dd>
-                    {abreviaturaEscuela(estudianteElegido.escuelaId)} · ciclo{' '}
-                    {estudianteElegido.ciclo ?? 'Sin informar'} · {estudianteElegido.etapa}
-                  </dd>
-                </div>
-                <div>
-                  <dt>Promedio ponderado</dt>
-                  <dd>{estudianteElegido.promedioPonderado?.toFixed(1) ?? 'Sin informar'}</dd>
-                </div>
-                <div>
-                  <dt>Señales registradas</dt>
-                  <dd>
-                    {estudianteElegido.alertas.length
-                      ? estudianteElegido.alertas.map((alerta) => alerta.detalle).join(' · ')
-                      : 'Sin alertas'}
-                  </dd>
-                </div>
-              </dl>
+              </div>
             )}
-
-            <p className="small muted">
-              La matrícula condicionada no se configura como restricción automática en el sistema
-              (regla matricula-condicionada, pendiente de validación).
-            </p>
           </form>
         </Sheet>
       )}

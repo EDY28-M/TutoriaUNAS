@@ -30,7 +30,7 @@ const accounts = [
 
 async function login(page: Page, account: (typeof accounts)[number]) {
   await page.goto('/login');
-  await page.getByRole('tab', { name: account.label, exact: true }).click();
+
   await page.locator('#identifier').fill(account.identifier);
   await page.locator('#password').fill('tutoria2026');
   await page.locator('button[type="submit"]').click();

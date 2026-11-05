@@ -7,7 +7,6 @@ export default defineConfig({
     host: '127.0.0.1',
     port: 5173,
     strictPort: true,
-    allowedHosts: ['.trycloudflare.com'],
     watch: {
       // En Windows una escritura puede emitir cambios con el archivo aún vacío.
       // Esperar al cierre evita cachear un módulo sin sus exports durante HMR.
@@ -18,7 +17,6 @@ export default defineConfig({
     host: '127.0.0.1',
     port: 5173,
     strictPort: true,
-    allowedHosts: ['.trycloudflare.com'],
   },
   test: {
     env: { VITE_DATA_SOURCE: 'demo' },

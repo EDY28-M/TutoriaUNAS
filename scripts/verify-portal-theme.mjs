@@ -129,7 +129,6 @@ try {
       }
     });
     await page.goto(`${baseURL}/login`);
-    await page.getByRole("tab", { name: account.label, exact: true }).click();
     await page.locator("#identifier").fill(account.id);
     await page.locator("#password").fill("tutoria2026");
     await page.locator('.d01__form button[type="submit"]').click();

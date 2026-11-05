@@ -19,7 +19,6 @@ try {
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto(`${baseURL}/login`);
-    await page.getByRole('tab', { name: 'Estudiante', exact: true }).click();
     await page.locator('#identifier').fill('2023010456');
     await page.locator('#password').fill('tutoria2026');
     await page.locator('button[type="submit"]').click();

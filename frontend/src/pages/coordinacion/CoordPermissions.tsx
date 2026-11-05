@@ -1,7 +1,8 @@
+import { DirectorySearch } from '../../components/ui/DirectoryToolbar';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CuentasSistema } from '../../components/panels/GestionCoordinacion';
-import { CompactPage, CompactSearch } from '../../components/ui/CompactPage';
+import { CompactPage } from '../../components/ui/CompactPage';
 import { PageHeading } from '../../components/ui/PageHeading';
 import { FormsFilters } from '../../components/ui/FormsPanel';
 import { Tabs, TabPanel } from '../../components/ui/Tabs';
@@ -97,7 +98,7 @@ export function CoordPermissions() {
         />
         <div className="compact-toolbar">
           <p className="compact-note">{roles.find((r) => r.id === rol)?.alcance}</p>
-          <CompactSearch value={buscar} onChange={setBuscar} label="Buscar sección" />
+          <DirectorySearch value={buscar} onChange={setBuscar} label="Buscar sección" />
         </div>
         <Card>
           {filas.length ? (

@@ -60,7 +60,6 @@ try {
   page.on('pageerror', (e) => errores.push(e.message));
   await page.goto('http://127.0.0.1:5173/login');
   await expect(page.getByRole('link', { name: 'Crear cuenta', exact: true })).toBeVisible();
-  await page.locator('#login-role-coordinacion').click();
   await page.locator('#identifier').fill('coordinacion.tutoria'); await page.locator('#password').fill('tutoria2026');
   await page.locator('button[type="submit"]').click(); await page.waitForURL('**/coordinacion/dashboard'); await page.waitForTimeout(800);
   await page.goto('http://127.0.0.1:5173/coordinacion/permisos');

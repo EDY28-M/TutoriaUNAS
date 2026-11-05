@@ -1,3 +1,4 @@
+import { DirectorySearch } from '../ui/DirectoryToolbar';
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardBody, CardHead } from '../ui/Card';
@@ -5,7 +6,6 @@ import { Sheet } from '../ui/Sheet';
 import { Alert } from '../ui/Alert';
 import { Badge } from '../ui/StatusBadge';
 import { DataTable, type Column } from '../ui/DataTable';
-import { CompactSearch } from '../ui/CompactPage';
 import { apiJson } from '../../services/apiClient';
 import { refrescarApi } from '../../services/apiTutoria';
 import type { CuentaAdmin, CuentaCreada } from '../../services/cuentas';
@@ -166,7 +166,7 @@ export function GestionCuentas() {
           }
         />
         <CardBody>
-          <CompactSearch value={buscar} onChange={setBuscar} label="Buscar cuenta" />
+          <DirectorySearch value={buscar} onChange={setBuscar} label="Buscar cuenta" />
           {consulta.isPending ? (
             <p role="status">Cargando cuentas…</p>
           ) : consulta.isError ? (

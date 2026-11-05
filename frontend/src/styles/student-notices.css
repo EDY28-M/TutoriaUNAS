@@ -25,40 +25,6 @@
 .student-notices__settings i {
   color: var(--green);
 }
-.student-notices__search {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 210px;
-  max-width: 100%;
-  min-height: 44px;
-  padding: 0 14px;
-  border: 1px solid var(--forms-line);
-  border-radius: 8px;
-  background: var(--surface);
-  color: var(--ink-500);
-}
-.student-notices__search > i {
-  font-size: 0.8rem;
-}
-.student-notices__search:focus-within {
-  outline: 2px solid var(--green);
-  outline-offset: 2px;
-}
-.student-notices__search input {
-  min-width: 0;
-  width: 100%;
-  min-height: 44px;
-  padding: 8px 0;
-  border: 0;
-  outline: none;
-  background: transparent;
-  font-size: var(--text-ui-small);
-}
-.student-notices__search input::placeholder {
-  color: var(--ink-500);
-  opacity: 1;
-}
 .student-notices__inbox.card {
   overflow: hidden;
   border: 1px solid var(--forms-line);
@@ -251,9 +217,6 @@
   .student-notices .forms-panel__filters-actions {
     flex: 1 1 100%;
     margin: 8px 0 0;
-  }
-  .student-notices__search {
-    width: 100%;
   }
 }
 @container student-notices (max-width: 440px) {

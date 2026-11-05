@@ -87,6 +87,27 @@ public sealed class PostgresFixture : IAsyncLifetime
 public sealed class PostgresTutoriaTests(PostgresFixture fixture) : IClassFixture<PostgresFixture>
 {
     [PostgresFact]
+    public async Task LoginAuditShowsAccountAndDeviceOnlyToCoordination()
+    {
+        using var student = fixture.App.CreateClient();
+        student.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent",
+            "Mozilla/5.0 (Linux; Android 10; Dispositivo Ficticio) Chrome/131.0.0.0 Mobile Safari/537.36");
+        var login = await Ok<JsonElement>(await student.PostAsJsonAsync("/api/auth/login", new LoginLocalDto("2023010456", "tutoria2026")));
+        student.DefaultRequestHeaders.Authorization = new("Bearer", login.GetProperty("accessToken").GetString());
+        Assert.Equal(HttpStatusCode.Forbidden, (await student.GetAsync("/api/tutoria/auditoria")).StatusCode);
+
+        using var coord = await fixture.Login("coordinacion.tutoria", "coordinacion");
+        var audit = await Ok<JsonElement>(await coord.GetAsync("/api/tutoria/auditoria"));
+        var acceso = audit.EnumerateArray().First(x =>
+            x.GetProperty("identificador").GetString() == "2023010456" &&
+            x.GetProperty("accion").GetString() == "iniciar-sesion");
+        Assert.Equal("estudiante", acceso.GetProperty("rol").GetString());
+        Assert.Equal("Celular · Android · Chrome", acceso.GetProperty("dispositivo").GetString());
+        Assert.False(acceso.TryGetProperty("pais", out _));
+        Assert.False(acceso.TryGetProperty("userAgent", out _));
+    }
+
+    [PostgresFact]
     public async Task MigrationReplayIsIdempotentAndRejectsModifiedHistory()
     {
         await using var scope = fixture.App.Services.CreateAsyncScope();

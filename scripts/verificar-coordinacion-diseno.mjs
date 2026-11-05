@@ -14,7 +14,6 @@ const interacciones = [];
 const anchos = [320, 375, 390, 768, 1024, 1440];
 async function login(page, rol, identifier) {
   await page.goto('http://127.0.0.1:5173/login');
-  await page.locator(`#login-role-${rol}`).click();
   await page.locator('#identifier').fill(identifier);
   await page.locator('#password').fill('tutoria2026');
   await page.locator('button[type="submit"]').click();

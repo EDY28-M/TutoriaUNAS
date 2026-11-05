@@ -1,16 +1,22 @@
 import type { AuthService } from '../types/auth';
 import { apiJson, getApiSession, setApiSession } from './apiClient';
-import { refrescarApi, vaciarApi } from './apiTutoria';
+import { aplicarEstadoApi, refrescarApi, vaciarApi } from './apiTutoria';
+import type { EstadoApi } from './apiTutoria';
 import { ActivacionRequerida, borrarActivacion, guardarActivacion } from './cuentas';
 import { z } from 'zod';
 
 const respuestaLogin = z.union([
-  z.object({ accessToken: z.string().min(1), expiresIn: z.number().positive() }),
+  z.object({
+    accessToken: z.string().min(1),
+    expiresIn: z.number().positive(),
+    estado: z.custom<EstadoApi>().optional(),
+  }),
   z.object({
     activacionRequerida: z.literal(true),
     tokenActivacion: z.string().length(64),
     correo: z.email(),
     expiraEn: z.number().positive(),
+    role: z.enum(['estudiante', 'tutor', 'coordinacion']),
   }),
   z.object({ pendienteVinculacion: z.literal(true) }),
 ]);
@@ -24,6 +30,7 @@ export const apiAuthService: AuthService = {
         identifier: credentials.identifier.trim(),
         password: credentials.password,
         role: credentials.role,
+        incluirEstado: true,
       }),
     );
     if ('activacionRequerida' in result) {
@@ -33,7 +40,7 @@ export const apiAuthService: AuthService = {
           correo: result.correo,
           expiraEn: result.expiraEn ?? 900,
         },
-        credentials.role,
+        result.role,
       );
       throw new ActivacionRequerida();
     }
@@ -46,13 +53,14 @@ export const apiAuthService: AuthService = {
       {
         accessToken: result.accessToken,
         expiresAt: Date.now() + result.expiresIn * 1000,
-        user: { id: '', role: credentials.role, identifier: '', name: '', email: '' },
+        user: null,
       },
       false,
     );
     try {
-      const data = await refrescarApi();
+      const data = result.estado ?? (await refrescarApi());
       if (!data) throw new Error('No se pudo validar la cuenta con el servidor.');
+      if (result.estado) aplicarEstadoApi(data);
       setApiSession(
         {
           accessToken: result.accessToken,

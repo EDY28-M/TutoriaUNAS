@@ -36,6 +36,8 @@ interface Props {
   editable?: boolean;
   puedeEnviar?: boolean;
   compacto?: boolean;
+  /** Repite «Formato NN» junto al paso; se omite cuando la página ya lo muestra. */
+  mostrarFormato?: boolean;
   onGuardar?(
     respuestas: Record<string, string>,
     enviar: boolean,
@@ -50,9 +52,13 @@ export function GuidedInstrumentForm({
   editable = false,
   puedeEnviar = true,
   compacto = false,
+  mostrarFormato = !compacto,
   onGuardar,
 }: Props) {
   const portal = usePortal();
+  const idLectura = useId();
+  const tabsLectura = useRef<(HTMLButtonElement | null)[]>([]);
+  const [seccionLectura, setSeccionLectura] = useState(0);
   const { formulario, contexto, valores, valoresIniciales, errores } = useFormularioInstrumento(
     definicion,
     instrumento,
@@ -231,6 +237,7 @@ export function GuidedInstrumentForm({
                 key={campo.codigo}
                 campo={campo}
                 valores={valores}
+                mostrarAyuda={!lectura || !compacto}
                 editable={
                   !lectura &&
                   !(
@@ -262,12 +269,66 @@ export function GuidedInstrumentForm({
     return (
       <FormProvider {...formulario}>
         <div className="tutoring-form tutoring-form--read">
-          {secciones.map((s) => (
-            <section key={s.titulo} className="tutoring-review-section">
-              <h3>{s.titulo}</h3>
-              {bloque(s, true)}
-            </section>
-          ))}
+          {compacto ? (
+            <>
+              <div
+                className="tutoring-read-tabs"
+                role="tablist"
+                aria-label="Secciones del formulario"
+              >
+                {secciones.map((s, i) => (
+                  <button
+                    key={s.titulo}
+                    id={`${idLectura}-tab-${i}`}
+                    ref={(elemento) => {
+                      tabsLectura.current[i] = elemento;
+                    }}
+                    type="button"
+                    role="tab"
+                    aria-selected={seccionLectura === i}
+                    aria-controls={`${idLectura}-panel-${i}`}
+                    tabIndex={seccionLectura === i ? 0 : -1}
+                    onClick={() => setSeccionLectura(i)}
+                    onKeyDown={(e) => {
+                      if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(e.key)) return;
+                      e.preventDefault();
+                      const destino =
+                        e.key === 'Home'
+                          ? 0
+                          : e.key === 'End'
+                            ? secciones.length - 1
+                            : (i + (e.key === 'ArrowRight' ? 1 : -1) + secciones.length) %
+                              secciones.length;
+                      setSeccionLectura(destino);
+                      tabsLectura.current[destino]?.focus();
+                    }}
+                  >
+                    {s.titulo}
+                  </button>
+                ))}
+              </div>
+              {secciones.map((s, i) => (
+                <section
+                  key={s.titulo}
+                  id={`${idLectura}-panel-${i}`}
+                  className="tutoring-read-section"
+                  role="tabpanel"
+                  aria-labelledby={`${idLectura}-tab-${i}`}
+                  hidden={seccionLectura !== i}
+                  tabIndex={0}
+                >
+                  {seccionLectura === i && bloque(s, true)}
+                </section>
+              ))}
+            </>
+          ) : (
+            secciones.map((s) => (
+              <section key={s.titulo} className="tutoring-review-section">
+                <h3>{s.titulo}</h3>
+                {bloque(s, true)}
+              </section>
+            ))
+          )}
         </div>
       </FormProvider>
     );
@@ -277,7 +338,7 @@ export function GuidedInstrumentForm({
         <div className="tutoring-form__progress">
           <span className="small">
             {resumen ? 'Revisión final' : `Paso ${indicePaso + 1} de ${pasos.length}`}
-            {!compacto && ` · Formato ${definicion.numero}`}
+            {mostrarFormato && ` · Formato ${definicion.numero}`}
           </span>
           <Progress valor={avanceInstrumento(contexto, valores)} etiqueta="Respuestas completas" />
         </div>
@@ -481,6 +542,7 @@ function RespuestaCampo({
   campo,
   valores,
   editable,
+  mostrarAyuda = true,
   error,
   otroError,
   onChange,
@@ -490,6 +552,7 @@ function RespuestaCampo({
   campo: CampoFormato;
   valores: Record<string, string>;
   editable: boolean;
+  mostrarAyuda?: boolean;
   error?: string;
   otroError?: string;
   onChange(codigo: string, valor: string): void;
@@ -671,7 +734,7 @@ function RespuestaCampo({
         </label>
       )}
       {control}
-      {campo.ayuda && (
+      {mostrarAyuda && campo.ayuda && (
         <span id={`${id}-ayuda`} className="field__hint">
           {campo.ayuda}
         </span>

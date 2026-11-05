@@ -19,7 +19,7 @@ import type { Column } from '../../components/ui/DataTable';
 import { PersonCell } from '../../components/ui/PersonCell';
 import { Sheet } from '../../components/ui/Sheet';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { useFiltro } from '../../components/panels/PanelFiltros';
+import { useFiltro } from '../../hooks/useFiltro';
 import {
   DirectoryPage,
   DirectorySummary,
@@ -27,7 +27,7 @@ import {
   DirectoryDisclosure,
 } from '../../components/ui/DirectoryPage';
 import { DirectoryToolbar } from '../../components/ui/DirectoryToolbar';
-import type { DefinicionSelect } from '../../components/panels/PanelFiltros';
+import type { DefinicionSelect } from '../../hooks/useFiltro';
 import { usePortal } from '../../hooks/usePortal';
 import { usePersonasPortal } from '../../hooks/usePersonasPortal';
 import { AccionesCuentas } from '../../components/panels/AccionesCuentas';

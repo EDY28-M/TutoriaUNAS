@@ -1,4 +1,4 @@
-import { useDeferredValue, useState } from 'react';
+import { useDeferredValue, useId, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Sheet } from '../ui/Sheet';
 import { Alert } from '../ui/Alert';
@@ -6,6 +6,7 @@ import { apiJson } from '../../services/apiClient';
 import { refrescarApi } from '../../services/apiTutoria';
 import type { CandidatoCuenta, CuentaCreada } from '../../services/cuentas';
 import type { Role } from '../../types/auth';
+import '../../styles/coord-modals.css';
 
 const perfiles: Record<Role, string> = {
   estudiante: 'Estudiante',
@@ -15,10 +16,12 @@ const perfiles: Record<Role, string> = {
 
 export function CrearCuenta({ onClose, rolInicial }: { onClose(): void; rolInicial?: Role }) {
   const queryClient = useQueryClient();
+  const formId = useId();
   const [origen, setOrigen] = useState('nueva');
 
   const [rol, setRol] = useState<Role>(rolInicial ?? 'estudiante');
   const [buscar, setBuscar] = useState('');
+  const [buscando, setBuscando] = useState(false);
   const [persona, setPersona] = useState<CandidatoCuenta | null>(null);
   const [correo, setCorreo] = useState('');
   const [nombres, setNombres] = useState('');
@@ -86,6 +89,7 @@ export function CrearCuenta({ onClose, rolInicial }: { onClose(): void; rolInici
   }
   return (
     <Sheet
+      className="coord-form-sheet"
       title={
         creada
           ? 'Cuenta creada'
@@ -96,6 +100,23 @@ export function CrearCuenta({ onClose, rolInicial }: { onClose(): void; rolInici
               : 'Crear cuenta'
       }
       onClose={onClose}
+      footer={
+        !creada ? (
+          <>
+            <button type="button" className="btn btn-link" onClick={onClose} disabled={ocupado}>
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              form={formId}
+              className="btn btn-primary"
+              disabled={ocupado || (origen === 'padron' && !persona)}
+            >
+              {ocupado ? 'Creando cuenta…' : 'Crear cuenta'}
+            </button>
+          </>
+        ) : undefined
+      }
     >
       {creada ? (
         <div className="stack">
@@ -144,53 +165,55 @@ export function CrearCuenta({ onClose, rolInicial }: { onClose(): void; rolInici
         </div>
       ) : (
         <form
-          className="stack"
+          id={formId}
+          className="coord-account-form"
           aria-busy={ocupado}
           onSubmit={(e) => {
             e.preventDefault();
             void guardar();
           }}
         >
-          <label>
-            Perfil
-            <select
-              className="form-select"
-              value={rol}
-              disabled={ocupado}
-              onChange={(e) => {
-                setRol(e.target.value as Role);
-                limpiarDatos();
-              }}
-            >
-              <option value="estudiante">Estudiante</option>
-              <option value="tutor">Docente</option>
-              <option value="coordinacion">Coordinación</option>
-            </select>
-          </label>
-          <label>
-            Origen de los datos
-            <select
-              className="form-select"
-              value={origen}
-              disabled={ocupado}
-              onChange={(e) => {
-                setOrigen(e.target.value);
-                limpiarDatos();
-              }}
-            >
-              <option value="nueva">Nueva persona (fuera del padrón)</option>
-              <option value="padron">Persona del padrón</option>
-            </select>
-          </label>
-          {origen === 'nueva' && (
-            <p className="small muted">
-              Registra sus nombres, apellidos y correo institucional. No necesita figurar en el
-              Excel.
-            </p>
-          )}
+          <div className="coord-modal-grid">
+            <label className="field">
+              Perfil
+              <select
+                className="form-select"
+                value={rol}
+                disabled={ocupado}
+                onChange={(e) => {
+                  setRol(e.target.value as Role);
+                  limpiarDatos();
+                }}
+              >
+                <option value="estudiante">Estudiante</option>
+                <option value="tutor">Docente</option>
+                <option value="coordinacion">Coordinación</option>
+              </select>
+            </label>
+            <label className="field">
+              Origen de los datos
+              <select
+                className="form-select"
+                value={origen}
+                disabled={ocupado}
+                onChange={(e) => {
+                  setOrigen(e.target.value);
+                  limpiarDatos();
+                }}
+              >
+                <option value="nueva">Nueva persona</option>
+                <option value="padron">Persona del padrón</option>
+              </select>
+            </label>
+          </div>
           {origen === 'padron' && (
-            <>
-              <label>
+            <div
+              className="coord-account-search"
+              onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setBuscando(false);
+              }}
+            >
+              <label className="field">
                 Buscar en el padrón
                 <input
                   className="form-control"
@@ -198,6 +221,7 @@ export function CrearCuenta({ onClose, rolInicial }: { onClose(): void; rolInici
                   maxLength={150}
                   disabled={ocupado}
                   value={buscar}
+                  onFocus={() => setBuscando(true)}
                   onChange={(e) => {
                     limpiarDatos();
                     setBuscar(e.target.value);
@@ -206,8 +230,8 @@ export function CrearCuenta({ onClose, rolInicial }: { onClose(): void; rolInici
                 />
               </label>
               {persona && <p role="status">Persona seleccionada: {persona.nombre}</p>}
-              {!persona && texto.trim().length >= 2 && (
-                <div>
+              {buscando && !persona && texto.trim().length >= 2 && (
+                <div className="coord-account-search__results">
                   {candidatos.isPending ? (
                     <p role="status">Buscando…</p>
                   ) : candidatos.isError ? (
@@ -223,18 +247,15 @@ export function CrearCuenta({ onClose, rolInicial }: { onClose(): void; rolInici
                       ))}
                     </ul>
                   ) : (
-                    <p className="small muted">
-                      Sin coincidencias. Para registrar a alguien fuera del padrón, selecciona Nueva
-                      persona.
-                    </p>
+                    <p className="small muted">Sin coincidencias. Prueba otro nombre o correo.</p>
                   )}
                 </div>
               )}
-            </>
+            </div>
           )}
           {(origen === 'nueva' || persona) && (
             <>
-              <label>
+              <label className="field">
                 Correo institucional
                 <input
                   className="form-control"
@@ -248,8 +269,8 @@ export function CrearCuenta({ onClose, rolInicial }: { onClose(): void; rolInici
                   placeholder="nombre@unas.edu.pe"
                 />
               </label>
-              <div className="grid grid--2">
-                <label>
+              <div className="coord-modal-grid">
+                <label className="field">
                   Nombres
                   <input
                     className="form-control"
@@ -261,7 +282,7 @@ export function CrearCuenta({ onClose, rolInicial }: { onClose(): void; rolInici
                     onChange={(e) => setNombres(e.target.value)}
                   />
                 </label>
-                <label>
+                <label className="field">
                   Apellidos
                   <input
                     className="form-control"
@@ -275,8 +296,8 @@ export function CrearCuenta({ onClose, rolInicial }: { onClose(): void; rolInici
                 </label>
               </div>
               {!persona && (
-                <div className="grid grid--2">
-                  <label>
+                <div className="coord-modal-grid">
+                  <label className="field">
                     {rol === 'estudiante' ? 'Código de alumno' : 'Código de docente'} (opcional)
                     <input
                       className="form-control"
@@ -287,8 +308,8 @@ export function CrearCuenta({ onClose, rolInicial }: { onClose(): void; rolInici
                     />
                   </label>
                   {rol === 'estudiante' && (
-                    <label>
-                      Ciclo, si está confirmado
+                    <label className="field">
+                      Ciclo (opcional)
                       <input
                         className="form-control"
                         type="number"
@@ -304,22 +325,12 @@ export function CrearCuenta({ onClose, rolInicial }: { onClose(): void; rolInici
               )}
             </>
           )}
-          <p className="small muted">
-            El perfil se habilita en tu escuela. Se generará una contraseña temporal y se enviará al
-            correo institucional.
-          </p>
+          <p className="small muted">Se enviará un acceso temporal al correo institucional.</p>
           {error && (
             <Alert tone="riesgo" title="No se creó la cuenta">
               {error}
             </Alert>
           )}
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={ocupado || (origen === 'padron' && !persona)}
-          >
-            {ocupado ? 'Creando cuenta…' : 'Crear cuenta y enviar acceso'}
-          </button>
         </form>
       )}
     </Sheet>

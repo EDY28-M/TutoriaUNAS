@@ -1,3 +1,4 @@
+import { DirectorySearch } from '../../components/ui/DirectoryToolbar';
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PageHeading } from '../../components/ui/PageHeading';
@@ -123,16 +124,7 @@ export function StudentNotices() {
           value={filtro}
           onChange={(valor) => setFiltro(valor as Filtro)}
           acciones={
-            <label className="student-notices__search">
-              <i className="fa-solid fa-magnifying-glass" aria-hidden="true" />
-              <input
-                type="search"
-                aria-label="Buscar en mis avisos"
-                placeholder="Buscar aviso"
-                value={busqueda}
-                onChange={(evento) => setBusqueda(evento.target.value)}
-              />
-            </label>
+            <DirectorySearch label="Buscar en mis avisos" value={busqueda} onChange={setBusqueda} />
           }
         />
       </div>

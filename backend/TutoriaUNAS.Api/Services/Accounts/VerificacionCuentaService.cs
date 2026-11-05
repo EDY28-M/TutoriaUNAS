@@ -61,8 +61,13 @@ public sealed class VerificacionCuentaService(TutoriaDbContext db, CredencialesC
         reto.CodigoHash = seguridad.HashCodigo(reto.Id, codigo); reto.Expira = ahora.AddMinutes(10); reto.UltimoEnvio = ahora;
         reto.Verificado = null; reto.TicketHash = null; reto.Intentos = 0; reto.Envios++;
         if (reto.PersonaId is not null)
-            cola.Agregar(email, "Verifica tu cuenta · Tutoría UNAS",
-                $"Tu código de verificación es: {codigo}\n\nVence en 10 minutos y solo puede utilizarse una vez. No lo compartas.\nSi no solicitaste esta operación, ignora este correo.\n\nTutoría UNAS", reto.Expira, reto.UsuarioId, reto.Id);
+        {
+            var recuperacion = reto.Proposito == "recuperacion";
+            var asunto = recuperacion ? "Recupera tu contraseña · Tutoría UNAS" : "Verifica tu cuenta · Tutoría UNAS";
+            var instruccion = recuperacion ? "Tu código para recuperar tu contraseña es" : "Tu código de verificación es";
+            cola.Agregar(email, asunto,
+                $"{instruccion}: {codigo}\n\nVence en 10 minutos y solo puede utilizarse una vez. No lo compartas.\nSi no solicitaste esta operación, ignora este correo.\n\nTutoría UNAS", reto.Expira, reto.UsuarioId, reto.Id);
+        }
         await db.SaveChangesAsync(ct); await tx.CommitAsync(ct);
         return new(reto.Id, 600, 60, "Si el correo corresponde a una cuenta o persona habilitada en el padrón, recibirás un código. Revisa también Spam, No deseados y Papelera.");
     }

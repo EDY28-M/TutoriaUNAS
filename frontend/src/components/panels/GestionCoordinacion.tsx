@@ -14,35 +14,14 @@ import type {
 import type { Derivacion } from '../../types/domain';
 import { Card, CardBody, CardHead } from '../ui/Card';
 import { Sheet } from '../ui/Sheet';
+import { SearchableSelect } from '../ui/SearchableSelect';
 import { FormularioPersistente, EliminarPersistente } from './OperacionPersistente';
 
 export function CuentasSistema() {
   return <GestionCuentas />;
 }
 
-export function ConfiguracionPeriodo() {
-  const sistema = useSistema();
-  const sem = semestres.find((s) => s.id === semestreActual);
-  if (!sem) return null;
-  const actual = sistema?.configuracionPeriodo ?? {
-    periodoId: '',
-    inicio: sem.inicio,
-    fin: sem.fin,
-    entrevistasHasta: sem.inicio,
-    informesHasta: sem.fin,
-    cerrado: false,
-    version: 0,
-  };
-  return (
-    <Card>
-      <CardHead title="Configuración del semestre activo" />
-      <CardBody>
-        <EditorPeriodo key={actual.periodoId} actual={actual} />
-      </CardBody>
-    </Card>
-  );
-}
-function EditorPeriodo({ actual }: { actual: PeriodoConfiguracion }) {
+export function ConfiguracionPeriodo({ actual }: { actual: PeriodoConfiguracion }) {
   const [datos, setDatos] = useState(() => ({ ...actual }));
   const id = useId();
   return (
@@ -53,8 +32,8 @@ function EditorPeriodo({ actual }: { actual: PeriodoConfiguracion }) {
       <div className="field-grid">
         {(
           [
-            ['inicio', 'Inicio'],
-            ['fin', 'Fin'],
+            ['inicio', 'Inicio de clases'],
+            ['fin', 'Fin de clases'],
             ['entrevistasHasta', 'Fecha recomendada de entrevistas'],
             ['informesHasta', 'Plazo de informes'],
           ] as const
@@ -72,78 +51,22 @@ function EditorPeriodo({ actual }: { actual: PeriodoConfiguracion }) {
           </div>
         ))}
       </div>
-      <label className="checkbox">
-        <input
-          type="checkbox"
-          checked={datos.cerrado}
-          onChange={(e) => setDatos((d) => ({ ...d, cerrado: e.target.checked }))}
-        />{' '}
-        Cerrar el semestre para escritura
-      </label>
-      <p className="small muted">
-        El cierre conserva los registros y bloquea las nuevas escrituras tutoriales. Puedes
-        reabrirlo desde esta configuración.
-      </p>
+      <div className="planning-form-section">
+        <label className="checkbox">
+          <input
+            type="checkbox"
+            checked={datos.cerrado}
+            onChange={(e) => setDatos((d) => ({ ...d, cerrado: e.target.checked }))}
+          />
+          Cerrar edición del semestre
+        </label>
+        <p className="small muted">Puedes reabrir la edición desde aquí.</p>
+      </div>
     </FormularioPersistente>
   );
 }
 
-export function ActividadesPlanPersistentes() {
-  const sistema = useSistema();
-  const portal = usePortal();
-  const [elegida, setElegida] = useState<ActividadPersistida | 'nueva' | null>(null);
-  const actividades = sistema?.actividadesPlan.filter((a) => a.semestreId === semestreActual) ?? [];
-  return (
-    <Card>
-      <CardHead
-        title="Actividades del plan de acción"
-        description="El formato 01 reutiliza las metas y actividades registradas."
-        actions={
-          <button type="button" className="btn btn-primary" onClick={() => setElegida('nueva')}>
-            Nueva actividad
-          </button>
-        }
-      />
-      <CardBody>
-        {!actividades.length && <p>Sin actividades registradas.</p>}
-        <div className="stack">
-          {actividades.map((a) => (
-            <div className="ui-row ui-row--between ui-row--wrap" key={a.id}>
-              <span>
-                <strong>{a.actividad}</strong>
-                <small className="d-block">
-                  {a.responsable} · {a.avance}% · {a.estado}
-                </small>
-              </span>
-              <button
-                type="button"
-                className="btn btn-falcon-default"
-                onClick={() => setElegida(a)}
-              >
-                Editar actividad
-              </button>
-            </div>
-          ))}
-        </div>
-        {elegida && (
-          <Sheet
-            title={elegida === 'nueva' ? 'Nueva actividad del plan' : 'Editar actividad del plan'}
-            onClose={() => setElegida(null)}
-            wide
-          >
-            <EditorActividad
-              key={elegida === 'nueva' ? 'nueva' : elegida.id}
-              actividad={elegida === 'nueva' ? undefined : elegida}
-              escuelaId={portal.escuelaId}
-              onCerrar={() => setElegida(null)}
-            />
-          </Sheet>
-        )}
-      </CardBody>
-    </Card>
-  );
-}
-function EditorActividad({
+export function EditorActividad({
   actividad,
   escuelaId,
   onCerrar,
@@ -154,6 +77,7 @@ function EditorActividad({
 }) {
   const id = useId();
   const puedeEliminar = usePermiso('planes', 'eliminar');
+  const periodo = useSistema()?.configuracionPeriodo;
   const sem = semestres.find((s) => s.id === semestreActual);
   const [datos, setDatos] = useState(() =>
     actividad
@@ -164,8 +88,8 @@ function EditorActividad({
           objetivo: '',
           actividad: '',
           meta: '',
-          fechaInicio: sem?.inicio ?? '',
-          fechaFin: sem?.fin ?? '',
+          fechaInicio: periodo?.inicio ?? sem?.inicio ?? '',
+          fechaFin: periodo?.fin ?? sem?.fin ?? '',
           responsableId: docentes.find((d) => d.escuelaId === escuelaId && d.activo)?.id ?? '',
           evidencia: '',
           aprobacion: '',
@@ -176,6 +100,7 @@ function EditorActividad({
   return (
     <div className="stack">
       <FormularioPersistente
+        deshabilitado={!datos.responsableId}
         guardar={() =>
           mutarSistema(
             `plan${actividad ? `/${encodeURIComponent(actividad.id)}` : ''}`,
@@ -185,28 +110,40 @@ function EditorActividad({
         }
         alGuardar={onCerrar}
       >
-        {(['problematica', 'objetivo', 'actividad', 'meta'] as const).map((key) => (
-          <div className="field" key={key}>
-            <label htmlFor={`${id}-${key}`}>
-              {
-                {
-                  problematica: 'Problemática',
-                  objetivo: 'Objetivo',
-                  actividad: 'Actividad',
-                  meta: 'Meta',
-                }[key]
-              }
-            </label>
-            <textarea
-              id={`${id}-${key}`}
-              className="textarea"
-              required
-              maxLength={1000}
-              value={datos[key]}
-              onChange={(e) => setDatos((d) => ({ ...d, [key]: e.target.value }))}
-            />
-          </div>
-        ))}
+        <div className="field">
+          <label htmlFor={id + '-actividad'}>Actividad</label>
+          <input
+            id={id + '-actividad'}
+            className="input"
+            required
+            maxLength={1000}
+            value={datos.actividad}
+            onChange={(e) => setDatos((d) => ({ ...d, actividad: e.target.value }))}
+          />
+        </div>
+        <div className="field-grid">
+          {(
+            [
+              ['problematica', 'Problemática'],
+              ['objetivo', 'Objetivo'],
+              ['meta', 'Meta'],
+            ] as const
+          ).map(([key, label]) => (
+            <div className="field" key={key}>
+              <label htmlFor={id + '-' + key}>{label}</label>
+              <textarea
+                id={id + '-' + key}
+                className="textarea"
+                rows={2}
+                required
+                maxLength={1000}
+                value={datos[key]}
+                onChange={(e) => setDatos((d) => ({ ...d, [key]: e.target.value }))}
+              />
+            </div>
+          ))}
+        </div>
+        <h3 className="planning-form-section">Programación y avance</h3>
         <div className="field-grid">
           {(['fechaInicio', 'fechaFin'] as const).map((key) => (
             <div className="field" key={key}>
@@ -223,24 +160,22 @@ function EditorActividad({
               />
             </div>
           ))}
-          <div className="field">
-            <label htmlFor={`${id}-responsable`}>Responsable</label>
-            <select
-              id={`${id}-responsable`}
-              className="select"
-              required
-              value={datos.responsableId}
-              onChange={(e) => setDatos((d) => ({ ...d, responsableId: e.target.value }))}
-            >
-              {docentes
-                .filter((d) => d.escuelaId === escuelaId && d.activo)
-                .map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {nombreCompleto(d)}
-                  </option>
-                ))}
-            </select>
-          </div>
+          <SearchableSelect
+            label="Responsable"
+            placeholder="Buscar docente"
+            options={docentes
+              .filter((d) => d.escuelaId === escuelaId && d.activo)
+              .map((d) => ({
+                value: d.id,
+                label: nombreCompleto(d),
+                description: d.codigo,
+              }))}
+            value={datos.responsableId}
+            onChange={(responsableId) => setDatos((d) => ({ ...d, responsableId }))}
+            autoFocus={false}
+            required
+            tipoResultado="docente"
+          />
           <div className="field">
             <label htmlFor={`${id}-estado`}>Estado</label>
             <select
@@ -249,9 +184,10 @@ function EditorActividad({
               value={datos.estado}
               onChange={(e) => setDatos((d) => ({ ...d, estado: e.target.value }))}
             >
-              {['planificada', 'en-ejecucion', 'culminada', 'reprogramada'].map((e) => (
-                <option key={e}>{e}</option>
-              ))}
+              <option value="planificada">Planificada</option>
+              <option value="en-ejecucion">En ejecución</option>
+              <option value="culminada">Culminada</option>
+              <option value="reprogramada">Reprogramada</option>
             </select>
           </div>
           <div className="field">

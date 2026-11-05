@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test';
 
 async function ingresar(page: Page, rol: 'Tutor' | 'Estudiante') {
   await page.goto('/login');
-  await page.getByRole('tab', { name: rol, exact: true }).click();
+
   await page.locator('#identifier').fill(rol === 'Tutor' ? 'DOC-0421' : '2023010456');
   await page.locator('#password').fill('tutoria2026');
   await page.locator('.d01__form .d01__cta').click();
@@ -14,10 +14,11 @@ async function salir(page: Page) {
     await page.getByRole('button', { name: 'Expandir menú', exact: true }).click();
   await page.getByRole('button', { name: 'Cerrar sesión', exact: true }).click();
 }
+/** Mide el contenedor visible: el diálogo del tutor o la página del formulario del tutorado. */
 async function revisarAnchos(page: Page, nombre: string) {
   for (const width of [320, 375, 390, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 1000 });
-    const modal = page.getByRole('dialog');
+    const modal = page.getByRole('dialog').or(page.locator('.sf-llenado'));
     await expect(modal).toBeVisible();
     expect(await modal.evaluate((d) => d.scrollWidth - d.clientWidth)).toBeLessThanOrEqual(1);
     expect(
@@ -69,11 +70,13 @@ for (const caso of [
     await page.getByRole('button').filter({ hasText: tema }).first().click();
     await expect(modal).toContainText('finaliza la sesión');
     await modal.getByRole('link', { name: 'Ver preguntas de evaluación' }).click();
-    await expect(page).toHaveURL(/instrumentos\?sesion=/);
-    await expect(modal.locator('input, textarea')).toHaveCount(0);
-    await expect(modal).toBeVisible();
-    await modal.getByRole('button', { name: 'Cerrar ventana', exact: true }).click();
-    await expect(modal).toHaveCount(0);
+    // El formulario se abre en su propia página, no en una ventana superpuesta.
+    await expect(page).toHaveURL(/\/estudiante\/instrumentos\/INST-F1[01]-/);
+    const hoja = page.locator('.sf-llenado');
+    await expect(hoja).toBeVisible();
+    await expect(hoja.locator('input, textarea')).toHaveCount(0);
+    await hoja.getByRole('link', { name: 'Mis formularios' }).click();
+    await expect(page).toHaveURL(/\/estudiante\/instrumentos$/);
     await salir(page);
 
     await page.clock.setFixedTime(new Date('2026-11-01T20:00:00-05:00'));
@@ -95,41 +98,43 @@ for (const caso of [
       .getByRole('link', { name: caso.asistio ? 'Evaluar tutoría' : 'Ver preguntas de evaluación' })
       .click();
     if (!caso.asistio) {
-      await expect(modal).toContainText('debes haber asistido a esta sesión');
-      await expect(modal.locator('input, textarea')).toHaveCount(0);
+      await expect(hoja).toContainText('debes haber asistido a esta sesión');
+      await expect(hoja.locator('input, textarea')).toHaveCount(0);
       return;
     }
-    await expect(modal.getByRole('heading', { level: 2 })).toContainText(`Formato ${caso.formato}`);
-    const selector = modal.getByLabel('Sección del formulario');
+    await expect(hoja.locator('.sf-eyebrow')).toContainText(`Formato ${caso.formato}`);
+    // Los pasos son botones; el último es «Revisar y enviar».
+    const pasos = hoja
+      .getByRole('navigation', { name: 'Pasos del formulario' })
+      .getByRole('button');
     if (caso.tipo === 'individual' && caso.asistio) await revisarAnchos(page, 'evaluar-sesion');
-    const pasos = await selector
-      .locator('option')
-      .evaluateAll((options) => options.map((o) => (o as HTMLOptionElement).value));
-    const cantidad = pasos.length;
-    await expect(modal.getByText(/Datos ya disponibles/)).toHaveCount(0);
-    await selector.selectOption(pasos[cantidad - 1]!);
-    await modal.locator('.tutoring-review-section > summary').first().click();
-    await expect(modal.locator('[data-field="fecha"]')).toContainText('2026-11-01');
-    await expect(modal.locator('[data-field="fecha"] input')).toHaveCount(0);
+    const cantidad = await pasos.count();
+    await expect(hoja.getByText(/Datos ya disponibles/)).toHaveCount(0);
+    await pasos.nth(cantidad - 1).click();
+    await hoja.locator('.tutoring-review-section > summary').first().click();
+    await expect(hoja.locator('[data-field="fecha"]')).toContainText('2026-11-01');
+    await expect(hoja.locator('[data-field="fecha"] input')).toHaveCount(0);
     for (let i = 0; i < cantidad - 1; i++) {
-      await selector.selectOption(pasos[i]!);
-      for (const grupo of await modal.getByRole('radiogroup').all()) {
+      await pasos.nth(i).click();
+      for (const grupo of await hoja.getByRole('radiogroup').all()) {
         await expect(grupo.getByRole('radio')).toHaveCount(
           caso.formato === '11' ? 3 : i === cantidad - 2 ? 2 : 4,
         );
         await grupo.getByRole('radio').last().check();
       }
     }
-    await modal.getByRole('button', { name: 'Guardar borrador', exact: true }).click();
+    await hoja.getByRole('button', { name: 'Guardar borrador', exact: true }).click();
     await page.reload();
-    await expect(modal).toBeVisible();
-    await expect(modal.locator('[data-field="p01"] input:checked')).toHaveCount(1);
-    await modal.getByLabel('Sección del formulario').selectOption(pasos[cantidad - 1]!);
-    await modal
+    await expect(hoja).toBeVisible();
+    await expect(hoja.locator('[data-field="p01"] input:checked')).toHaveCount(1);
+    await pasos.nth(cantidad - 1).click();
+    await hoja
       .getByRole('checkbox', { name: 'He revisado mis respuestas y deseo enviarlas.' })
       .check();
-    await modal.getByRole('button', { name: 'Enviar formulario', exact: true }).click();
-    await expect(modal).toHaveCount(0);
+    await hoja.getByRole('button', { name: 'Enviar formulario', exact: true }).click();
+    // Al enviar vuelve a «Mis formularios» con el aviso de envío.
+    await expect(hoja).toHaveCount(0);
+    await expect(page.getByRole('status').filter({ hasText: 'Evaluación enviada' })).toBeVisible();
     await expect(page.locator(`[data-session="${sesionId}"]`)).toHaveAttribute(
       'data-state',
       'enviado',

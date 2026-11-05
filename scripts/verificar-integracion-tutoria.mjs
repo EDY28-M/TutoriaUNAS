@@ -20,7 +20,6 @@ try {
     const page = await context.newPage();
     page.on('pageerror', (e) => errors.push(`${account.role}: ${e.message}`));
     await page.goto('http://127.0.0.1:5173/login');
-    await page.getByRole('tab', { name: account.label, exact: true }).click();
     await page.locator('#identifier').fill(account.id);
     await page.locator('#password').fill('tutoria2026');
     await page.locator('button[type="submit"]').click();

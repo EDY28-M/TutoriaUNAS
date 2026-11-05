@@ -1,6 +1,7 @@
+import { DirectorySearch } from '../../components/ui/DirectoryToolbar';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CompactPage, CompactSearch } from '../../components/ui/CompactPage';
+import { CompactPage } from '../../components/ui/CompactPage';
 import { PageHeading } from '../../components/ui/PageHeading';
 import { FormsFilters } from '../../components/ui/FormsPanel';
 import { Card } from '../../components/ui/Card';
@@ -49,7 +50,7 @@ export function CoordFormats() {
         }))}
         value={actor}
         onChange={setActor}
-        acciones={<CompactSearch value={buscar} onChange={setBuscar} label="Buscar formulario" />}
+        acciones={<DirectorySearch value={buscar} onChange={setBuscar} label="Buscar formulario" />}
       />
       <Card>
         {visibles.length ? (

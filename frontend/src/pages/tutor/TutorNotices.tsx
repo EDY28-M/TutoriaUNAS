@@ -1,3 +1,5 @@
+import { DirectoryViews } from '../../components/ui/DirectoryPage';
+import { DirectoryToolbar } from '../../components/ui/DirectoryToolbar';
 import { BorradoresAvisos } from '../../components/panels/AccionesTutoria';
 import { API_MODE } from '../../services/apiConfig';
 import { useSistema } from '../../hooks/useSistema';
@@ -273,71 +275,51 @@ export function TutorNotices() {
       </div>
 
       <Card className="tutor-notices__inbox">
-        <CardHead
-          title="Bandeja de avisos"
-          actions={<span className="notice-order">Orden inicial: más recientes</span>}
-        />
+        <CardHead title="Bandeja de avisos" />
         <CardBody>
-          <div className="tutor-notices__toolbar">
-            <span className="segmented" role="group" aria-label="Alcance de la bandeja">
-              <button type="button" aria-pressed={!mostrarTodos} onClick={() => setAmbito('mios')}>
-                Para mí ({dirigidos.length})
-              </button>
-              <button type="button" aria-pressed={mostrarTodos} onClick={() => setAmbito('todos')}>
-                Todos ({avisos.length})
-              </button>
-            </span>
-            <span>
-              {visibles.length} {visibles.length === 1 ? 'aviso' : 'avisos'}
-            </span>
-          </div>
-          <div className="notice-filters" role="search" aria-label="Buscar avisos">
-            <div className="field">
-              <label htmlFor="notice-search">Buscar</label>
-              <span className="search-field">
-                <i className="fa-solid fa-magnifying-glass" aria-hidden="true" />
-                <input
-                  id="notice-search"
-                  type="search"
-                  value={busqueda}
-                  onChange={(event) => setBusqueda(event.target.value)}
-                  placeholder="Asunto, mensaje o destinatario…"
-                />
-              </span>
-            </div>
-            <div className="field">
-              <label htmlFor="notice-status">Estado</label>
-              <select
-                id="notice-status"
-                className="select"
-                value={estado}
-                onChange={(event) => setEstado(event.target.value)}
-              >
-                <option value="">Todos</option>
-                {[...new Set(avisos.map((aviso) => aviso.estado))].map((item) => (
-                  <option key={item} value={item}>
-                    {item === 'enviado'
-                      ? 'Enviado'
-                      : item === 'programado'
-                        ? 'Programado'
-                        : 'Borrador'}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {(busqueda || estado) && (
-              <button
-                type="button"
-                className="tutor-notices__text-button"
-                onClick={() => {
-                  setBusqueda('');
-                  setEstado('');
-                }}
-              >
-                Limpiar
-              </button>
-            )}
-          </div>
+          <DirectoryToolbar
+            busqueda={busqueda}
+            onBusqueda={setBusqueda}
+            selects={[
+              {
+                id: 'estado',
+                etiqueta: 'Estado',
+                opciones: [
+                  { valor: 'enviado', etiqueta: 'Enviado' },
+                  { valor: 'programado', etiqueta: 'Programado' },
+                  { valor: 'borrador', etiqueta: 'Borrador' },
+                ],
+              },
+            ]}
+            valores={{ estado }}
+            onValores={(valores) => setEstado(valores.estado ?? '')}
+            mostrados={visibles.length}
+            total={bandeja.length}
+            onLimpiar={() => {
+              setBusqueda('');
+              setEstado('');
+            }}
+            etiqueta="Filtros de avisos"
+            placeholder="Asunto, mensaje o destinatario…"
+            views={
+              <DirectoryViews
+                views={[
+                  {
+                    label: 'Para mí',
+                    count: dirigidos.length,
+                    active: !mostrarTodos,
+                    onClick: () => setAmbito('mios'),
+                  },
+                  {
+                    label: 'Todos',
+                    count: avisos.length,
+                    active: mostrarTodos,
+                    onClick: () => setAmbito('todos'),
+                  },
+                ]}
+              />
+            }
+          />
           <DataTable<Aviso>
             rows={visibles}
             columns={columnas}
@@ -351,6 +333,7 @@ export function TutorNotices() {
             }
             initialSort={{ key: 'fecha', direction: 'desc' }}
             pagination="auto"
+            paginationPosition="bottom"
             compact
           />
         </CardBody>

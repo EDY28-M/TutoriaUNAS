@@ -2,19 +2,15 @@ import { promedioDe } from '../../utils/datosAcademicos';
 import { etiquetaEtapa } from '../../utils/datosAcademicos';
 import { useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, CircleAlert, UserCheck, Users, TrendingUp } from '../../components/ui/icons';
+import { CircleAlert, UserCheck, Users, TrendingUp } from '../../components/ui/icons';
 import { PageHeading } from '../../components/ui/PageHeading';
 import { Card, CardBody, CardFoot, CardHead } from '../../components/ui/Card';
-import { Stat } from '../../components/ui/Stat';
-import { Alert } from '../../components/ui/Alert';
-import { StatusBadge } from '../../components/ui/StatusBadge';
-import { Progress } from '../../components/ui/Progress';
+import { Badge, StatusBadge } from '../../components/ui/StatusBadge';
 import { DataTable } from '../../components/ui/DataTable';
 import type { Column } from '../../components/ui/DataTable';
 import { PersonCell } from '../../components/ui/PersonCell';
 import { Sheet } from '../../components/ui/Sheet';
-import { EmptyState } from '../../components/ui/EmptyState';
-import { useFiltro } from '../../components/panels/PanelFiltros';
+import { useFiltro } from '../../hooks/useFiltro';
 import {
   DirectoryPage,
   DirectorySummary,
@@ -22,15 +18,24 @@ import {
   DirectoryDisclosure,
 } from '../../components/ui/DirectoryPage';
 import { DirectoryToolbar } from '../../components/ui/DirectoryToolbar';
-import type { DefinicionSelect } from '../../components/panels/PanelFiltros';
+import type { DefinicionSelect } from '../../hooks/useFiltro';
 import { usePortal } from '../../hooks/usePortal';
 import { usePersonasPortal } from '../../hooks/usePersonasPortal';
 import { AccionesCuentas } from '../../components/panels/AccionesCuentas';
 import type { AlertaAcademica, Estudiante, Sesion } from '../../types/domain';
-import { abreviaturaEscuela, docentePorId, iniciales, nombreCompleto } from '../../data/personas';
+import {
+  abreviaturaEscuela,
+  docentePorId,
+  escuelaDe,
+  iniciales,
+  nombreCompleto,
+} from '../../data/personas';
 import { escuelas, semestreActual } from '../../data/catalogos';
 import { asignaciones, sesionesDeEstudiante } from '../../data/tutoria';
-import { matriculaDe, nombreCurso, resumenDe } from '../../data/academico';
+import { cursoPorId, matriculaDe } from '../../data/academico';
+import { FichaEstudiante } from '../../components/panels/FichaEstudiante';
+import type { CursoVista } from '../../components/panels/FichaEstudiante';
+import { franjasDe } from '../../utils/horarioPadron';
 import { formatFecha } from '../../utils/fechas';
 
 const NIVELES_ALERTA: Array<AlertaAcademica['nivel']> = ['alta', 'media', 'baja'];
@@ -212,8 +217,20 @@ export function CoordTutees() {
   const detalleFila = detalle ? filaDe(detalle, portal.sesiones) : null;
   const tutorDelDetalle =
     detalleFila && detalleFila.tutorId ? docentePorId(detalleFila.tutorId) : undefined;
-  const resumen = detalle ? resumenDe(detalle.id) : undefined;
   const matricula = detalle ? matriculaDe(detalle.id) : undefined;
+  const cursosFicha: CursoVista[] = (matricula?.cursos ?? [])
+    .map((inscrito) => {
+      const curso = cursoPorId(inscrito.cursoId);
+      return {
+        id: `${inscrito.cursoId}-${inscrito.seccion}`,
+        codigo: curso?.codigo,
+        nombre: curso?.nombre ?? 'Curso no registrado',
+        docente: inscrito.docente,
+        franjas: franjasDe(inscrito),
+        horario: inscrito.horario,
+      };
+    })
+    .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
 
   const columnas: Column<FilaTutorado>[] = [
     {
@@ -460,201 +477,94 @@ export function CoordTutees() {
 
       {detalle && detalleFila && (
         <Sheet
-          wide
+          className="sheet--ficha"
           title={`${detalle.apellidos}, ${detalle.nombres}`}
-          description={`${detalle.codigo} · ${abreviaturaEscuela(detalle.escuelaId)} · ciclo ${detalle.ciclo ?? 'sin informar'} · ${etapaTexto(detalle.etapa)}`}
+          description={`${detalle.codigo} · ${escuelaDe(detalle.escuelaId)}`}
           onClose={() => setDetalle(null)}
-          footer={
-            <button
-              type="button"
-              className="btn btn-falcon-default"
-              onClick={() => setDetalle(null)}
-            >
-              Cerrar ficha
-            </button>
-          }
         >
-          <div className="stack stack--lg">
-            <div className="grid grid--3">
-              <Stat
-                label="Promedio ponderado"
-                icon={<TrendingUp />}
-                value={detalle.promedioPonderado?.toFixed(1) ?? 'Sin informar'}
-                note={`Créditos aprobados: ${detalle.creditosAprobados ?? 'Sin informar'}${detalle.creditosTotales === null ? '' : ` de ${detalle.creditosTotales}`}`}
-                tone={(detalle.promedioPonderado ?? Infinity) < 11 ? 'riesgo' : 'verde'}
-              />
-              <Stat
-                label="Sesiones asistidas"
-                value={`${detalleFila.asistidas}/${detalleFila.sesiones}`}
-                note="Sesiones individuales y grupales realizadas"
-                icon={<UserCheck aria-hidden="true" />}
-                tone="info"
-              />
-              <Stat
-                label="Cursos matriculados"
-                value={matricula?.cursos.length ?? 0}
-                note="Semestre vigente"
-                icon={<BookOpen aria-hidden="true" />}
-                tone="info"
-              />
-            </div>
-
-            {resumen?.avanceCurricular != null && (
-              <Progress
-                valor={resumen?.avanceCurricular ?? 0}
-                etiqueta="Avance curricular del plan de estudios"
-                variante="dorado"
-              />
-            )}
-
-            <dl className="def-list">
-              <div>
-                <dt>Código universitario</dt>
-                <dd className="mono">{detalle.codigo}</dd>
-              </div>
-              <div>
-                <dt>Correo institucional</dt>
-                <dd>
-                  <a href={`mailto:${detalle.correo}`}>{detalle.correo}</a>
-                </dd>
-              </div>
-              <div>
-                <dt>Teléfono</dt>
-                <dd>{detalle.telefono}</dd>
-              </div>
-              <div>
-                <dt>Ingreso</dt>
-                <dd>{formatFecha(detalle.ingreso)}</dd>
-              </div>
-              <div>
-                <dt>Estado académico</dt>
-                <dd>
-                  <StatusBadge estado={detalle.estado} />
-                </dd>
-              </div>
-              <div>
-                <dt>Docente tutor</dt>
-                <dd>
-                  {tutorDelDetalle
-                    ? nombreCompleto(tutorDelDetalle)
-                    : detalleFila.tutorId
-                      ? 'Tutor no registrado en el registro'
-                      : 'Sin asignación vigente'}
-                </dd>
-              </div>
-              <div>
-                <dt>Grupo y criterio</dt>
-                <dd>
-                  {detalleFila.grupo ?? 'Sin grupo'} ·{' '}
-                  {detalleFila.criterio ?? 'criterio por definir'}
-                </dd>
-              </div>
-              <div>
-                <dt>Matrícula {semestreActual}</dt>
-                <dd>
-                  {matricula
-                    ? `${matricula.estado} · ${formatFecha(matricula.fecha)} · ${matricula.cursos.length} cursos`
-                    : 'Sin matrícula registrada'}
-                </dd>
-              </div>
-              <div>
-                <dt>Fuente del expediente</dt>
-                <dd>{resumen?.fuente ?? 'DIAA · consulta de solo lectura'}</dd>
-              </div>
-              <div>
-                <dt>Fecha de corte</dt>
-                <dd>{formatFecha(resumen?.fechaCorte)}</dd>
-              </div>
-            </dl>
-
-            <div>
-              <div className="section-head">
-                <h2>Señales de acompañamiento</h2>
-                <p>{detalle.alertas.length} registradas</p>
-              </div>
-              {detalle.alertas.length === 0 ? (
-                <EmptyState
-                  title="Sin alertas registradas"
-                  description="El estudiante no presenta alertas académicas ni de bienestar en el corte vigente."
-                />
-              ) : (
-                <ul className="list">
-                  {detalle.alertas.map((alerta) => (
-                    <li className="list__item" key={alerta.id}>
-                      <span
-                        className={`list__icon list__icon--${alerta.nivel === 'alta' ? 'danger' : alerta.nivel === 'media' ? 'warn' : 'info'}`}
-                        aria-hidden="true"
+          <FichaEstudiante
+            key={detalle.id}
+            id={detalle.id}
+            base={detalle}
+            cursosRespaldo={cursosFicha}
+            semestreRespaldo={matricula?.semestreId}
+            insignias={
+              <>
+                <StatusBadge estado={detalle.estado} />
+                <Badge tone={detalleFila.tutorId ? 'ok' : 'alerta'}>
+                  {detalleFila.tutorId ? 'Con tutor' : 'Sin tutor'}
+                </Badge>
+              </>
+            }
+            cifrasExtra={[
+              { etiqueta: 'Sesiones', valor: `${detalleFila.asistidas}/${detalleFila.sesiones}` },
+            ]}
+            tutoria={{
+              cantidad: detalle.alertas.length || undefined,
+              contenido: (
+                <div className="fe-tutoria">
+                  <dl className="fe-datos">
+                    <div>
+                      <dt>Docente tutor</dt>
+                      <dd>
+                        {tutorDelDetalle
+                          ? nombreCompleto(tutorDelDetalle)
+                          : detalleFila.tutorId
+                            ? 'Tutor no registrado'
+                            : 'Sin asignación vigente'}
+                      </dd>
+                    </div>
+                    {detalleFila.tutorId && (
+                      <div>
+                        <dt>Grupo</dt>
+                        <dd>
+                          {detalleFila.grupo ?? 'Sin grupo'}
+                          {detalleFila.criterio && ` · ${detalleFila.criterio}`}
+                        </dd>
+                      </div>
+                    )}
+                    <div>
+                      <dt>Sesiones</dt>
+                      <dd>
+                        {detalleFila.asistidas} asistidas de {detalleFila.sesiones}
+                      </dd>
+                    </div>
+                    {detalle.ciclo !== null && (
+                      <div>
+                        <dt>Etapa</dt>
+                        <dd>{etapaTexto(detalle.etapa)}</dd>
+                      </div>
+                    )}
+                  </dl>
+                  {!detalleFila.tutorId && (
+                    <div>
+                      <Link
+                        className="btn btn-falcon-default btn-sm"
+                        to="/coordinacion/asignaciones"
                       >
-                        <CircleAlert />
-                      </span>
-                      <span className="list__body">
-                        <strong>{alerta.detalle}</strong>
-                        <p>
-                          Tipo {alerta.tipo} · detectada el {formatFecha(alerta.detectada)}. La
-                          señal orienta el acompañamiento tutorial y no constituye sanción ni
-                          diagnóstico.
-                        </p>
-                      </span>
-                      <span className="list__aside">
-                        <StatusBadge estado={alerta.nivel} />
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            <div>
-              <div className="section-head">
-                <h2>Cursos del semestre</h2>
-                <p>{matricula?.planEstudios ?? 'Plan de estudios no registrado'}</p>
-              </div>
-              {!matricula || matricula.cursos.length === 0 ? (
-                <EmptyState
-                  title="Sin cursos matriculados"
-                  description="La DIAA no reportó cursos para el semestre en curso."
-                  icon={<BookOpen />}
-                />
-              ) : (
-                <div className="table-wrap">
-                  <table className="data-table data-table--compact">
-                    <caption className="sr-only">
-                      Cursos matriculados por {detalle.apellidos}, {detalle.nombres} en el semestre{' '}
-                      {semestreActual}
-                    </caption>
-                    <thead>
-                      <tr>
-                        <th scope="col">Curso</th>
-                        <th scope="col">Sección</th>
-                        <th scope="col">Créditos</th>
-                        <th scope="col">Horario</th>
-                        <th scope="col">Docente</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {matricula.cursos.map((inscrito) => (
-                        <tr key={`${inscrito.cursoId}-${inscrito.seccion}`}>
-                          <td className="cell-strong">{nombreCurso(inscrito.cursoId)}</td>
-                          <td>{inscrito.seccion}</td>
-                          <td className="num">{inscrito.creditos ?? 'Sin informar'}</td>
-                          <td className="nowrap">{inscrito.horario}</td>
-                          <td>{inscrito.docente}</td>
-                        </tr>
+                        Asignar tutor
+                      </Link>
+                    </div>
+                  )}
+                  {detalle.alertas.length > 0 ? (
+                    <ul className="fe-senales" aria-label="Señales de acompañamiento">
+                      {detalle.alertas.map((alerta) => (
+                        <li key={alerta.id}>
+                          <StatusBadge estado={alerta.nivel} />
+                          <span>
+                            {alerta.detalle}
+                            <small>Detectada el {formatFecha(alerta.detectada)}</small>
+                          </span>
+                        </li>
                       ))}
-                    </tbody>
-                  </table>
+                    </ul>
+                  ) : (
+                    <p className="fe-nota">Sin señales de acompañamiento en el corte vigente.</p>
+                  )}
                 </div>
-              )}
-            </div>
-
-            {detalleFila.tutorId && (
-              <Alert tone="info" title="Acompañamiento tutorial">
-                El docente tutor registra las sesiones, los acuerdos y, cuando corresponde, la ficha
-                de solicitud de apoyo (formato 12). La coordinación revisa el cumplimiento del plan
-                de tutoría de la escuela.
-              </Alert>
-            )}
-          </div>
+              ),
+            }}
+          />
         </Sheet>
       )}
     </DirectoryPage>

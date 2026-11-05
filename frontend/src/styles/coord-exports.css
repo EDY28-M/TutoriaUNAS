@@ -1,0 +1,169 @@
+/* Coordinación · Exportar formatos: lista a la izquierda, hoja A4 a la derecha. */
+.fx-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  width: 100%;
+}
+.fx-filtros > .field {
+  flex: 1 1 220px;
+  min-width: 0;
+  margin: 0;
+}
+.fx-filtros .select {
+  width: 100%;
+  max-width: 100%;
+}
+
+.fx-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+  min-width: 0;
+}
+@media (min-width: 1100px) {
+  .fx-layout {
+    grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+  }
+  .fx-lista {
+    position: sticky;
+    top: 16px;
+    max-height: calc(100vh - 32px);
+    overflow: auto;
+  }
+}
+
+.fx-item {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+}
+.fx-item > .compact-list__row {
+  flex: 1;
+  min-width: 0;
+  padding-left: 12px;
+}
+.fx-item--activo {
+  background: var(--green-50);
+  box-shadow: inset 3px 0 0 var(--green-700);
+}
+.fx-item__check {
+  display: grid;
+  place-items: center;
+  padding-left: 16px;
+  cursor: pointer;
+}
+.fx-item__check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--green-700);
+  cursor: pointer;
+}
+.fx-item__check input:focus-visible {
+  outline: 2px solid var(--green-700);
+  outline-offset: 2px;
+}
+
+.fx-previa {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.fx-previa__cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  min-width: 0;
+}
+.fx-previa__cabecera > div {
+  min-width: 0;
+}
+.fx-previa__cabecera h2 {
+  margin: 0;
+  color: var(--ink-900);
+  font-size: var(--text-ui-title);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.fx-previa__cabecera p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: var(--text-ui-small);
+}
+.fx-previa__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+@media (max-width: 480px) {
+  .fx-previa__cabecera .btn,
+  .fx-previa__acciones {
+    width: 100%;
+  }
+}
+
+/* —— Cierre del semestre —— */
+.fx-ambito {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.fx-ambito .select {
+  width: 100%;
+  max-width: 100%;
+}
+.fx-requisitos {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+.fx-requisito {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 14px 18px;
+}
+.fx-requisito + .fx-requisito {
+  border-top: 1px solid var(--line);
+}
+.fx-requisito > small {
+  color: var(--muted);
+  font-size: var(--text-ui-small);
+}
+.fx-requisito__pendientes > summary {
+  width: fit-content;
+  color: var(--ink-800);
+  font-size: var(--text-ui-small);
+  font-weight: 600;
+  cursor: pointer;
+}
+.fx-requisito__pendientes > summary:focus-visible {
+  outline: 2px solid var(--green-700);
+  outline-offset: 2px;
+}
+.fx-requisito__pendientes ul {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.fx-requisito__pendientes li {
+  display: grid;
+  gap: 1px;
+  padding-left: 10px;
+  border-left: 2px solid var(--warn-line);
+  font-size: var(--text-ui-small);
+  overflow-wrap: anywhere;
+}
+.fx-requisito__pendientes li small {
+  color: var(--muted);
+}

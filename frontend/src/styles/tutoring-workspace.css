@@ -355,6 +355,10 @@
   font-size: var(--text-ui-small);
   margin-bottom: 20px;
 }
+dialog.tutoring-preview-sheet {
+  height: min(680px, calc(100dvh - 48px));
+}
+
 .tutoring-form {
   min-width: 0;
   display: grid;
@@ -532,6 +536,82 @@
   margin: 0;
   font-size: var(--text-ui-body);
   line-height: 1.7;
+}
+.tutoring-form--read {
+  gap: 0;
+}
+
+.tutoring-preview-note {
+  margin: -8px 0 10px;
+  color: var(--ink-600);
+  font-size: var(--text-ui-small);
+}
+
+.tutoring-read-tabs {
+  display: flex;
+  gap: 6px;
+  max-width: 100%;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--line);
+  scrollbar-width: thin;
+}
+
+.tutoring-read-tabs > button {
+  flex: 0 0 auto;
+  min-height: 46px;
+  padding: 10px 14px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--ink-600);
+  font: inherit;
+  font-size: var(--text-ui-small);
+  cursor: pointer;
+}
+
+.tutoring-read-tabs > button[aria-selected='true'] {
+  border-bottom-color: var(--green);
+  color: var(--green);
+  font-weight: 700;
+}
+
+.tutoring-read-section {
+  min-width: 0;
+  padding: 6px 0 0;
+}
+
+.tutoring-read-section > .tutoring-fields {
+  gap: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.tutoring-read-section .tutoring-field {
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 6px 18px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+
+.tutoring-read-section .tutoring-field:first-child {
+  border-top: 0;
+}
+
+.tutoring-read-section .tutoring-field__label,
+.tutoring-read-section .tutoring-answer {
+  font-size: var(--text-ui-small);
+  line-height: 1.5;
+}
+
+.tutoring-read-section .tutoring-answer {
+  color: var(--ink-600);
+}
+
+@media (max-width: 580px) {
+  .tutoring-read-section .tutoring-field {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
 }
 .tutoring-confirm {
   display: flex;

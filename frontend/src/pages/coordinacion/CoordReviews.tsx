@@ -1,36 +1,25 @@
-import { CompactPage, SecondaryPanel } from '../../components/ui/CompactPage';
+import { DirectoryDisclosure, DirectoryPage } from '../../components/ui/DirectoryPage';
 import { SeguimientosCoordinacion } from '../../components/panels/GestionCoordinacion';
 import { useCallback, useId, useMemo, useState } from 'react';
-import {
-  ClipboardCheck,
-  Download,
-  Eye,
-  FileCheck,
-  FileClock,
-  FileText,
-  ListChecks,
-  Send,
-  ShieldCheck,
-} from '../../components/ui/icons';
+import { ClipboardCheck, Eye, FileCheck } from '../../components/ui/icons';
 import { PageHeading } from '../../components/ui/PageHeading';
-import { Card, CardBody, CardFoot, CardHead } from '../../components/ui/Card';
-import { Stat } from '../../components/ui/Stat';
+import { Card, CardBody, CardHead } from '../../components/ui/Card';
 import { Alert } from '../../components/ui/Alert';
 import { Badge, StatusBadge } from '../../components/ui/StatusBadge';
 import { DataTable } from '../../components/ui/DataTable';
 import type { Column } from '../../components/ui/DataTable';
 import { Sheet } from '../../components/ui/Sheet';
 import { Tabs, TabPanel } from '../../components/ui/Tabs';
-import { Timeline } from '../../components/ui/Timeline';
 import { EmptyState } from '../../components/ui/EmptyState';
-import { PanelFiltros, useFiltro } from '../../components/panels/PanelFiltros';
-import type { DefinicionSelect } from '../../components/panels/PanelFiltros';
+import { useFiltro } from '../../hooks/useFiltro';
+import { DirectoryToolbar } from '../../components/ui/DirectoryToolbar';
+import type { DefinicionSelect } from '../../hooks/useFiltro';
 import { usePortal } from '../../hooks/usePortal';
 import { useAuth } from '../../hooks/useAuth';
 import { persistirRevision } from '../../services/mutacionesTutoria';
 import { API_MODE } from '../../services/apiConfig';
-import type { CodigoFormato, DefinicionFormato, Docente, Instrumento } from '../../types/domain';
-import { abreviaturaEscuela, docentePorId, escuelaDe } from '../../data/personas';
+import type { CodigoFormato, Docente, Instrumento } from '../../types/domain';
+import { abreviaturaEscuela, docentePorId } from '../../data/personas';
 import { escuelas, semestreActual } from '../../data/catalogos';
 import { definicionPorCodigo } from '../../data/formatos';
 import { HOY_ISO, formatFecha } from '../../utils/fechas';
@@ -51,7 +40,6 @@ interface DecisionRevision {
 /** Fila de la bandeja de revisión de informes 01 y 02. */
 interface FilaRevision {
   instrumento: Instrumento;
-  definicion: DefinicionFormato | undefined;
   tutor: Docente | undefined;
   escuelaId: string;
   estado: EstadoRevision;
@@ -106,7 +94,6 @@ export function CoordReviews() {
         const escuelaDeclarada = instrumento.respuestas['escuela'];
         return {
           instrumento,
-          definicion: definicionPorCodigo(instrumento.formato),
           tutor,
           escuelaId:
             escuelaDeclarada && escuelas.some((escuela) => escuela.id === escuelaDeclarada)
@@ -175,18 +162,12 @@ export function CoordReviews() {
 
   const filtro = useFiltro(filas, buscarEn, selects);
 
-  const conteo = (estado: EstadoRevision) => filas.filter((fila) => fila.estado === estado).length;
   const porTab: Record<EstadoRevision | 'todos', FilaRevision[]> = {
     todos: filtro.filtrados,
     pendiente: filtro.filtrados.filter((fila) => fila.estado === 'pendiente'),
     observado: filtro.filtrados.filter((fila) => fila.estado === 'observado'),
     aprobado: filtro.filtrados.filter((fila) => fila.estado === 'aprobado'),
   };
-  const sinIniciar = filas.filter((fila) => fila.instrumento.estado === 'no-iniciado').length;
-  const conObservacionAbierta = filas.filter((fila) =>
-    fila.instrumento.observaciones.some((observacion) => observacion.estado === 'abierta'),
-  ).length;
-
   const detalleFila = seleccionado
     ? (filas.find((fila) => fila.instrumento.id === seleccionado.id) ?? null)
     : null;
@@ -237,50 +218,31 @@ export function CoordReviews() {
       sortValue: (fila) => `${fila.instrumento.formato} ${fila.instrumento.id}`,
       render: (fila) => (
         <span className="stack" style={{ gap: 1 }}>
-          <strong className="cell-strong">{nombreFormato(fila.instrumento)}</strong>
-          <span className="cell-note mono">{fila.instrumento.id}</span>
-        </span>
-      ),
-    },
-    {
-      key: 'ambito',
-      header: 'Corresponde a',
-      sortable: true,
-      sortValue: (fila) => abreviaturaEscuela(fila.escuelaId),
-      render: (fila) => (
-        <span className="stack" style={{ gap: 1 }}>
-          <Badge tone="info">{abreviaturaEscuela(fila.escuelaId)}</Badge>
-          <span className="cell-note">{escuelaDe(fila.escuelaId)}</span>
+          <strong className="cell-strong">
+            {definicionPorCodigo(fila.instrumento.formato)?.nombre}
+          </strong>
+          <span className="cell-note">
+            {fila.instrumento.formato} · {abreviaturaEscuela(fila.escuelaId)}
+          </span>
         </span>
       ),
     },
     {
       key: 'tutor',
-      header: 'Responsable del informe',
+      header: 'Responsable',
       sortable: true,
       sortValue: (fila) => fila.tutor?.apellidos ?? '',
-      render: (fila) => (
-        <span className="stack" style={{ gap: 1 }}>
-          <span>
-            {fila.tutor ? `${fila.tutor.apellidos}, ${fila.tutor.nombres}` : 'Equipo de tutores'}
-          </span>
-          <span className="cell-note">
-            {fila.instrumento.formato === 'F01' ? 'Consolidado de la comisión' : 'Docente tutor'}
-          </span>
-        </span>
-      ),
+      render: (fila) =>
+        fila.tutor ? `${fila.tutor.apellidos}, ${fila.tutor.nombres}` : 'Comisión de tutoría',
     },
     {
       key: 'registro',
-      header: 'Situación del registro',
+      header: 'Registro',
       sortable: true,
       sortValue: (fila) => fila.instrumento.estado,
       render: (fila) => (
         <span className="stack" style={{ gap: 2 }}>
           <StatusBadge estado={fila.instrumento.estado} contexto="formulario" />
-          <span className="cell-note">
-            Avance {fila.instrumento.avance}% · v.{fila.instrumento.version}
-          </span>
         </span>
       ),
     },
@@ -291,32 +253,10 @@ export function CoordReviews() {
       sortValue: (fila) => fila.estado,
       render: (fila) => (
         <span className="stack" style={{ gap: 2 }}>
-          <StatusBadge estado={fila.estado} etiqueta={`Revisión: ${fila.estado}`} />
+          <StatusBadge estado={fila.estado} />
           <span className="cell-note">{formatFecha(fila.fecha)}</span>
         </span>
       ),
-    },
-    {
-      key: 'observaciones',
-      header: 'Observaciones',
-      sortable: true,
-      sortValue: (fila) => fila.instrumento.observaciones.length,
-      render: (fila) =>
-        fila.instrumento.observaciones.length === 0 ? (
-          <span className="muted small">Ninguna</span>
-        ) : (
-          <span className="stack" style={{ gap: 2 }}>
-            {fila.instrumento.observaciones.map((observacion) => (
-              <StatusBadge
-                key={observacion.id}
-                estado={observacion.estado}
-                etiqueta={
-                  observacion.estado === 'abierta' ? 'Observación abierta' : 'Observación subsanada'
-                }
-              />
-            ))}
-          </span>
-        ),
     },
     {
       key: 'acciones',
@@ -341,85 +281,48 @@ export function CoordReviews() {
   ];
 
   return (
-    <CompactPage>
+    <DirectoryPage>
       <PageHeading
         eyebrow={`Coordinación de tutoría · Revisión de informes · Semestre ${semestreActual}`}
         title="Revisar informes"
         description="Revisa los informes 01 y 02. Puedes aprobarlos o pedir correcciones."
-        actions={
-          <>
-            <Badge tone={conteo('pendiente') ? 'alerta' : 'ok'}>
-              {conteo('pendiente')} por revisar
-            </Badge>
-            <Badge tone="riesgo">{conteo('observado')} observados</Badge>
-          </>
-        }
       />
-
-      <div className="grid grid--4">
-        <Stat
-          label="Informes en bandeja"
-          value={filas.length}
-          note="Formatos 01 y 02 del semestre en curso"
-          icon={<ListChecks aria-hidden="true" />}
-        />
-        <Stat
-          label="Pendientes de revisión"
-          value={conteo('pendiente')}
-          note={`${sinIniciar} informes sin iniciar`}
-          icon={<FileClock aria-hidden="true" />}
-          tone={conteo('pendiente') ? 'alerta' : 'verde'}
-        />
-        <Stat
-          label="Por corregir"
-          value={conteo('observado')}
-          note={`${conObservacionAbierta} con observación abierta`}
-          icon={<ClipboardCheck aria-hidden="true" />}
-          tone={conteo('observado') ? 'riesgo' : 'verde'}
-        />
-        <Stat
-          label="Aprobados"
-          value={conteo('aprobado')}
-          note="Habilitados para descarga y consolidación"
-          icon={<FileCheck aria-hidden="true" />}
-          tone="verde"
-        />
-      </div>
 
       <Card>
         <CardHead
           title="Bandeja de informes"
-          description="Filtra por formato, escuela o situación del envío; las pestañas agrupan por estado de revisión."
           actions={<Badge tone="info">{semestreActual}</Badge>}
         />
         <CardBody>
           <div className="stack">
-            <PanelFiltros<FilaRevision>
+            <DirectoryToolbar
               busqueda={filtro.busqueda}
               onBusqueda={filtro.setBusqueda}
               selects={selects}
               valores={filtro.valores}
-              onValor={(id, valor) =>
-                filtro.setValores((actuales) => ({ ...actuales, [id]: valor }))
+              onValores={filtro.setValores}
+              mostrados={porTab[pestana].length}
+              total={
+                pestana === 'todos'
+                  ? filas.length
+                  : filas.filter((fila) => fila.estado === pestana).length
               }
-              mostrados={filtro.filtrados.length}
-              total={filas.length}
-              activos={filtro.activos}
               onLimpiar={filtro.limpiar}
               etiqueta="Filtros de la bandeja de informes"
-              placeholder="Buscar por formato, tutor o código…"
-            />
-
-            <Tabs
-              etiqueta="Estado de revisión de los informes"
-              activo={pestana}
-              onChange={(id) => setPestana(id as EstadoRevision | 'todos')}
-              items={[
-                { id: 'pendiente', label: 'Pendiente', count: conteo('pendiente') },
-                { id: 'observado', label: 'Por corregir', count: conteo('observado') },
-                { id: 'aprobado', label: 'Aprobado', count: conteo('aprobado') },
-                { id: 'todos', label: 'Todos', count: filtro.filtrados.length },
-              ]}
+              placeholder="Buscar informe"
+              views={
+                <Tabs
+                  etiqueta="Estado de revisión de los informes"
+                  activo={pestana}
+                  onChange={(id) => setPestana(id as EstadoRevision | 'todos')}
+                  items={[
+                    { id: 'pendiente', label: 'Pendiente', count: porTab.pendiente.length },
+                    { id: 'observado', label: 'Por corregir', count: porTab.observado.length },
+                    { id: 'aprobado', label: 'Aprobado', count: porTab.aprobado.length },
+                    { id: 'todos', label: 'Todos', count: filtro.filtrados.length },
+                  ]}
+                />
+              }
             />
 
             {(['pendiente', 'observado', 'aprobado', 'todos'] as const).map((id) => (
@@ -430,112 +333,25 @@ export function CoordReviews() {
                   caption={`Informes 01 y 02 en estado ${id} · semestre ${semestreActual}`}
                   rowKey={(fila) => fila.instrumento.id}
                   pageSize={8}
+                  pagination="auto"
+                  paginationPosition="bottom"
+                  inlineActions
                   initialSort={{ key: 'revision', direction: 'asc' }}
                   emptyTitle="Sin informes en esta pestaña"
-                  emptyDescription="Cambia de pestaña o ajuste los filtros de la bandeja."
+                  emptyDescription="Cambia de pestaña o ajusta los filtros."
                 />
               </TabPanel>
             ))}
           </div>
         </CardBody>
-        <CardFoot>
-          <span>
-            La revisión usa los datos del formulario: no se crea un registro paralelo al formato
-            oficial.
-          </span>
-          <span className="ui-row ui-row--tight">
-            <ShieldCheck aria-hidden="true" /> Solo la coordinación del ámbito puede aprobar.
-          </span>
-        </CardFoot>
       </Card>
 
-      <SecondaryPanel title="Guía de revisión">
-        <Alert tone="info" title="Cómo se revisa un informe">
-          El tutor envía el informe 02 y la comisión el informe 01; la coordinación revisa y
-          registra la aprobación o la observación. Un informe observado vuelve al tutor con el plazo
-          de subsanación. La descarga se habilita al aprobarse.
-        </Alert>
-
-        <div className="grid grid--sidebar">
-          <Card>
-            <CardHead
-              title="Contenido del informe"
-              description="Secciones y campos oficiales que respaldan la revisión"
-            />
-            <CardBody flush>
-              <ul className="list">
-                {FORMATOS_INFORME.map((codigo) => {
-                  const definicion = definicionPorCodigo(codigo);
-                  if (!definicion) return null;
-                  const totalCampos = definicion.secciones.reduce(
-                    (total, seccion) => total + seccion.campos.length,
-                    0,
-                  );
-                  return (
-                    <li className="list__item" key={codigo}>
-                      <span className="list__icon" aria-hidden="true">
-                        <FileText />
-                      </span>
-                      <span className="list__body">
-                        <strong>
-                          Formato {definicion.numero} · {definicion.nombre}
-                        </strong>
-                        <p>{definicion.proposito}</p>
-                        <span className="list__meta">
-                          <span>{definicion.secciones.length} secciones</span>
-                          <span>{totalCampos} campos</span>
-                          <span>Responde: {definicion.actorEtiqueta}</span>
-                        </span>
-                      </span>
-                      <span className="list__aside">
-                        <Badge tone={definicion.obligatorio ? 'ok' : 'neutro'}>
-                          {definicion.obligatorio ? 'Obligatorio' : 'Opcional'}
-                        </Badge>
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </CardBody>
-            <CardFoot>
-              <span>Vigencia de los formatos pendiente de confirmación por el área usuaria.</span>
-            </CardFoot>
-          </Card>
-
-          <Card accent>
-            <CardHead title="Pasos de revisión" description="Historial de la revisión." />
-            <CardBody>
-              <Timeline
-                etiqueta="Circuito de revisión de informes"
-                hitos={[
-                  {
-                    titulo: 'Registro del informe',
-                    descripcion:
-                      'El tutor o la comisión completa el formato y lo envía al sistema.',
-                    tono: 'info',
-                  },
-                  {
-                    titulo: 'Revisión de la coordinación',
-                    descripcion: 'Se verifican la cobertura, las actividades y las evidencias.',
-                    tono: 'info',
-                  },
-                  {
-                    titulo: 'Observación o aprobación',
-                    descripcion:
-                      'La observación vuelve al responsable; la aprobación habilita la descarga.',
-                    tono: 'alerta',
-                  },
-                  {
-                    titulo: 'Consolidación final',
-                    descripcion: 'El informe 01 reúne la información aprobada de la escuela.',
-                    tono: 'ok',
-                  },
-                ]}
-              />
-            </CardBody>
-          </Card>
-        </div>
-      </SecondaryPanel>
+      <DirectoryDisclosure title="Guía de revisión">
+        <p>
+          El tutor envía el informe 02 y la comisión el 01. Revisa el contenido y aprueba o registra
+          una observación.
+        </p>
+      </DirectoryDisclosure>
       {seleccionado && detalleFila && (
         <Sheet
           wide
@@ -592,34 +408,6 @@ export function CoordReviews() {
 
             <dl className="def-list">
               <div>
-                <dt>Responsable que responde</dt>
-                <dd>{detalleFormato?.actorEtiqueta ?? '—'}</dd>
-              </div>
-              <div>
-                <dt>Momento de presentación</dt>
-                <dd>{detalleFormato?.momento ?? '—'}</dd>
-              </div>
-              <div>
-                <dt>Requisito</dt>
-                <dd>
-                  {detalleFormato?.obligatorio ? 'Formulario obligatorio' : 'Formulario opcional'}
-                </dd>
-              </div>
-              <div>
-                <dt>Versión y aprobación</dt>
-                <dd>
-                  {detalleFormato?.version ?? '—'} · {detalleFormato?.aprobacion ?? '—'}
-                </dd>
-              </div>
-              <div>
-                <dt>Vigencia</dt>
-                <dd>{detalleFormato?.vigencia ?? '—'}</dd>
-              </div>
-              <div>
-                <dt>Firmas de aprobación</dt>
-                <dd>{detalleFormato?.visaciones.join(' · ') ?? '—'}</dd>
-              </div>
-              <div>
                 <dt>Estado del registro</dt>
                 <dd>
                   <StatusBadge estado={seleccionado.estado} contexto="formulario" /> · avance{' '}
@@ -646,6 +434,39 @@ export function CoordReviews() {
               </div>
             </dl>
 
+            <DirectoryDisclosure title="Ficha del formato">
+              <dl className="def-list">
+                <div>
+                  <dt>Responsable que responde</dt>
+                  <dd>{detalleFormato?.actorEtiqueta ?? '—'}</dd>
+                </div>
+                <div>
+                  <dt>Momento de presentación</dt>
+                  <dd>{detalleFormato?.momento ?? '—'}</dd>
+                </div>
+                <div>
+                  <dt>Requisito</dt>
+                  <dd>
+                    {detalleFormato?.obligatorio ? 'Formulario obligatorio' : 'Formulario opcional'}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Versión y aprobación</dt>
+                  <dd>
+                    {detalleFormato?.version ?? '—'} · {detalleFormato?.aprobacion ?? '—'}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Vigencia</dt>
+                  <dd>{detalleFormato?.vigencia ?? '—'}</dd>
+                </div>
+                <div>
+                  <dt>Firmas de aprobación</dt>
+                  <dd>{detalleFormato?.visaciones.join(' · ') ?? '—'}</dd>
+                </div>
+              </dl>
+            </DirectoryDisclosure>
+
             <div>
               <div className="section-head">
                 <h2>Secciones y campos del formulario</h2>
@@ -664,23 +485,8 @@ export function CoordReviews() {
                           const respuesta = seleccionado.respuestas[campo.codigo];
                           return (
                             <div key={campo.codigo}>
-                              <dt>
-                                <span className="mono">{campo.codigo}</span>
-                                {campo.obligatorio && <span className="field__required"> *</span>}
-                              </dt>
-                              <dd>
-                                <strong>{campo.etiqueta}</strong>
-                                <span className="cell-note">
-                                  Tipo {campo.tipo}
-                                  {campo.opciones?.length
-                                    ? ` · opciones: ${campo.opciones.join(' / ')}`
-                                    : ''}
-                                </span>
-                                {respuesta && (
-                                  <span className="cell-note">Respuesta: {respuesta}</span>
-                                )}
-                                {campo.ayuda && <span className="cell-note">{campo.ayuda}</span>}
-                              </dd>
+                              <dt>{campo.etiqueta}</dt>
+                              <dd>{respuesta || 'Sin respuesta'}</dd>
                             </div>
                           );
                         })}
@@ -742,25 +548,12 @@ export function CoordReviews() {
                     El comentario se guarda con su nombre, la fecha y el estado de la revisión.
                   </span>
                 </div>
-                <Alert tone="info" title="Cifras que debes comprobar">
-                  Estudiantes asignados, estudiantes únicos atendidos, atenciones acumuladas y
-                  sesiones realizadas se revisan por separado (acta del 7 de octubre de 2026, punto
-                  QUINTO).
-                </Alert>
-                <Alert tone="ok" title="Descarga del informe">
-                  <Download aria-hidden="true" /> La descarga se habilita cuando el informe queda
-                  aprobado; queda registrada en la auditoría.
-                </Alert>
-                <Alert tone="alerta" title="Reglas pendientes de confirmación">
-                  <Send aria-hidden="true" /> La vigencia de los formatos y las reglas de llenado
-                  por actor siguen pendientes de confirmación por Tutoría y Capacitación Docente.
-                </Alert>
               </div>
             </div>
           </div>
         </Sheet>
       )}
       {API_MODE && <SeguimientosCoordinacion />}
-    </CompactPage>
+    </DirectoryPage>
   );
 }

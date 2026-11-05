@@ -310,7 +310,7 @@ try {
         await page.goto(`http://127.0.0.1:5173${route}`); await page.locator('h1').waitFor();
         await measure(page,'pagina',true);
         if(route==='/login') {
-          for(const account of accounts) { await page.getByRole('tab',{name:account.label,exact:true}).click(); await measure(page,`acceso-${account.role}`); }
+          await measure(page, "acceso");
           await page.locator('button[type=submit]').click(); await measure(page,'acceso-validacion');
         }
         if(route==='/recuperar-clave') {
@@ -349,7 +349,6 @@ try {
     page.on('requestfailed', request => { if (!request.failure()?.errorText?.includes('ERR_ABORTED')) network.push({...current,url:request.url(),error:request.failure()?.errorText}); });
     page.on('response', response => { if (response.status()>=400) network.push({...current,url:response.url(),status:response.status()}); });
     await page.goto('http://127.0.0.1:5173/login');
-    await page.getByRole('tab',{name:account.label,exact:true}).click();
     await page.locator('#identifier').fill(account.id); await page.locator('#password').fill('tutoria2026');
     await page.locator('.d01__form button[type="submit"]').click(); await page.waitForURL(`**/${account.role}/dashboard`);
     let routes = basePaths.filter(path => path.startsWith(`/${account.role}/`)).map(path=>path.replace(':estudianteId','EST-2023010456'));

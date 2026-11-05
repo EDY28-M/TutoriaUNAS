@@ -1,4 +1,5 @@
-import { CompactPage, SecondaryPanel } from '../../components/ui/CompactPage';
+import { DirectoryDisclosure, DirectoryPage } from '../../components/ui/DirectoryPage';
+import { MetricGroup } from '../../components/ui/MetricGroup';
 import { API_MODE } from '../../services/apiConfig';
 import { useId, useMemo, useState } from 'react';
 import { Alert } from '../../components/ui/Alert';
@@ -9,7 +10,6 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import {
   ClipboardList,
   Download,
-  GraduationCap,
   Percent,
   Presentation,
   ScrollText,
@@ -27,7 +27,7 @@ import { abreviaturaEscuela, docentePorId, escuelaDe } from '../../data/personas
 import { actividadesPlan, asignaciones } from '../../data/tutoria';
 import { usePortal } from '../../hooks/usePortal';
 import type { EstadoInstrumento } from '../../types/domain';
-import { downloadCsv, encodeCsv } from '../../utils/csv';
+import { downloadCsv } from '../../utils/csv';
 
 const ESTADOS_INSTRUMENTO: EstadoInstrumento[] = [
   'no-iniciado',
@@ -143,10 +143,6 @@ export function CoordReports() {
 
   const [escuelaId, setEscuelaId] = useState(portal.escuelaId);
   const [semestreId, setSemestreId] = useState(semestreActual);
-  const [ultimaExportacion, setUltimaExportacion] = useState<{
-    filas: number;
-    caracteres: number;
-  } | null>(null);
 
   const porEscuela = useMemo<Indicadores[]>(
     () =>
@@ -267,12 +263,6 @@ export function CoordReports() {
     for (const [motivo, total] of motivos) {
       filas.push([motivo, String(total)]);
     }
-    // Se codifica el CSV antes de descargarlo para informar el tamaño del archivo.
-    const contenido = encodeCsv(filas);
-    setUltimaExportacion({
-      filas: contenido.split('\r\n').length,
-      caracteres: contenido.length,
-    });
     downloadCsv(filas, `reporte-tutoria-${semestreId}.csv`);
   }
 
@@ -283,10 +273,7 @@ export function CoordReports() {
       sortable: true,
       sortValue: (fila) => abreviaturaEscuela(fila.escuelaId),
       render: (fila) => (
-        <span className="stack" style={{ gap: 1 }}>
-          <strong className="cell-strong">{abreviaturaEscuela(fila.escuelaId)}</strong>
-          <span className="cell-note">{escuelaDe(fila.escuelaId)}</span>
-        </span>
+        <abbr title={escuelaDe(fila.escuelaId)}>{abreviaturaEscuela(fila.escuelaId)}</abbr>
       ),
     },
     {
@@ -308,12 +295,7 @@ export function CoordReports() {
       header: 'Únicos atendidos',
       sortable: true,
       sortValue: (fila) => fila.atendidos,
-      render: (fila) => (
-        <span className="stack" style={{ gap: 1 }}>
-          <span className="num">{fila.atendidos}</span>
-          <span className="cell-note">de {fila.asignados} asignados</span>
-        </span>
-      ),
+      render: (fila) => fila.atendidos,
     },
     {
       key: 'atenciones',
@@ -327,12 +309,7 @@ export function CoordReports() {
       header: 'Sesiones',
       sortable: true,
       sortValue: (fila) => fila.sesiones,
-      render: (fila) => (
-        <span className="stack" style={{ gap: 1 }}>
-          <span className="num">{fila.sesiones}</span>
-          <span className="cell-note">{fila.sesionesProgramadas} programadas</span>
-        </span>
-      ),
+      render: (fila) => fila.sesiones,
     },
     {
       key: 'cobertura',
@@ -341,53 +318,64 @@ export function CoordReports() {
       sortValue: (fila) => fila.cobertura,
       render: (fila) => <Meter valor={fila.cobertura} />,
     },
-    {
-      key: 'plan',
-      header: 'Plan de tutoría',
-      sortable: true,
-      sortValue: (fila) => fila.avancePlan,
-      render: (fila) => <Meter valor={fila.avancePlan} />,
-    },
-    {
-      key: 'derivaciones',
-      header: 'Solicitudes de apoyo',
-      sortable: true,
-      sortValue: (fila) => fila.derivaciones,
-      render: (fila) =>
-        fila.derivaciones === 0 ? (
-          <span className="muted small">Sin casos</span>
-        ) : (
-          <span className="stack" style={{ gap: 2 }}>
-            <Badge tone={fila.derivacionesAbiertas ? 'alerta' : 'ok'}>
-              {fila.derivacionesAbiertas} abiertas
-            </Badge>
-            <span className="cell-note">{fila.derivaciones} en total</span>
-          </span>
-        ),
-    },
-    {
-      key: 'informes',
-      header: 'Informes por revisar',
-      sortable: true,
-      sortValue: (fila) => fila.informesPorRevisar,
-      render: (fila) =>
-        fila.informesPorRevisar ? (
-          <StatusBadge estado="enviado" etiqueta={`${fila.informesPorRevisar} en bandeja`} />
-        ) : (
-          <Badge tone="ok">Al día</Badge>
-        ),
-    },
   ];
 
   return (
-    <CompactPage>
+    <DirectoryPage>
       <PageHeading
         eyebrow={`Coordinación de tutoría · Reportes e indicadores · ${semestreId}`}
         title="Reportes de tutoría"
-        description="Compara las sesiones, los estudiantes atendidos y los formularios de cada escuela."
+        description="Cobertura, atenciones y sesiones por escuela."
         actions={
           <>
-            <div className="field" style={{ minWidth: 200 }}>
+            <button type="button" className="btn btn-falcon-default" onClick={exportar}>
+              <Download aria-hidden="true" /> Descargar CSV
+            </button>
+          </>
+        }
+      />
+
+      <MetricGroup label="Resumen de tutoría">
+        <Stat
+          label="Tutores"
+          value={totales.tutores}
+          note="Con estudiantes asignados"
+          icon={<Presentation aria-hidden="true" />}
+        />
+        <Stat
+          label="Asignados"
+          value={totales.asignados}
+          note={`${totales.atendidos} estudiantes únicos atendidos`}
+          icon={<Users aria-hidden="true" />}
+          tone="info"
+        />
+        <Stat
+          label="Cobertura"
+          value={`${coberturaGlobal}%`}
+          note="Atendidos de asignados"
+          icon={<Percent aria-hidden="true" />}
+          tone={coberturaGlobal >= 80 ? 'verde' : 'alerta'}
+        />
+        <Stat
+          label="Sesiones realizadas"
+          value={totales.sesiones}
+          note={`${totales.atenciones} atenciones · ${totales.programas} programadas`}
+          icon={<UserCheck aria-hidden="true" />}
+          tone="violeta"
+        />
+      </MetricGroup>
+
+      {totales.sesiones === 0 && (
+        <Alert tone="alerta" title={`El semestre ${semestreId} no tiene sesiones registradas`}>
+          Selecciona otro semestre para consultar su actividad.
+        </Alert>
+      )}
+
+      <Card>
+        <CardHead title="Indicadores por escuela" />
+        <CardBody>
+          <div className="directory-controls">
+            <div className="field">
               <label htmlFor={idSemestre}>Semestre</label>
               <select
                 id={idSemestre}
@@ -402,333 +390,261 @@ export function CoordReports() {
                 ))}
               </select>
             </div>
-            <div className="field" style={{ minWidth: 240 }}>
-              <label htmlFor={idEscuela}>Escuela en detalle</label>
-              <select
-                id={idEscuela}
-                className="select"
-                value={escuelaId}
-                onChange={(evento) => setEscuelaId(evento.target.value)}
-              >
-                {escuelas
-                  .filter((escuela) => !API_MODE || escuela.id === portal.escuelaId)
-                  .map((escuela) => (
-                    <option key={escuela.id} value={escuela.id}>
-                      {escuela.abreviatura} · {escuela.nombre}
-                    </option>
-                  ))}
-              </select>
-            </div>
-            <button type="button" className="btn btn-primary" onClick={exportar}>
-              <Download aria-hidden="true" /> Descargar tabla (CSV)
-            </button>
-          </>
-        }
-      />
-
-      {ultimaExportacion && (
-        <Alert tone="ok" title="Reporte generado en formato CSV">
-          El archivo <strong>reporte-tutoria-{semestreId}.csv</strong> contiene{' '}
-          {ultimaExportacion.filas} filas.
-        </Alert>
-      )}
-
-      <div className="grid grid--4">
-        <Stat
-          label="Tutores"
-          value={totales.tutores}
-          note={`${porEscuela.length} escuela(s) en el ámbito`}
-          icon={<Presentation aria-hidden="true" />}
-        />
-        <Stat
-          label="Estudiantes asignados"
-          value={totales.asignados}
-          note={`${totales.atendidos} estudiantes únicos atendidos`}
-          icon={<Users aria-hidden="true" />}
-          tone="info"
-        />
-        <Stat
-          label="Estudiantes atendidos (%)"
-          value={`${coberturaGlobal}%`}
-          note="Únicos atendidos de asignados"
-          icon={<Percent aria-hidden="true" />}
-          tone={coberturaGlobal >= 80 ? 'verde' : 'alerta'}
-        />
-        <Stat
-          label="Sesiones y atenciones"
-          value={totales.sesiones}
-          note={`${totales.atenciones} atenciones · ${totales.programas} sesiones programadas`}
-          icon={<UserCheck aria-hidden="true" />}
-          tone="violeta"
-        />
-      </div>
-
-      {totales.sesiones === 0 && (
-        <Alert tone="alerta" title={`El semestre ${semestreId} no tiene sesiones registradas`}>
-          Selecciona otro semestre para consultar su actividad.
-        </Alert>
-      )}
-
-      <Card>
-        <CardHead
-          title={`Indicadores por escuela · ${semestreId}`}
-          description="Compare la cobertura, las atenciones y el avance del plan de tutoría entre escuelas."
-          actions={
-            <button type="button" className="btn btn-falcon-default btn-sm" onClick={exportar}>
-              <Download aria-hidden="true" /> Exportar tabla
-            </button>
-          }
-        />
-        <CardBody flush>
+          </div>
           <DataTable<Indicadores>
             rows={porEscuela}
             columns={columnas}
             caption={`Indicadores del proceso de tutoría por escuela · ${semestreId}`}
             rowKey={(fila) => fila.escuelaId}
             pageSize={10}
+            pagination="auto"
+            paginationPosition="bottom"
             initialSort={{ key: 'cobertura', direction: 'desc' }}
           />
         </CardBody>
-        <CardFoot>
-          <span>Cobertura de estudiantes asignados al programa de tutoría.</span>
-        </CardFoot>
       </Card>
 
-      {actual && porEscuela.length > 1 && (
-        <div className="grid grid--3">
-          <Stat
-            label={`Cobertura de ${abreviaturaEscuela(actual.escuelaId)}`}
-            value={`${actual.cobertura}%`}
-            note={`${actual.atendidos} de ${actual.asignados} estudiantes atendidos`}
-            icon={<Percent aria-hidden="true" />}
-            tone={actual.cobertura >= 80 ? 'verde' : 'alerta'}
-          />
-          <Stat
-            label="Atenciones y sesiones"
-            value={actual.atenciones}
-            note={`${actual.sesiones} sesiones realizadas · ${actual.sesionesProgramadas} programadas`}
-            icon={<ClipboardList aria-hidden="true" />}
-            tone="info"
-          />
-          <Stat
-            label="Avance del plan tutorial"
-            value={`${actual.avancePlan}%`}
-            note={`${escuelaDe(actual.escuelaId)}`}
-            icon={<GraduationCap aria-hidden="true" />}
-            tone="dorado"
-          />
-        </div>
+      {actual && (
+        <DirectoryDisclosure title="Detalle por escuela">
+          {porEscuela.length > 1 && (
+            <div className="directory-controls">
+              <div className="field">
+                <label htmlFor={idEscuela}>Escuela</label>
+                <select
+                  id={idEscuela}
+                  className="select"
+                  value={escuelaId}
+                  onChange={(evento) => setEscuelaId(evento.target.value)}
+                >
+                  {escuelas
+                    .filter((escuela) => !API_MODE || escuela.id === portal.escuelaId)
+                    .map((escuela) => (
+                      <option key={escuela.id} value={escuela.id}>
+                        {escuela.abreviatura} · {escuela.nombre}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </div>
+          )}
+          <dl className="def-list">
+            <div>
+              <dt>Escuela</dt>
+              <dd>{escuelaDe(actual.escuelaId)}</dd>
+            </div>
+            <div>
+              <dt>Sesiones programadas</dt>
+              <dd>{actual.sesionesProgramadas}</dd>
+            </div>
+            <div>
+              <dt>Avance del plan</dt>
+              <dd>{actual.avancePlan}%</dd>
+            </div>
+            <div>
+              <dt>Informes por revisar</dt>
+              <dd>{actual.informesPorRevisar}</dd>
+            </div>
+            <div>
+              <dt>Solicitudes de apoyo</dt>
+              <dd>
+                {actual.derivacionesAbiertas} abiertas de {actual.derivaciones}
+              </dd>
+            </div>
+          </dl>
+        </DirectoryDisclosure>
       )}
 
-      {actual && porEscuela.length === 1 && (
-        <p className="compact-note">
-          Avance del plan tutorial: <strong>{actual.avancePlan}%</strong>
-        </p>
-      )}
-
-      <div className="compact-toolbar">
-        <SecondaryPanel title="Formularios y estados">
-          <div className="grid grid--2">
-            <Card>
-              <CardHead
-                title="Formularios por estado"
-                description={`Registros del semestre ${semestreId} en todo el ámbito`}
-              />
-              <CardBody flush>
-                {instrumentosPorEstado.length === 0 ? (
-                  <EmptyState
-                    title="Sin formularios registrados"
-                    description="No hay formularios cargados para el semestre seleccionado."
-                    icon={<ClipboardList />}
-                  />
-                ) : (
-                  <ul className="list">
-                    {instrumentosPorEstado.map((fila) => (
-                      <li className="list__item" key={fila.estado}>
-                        <span className="list__body">
-                          <strong>
-                            <StatusBadge estado={fila.estado} />
-                          </strong>
-                          <p>
-                            {fila.total} registro(s) ·{' '}
-                            {Math.round((fila.total / instrumentosDelAlcance.length) * 100)}% del
-                            total del semestre
-                          </p>
-                        </span>
-                        <span className="list__aside num">{fila.total}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </CardBody>
-              <CardFoot>
-                <span>{instrumentosDelAlcance.length} formularios cargados en el semestre.</span>
-              </CardFoot>
-            </Card>
-
-            <Card>
-              <CardHead
-                title="Solicitudes de apoyo por estado"
-                description="Estado administrativo reportado por las áreas"
-              />
-              <CardBody flush>
-                {porEstadoDerivacion.length === 0 ? (
-                  <EmptyState
-                    title="Sin solicitudes de apoyo registradas"
-                    description="El semestre seleccionado no tiene fichas de solicitud de apoyo (formato 12)."
-                    icon={<Send />}
-                  />
-                ) : (
-                  <ul className="list">
-                    {porEstadoDerivacion.map(([estado, total]) => (
-                      <li className="list__item" key={estado}>
-                        <span className="list__body">
-                          <strong>
-                            <StatusBadge estado={estado} />
-                          </strong>
-                          <p>
-                            {estadosDerivacionAbiertos.some((abierto) => abierto === estado)
-                              ? 'Caso abierto: requiere seguimiento de la coordinación.'
-                              : 'Caso con atención concluida por el área.'}
-                          </p>
-                        </span>
-                        <span className="list__aside num">{total}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </CardBody>
-              <CardFoot>
-                <span>
-                  {derivacionesDelAlcance.length} solicitudes de apoyo en el semestre seleccionado.
-                </span>
-              </CardFoot>
-            </Card>
-          </div>
-        </SecondaryPanel>
-        <SecondaryPanel title="Áreas y motivos">
-          <div className="grid grid--2">
-            <Card>
-              <CardHead
-                title="Solicitudes de apoyo por área"
-                description="Área receptora, casos totales y seguimiento"
-              />
-              <CardBody flush>
+      <DirectoryDisclosure title="Formularios y estados">
+        <div className="grid grid--2">
+          <Card>
+            <CardHead
+              title="Formularios por estado"
+              description={`Registros del semestre ${semestreId} en todo el ámbito`}
+            />
+            <CardBody flush>
+              {instrumentosPorEstado.length === 0 ? (
+                <EmptyState
+                  title="Sin formularios registrados"
+                  description="No hay formularios cargados para el semestre seleccionado."
+                  icon={<ClipboardList />}
+                />
+              ) : (
                 <ul className="list">
-                  {porArea.map((fila) => (
-                    <li className="list__item" key={fila.area.id}>
+                  {instrumentosPorEstado.map((fila) => (
+                    <li className="list__item" key={fila.estado}>
                       <span className="list__body">
-                        <strong>{fila.area.nombre}</strong>
+                        <strong>
+                          <StatusBadge estado={fila.estado} />
+                        </strong>
                         <p>
-                          {fila.area.responsable} · respuesta estimada {fila.area.tiempoRespuesta}
+                          {fila.total} registro(s) ·{' '}
+                          {Math.round((fila.total / instrumentosDelAlcance.length) * 100)}% del
+                          total del semestre
                         </p>
-                        <span className="list__meta">
-                          <span>{fila.total} casos</span>
-                          <span>{fila.cerradas} cerrados</span>
-                        </span>
+                      </span>
+                      <span className="list__aside num">{fila.total}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardBody>
+            <CardFoot>
+              <span>{instrumentosDelAlcance.length} formularios cargados en el semestre.</span>
+            </CardFoot>
+          </Card>
+
+          <Card>
+            <CardHead
+              title="Solicitudes de apoyo por estado"
+              description="Estado administrativo reportado por las áreas"
+            />
+            <CardBody flush>
+              {porEstadoDerivacion.length === 0 ? (
+                <EmptyState
+                  title="Sin solicitudes de apoyo registradas"
+                  description="El semestre seleccionado no tiene fichas de solicitud de apoyo (formato 12)."
+                  icon={<Send />}
+                />
+              ) : (
+                <ul className="list">
+                  {porEstadoDerivacion.map(([estado, total]) => (
+                    <li className="list__item" key={estado}>
+                      <span className="list__body">
+                        <strong>
+                          <StatusBadge estado={estado} />
+                        </strong>
+                        <p>
+                          {estadosDerivacionAbiertos.some((abierto) => abierto === estado)
+                            ? 'Caso abierto: requiere seguimiento de la coordinación.'
+                            : 'Caso con atención concluida por el área.'}
+                        </p>
+                      </span>
+                      <span className="list__aside num">{total}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardBody>
+            <CardFoot>
+              <span>
+                {derivacionesDelAlcance.length} solicitudes de apoyo en el semestre seleccionado.
+              </span>
+            </CardFoot>
+          </Card>
+        </div>
+      </DirectoryDisclosure>
+      <DirectoryDisclosure title="Áreas y motivos">
+        <div className="grid grid--2">
+          <Card>
+            <CardHead
+              title="Solicitudes de apoyo por área"
+              description="Área receptora, casos totales y seguimiento"
+            />
+            <CardBody flush>
+              <ul className="list">
+                {porArea.map((fila) => (
+                  <li className="list__item" key={fila.area.id}>
+                    <span className="list__body">
+                      <strong>{fila.area.nombre}</strong>
+                      <p>
+                        {fila.area.responsable} · respuesta estimada {fila.area.tiempoRespuesta}
+                      </p>
+                      <span className="list__meta">
+                        <span>{fila.total} casos</span>
+                        <span>{fila.cerradas} cerrados</span>
+                      </span>
+                    </span>
+                    <span className="list__aside">
+                      <Badge
+                        tone={fila.abiertas === 0 ? 'ok' : fila.abiertas > 1 ? 'alerta' : 'info'}
+                      >
+                        {fila.abiertas} abiertas
+                      </Badge>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHead
+              title="Motivos de solicitud de apoyo más frecuentes"
+              description="Temas recurrentes que orientan el plan tutorial"
+            />
+            <CardBody flush>
+              {motivos.length === 0 ? (
+                <EmptyState
+                  title="Sin motivos registrados"
+                  description="No hay fichas de solicitud de apoyo en el semestre seleccionado."
+                  icon={<ScrollText />}
+                />
+              ) : (
+                <ul className="list">
+                  {motivos.map(([motivo, total]) => (
+                    <li className="list__item" key={motivo}>
+                      <span className="list__body">
+                        <strong>{motivo}</strong>
+                        <p>{total} caso(s) en el semestre</p>
                       </span>
                       <span className="list__aside">
-                        <Badge
-                          tone={fila.abiertas === 0 ? 'ok' : fila.abiertas > 1 ? 'alerta' : 'info'}
-                        >
-                          {fila.abiertas} abiertas
-                        </Badge>
+                        <Badge tone="info">{total}</Badge>
                       </span>
                     </li>
                   ))}
                 </ul>
-              </CardBody>
-            </Card>
-
-            <Card>
-              <CardHead
-                title="Motivos de solicitud de apoyo más frecuentes"
-                description="Temas recurrentes que orientan el plan tutorial"
-              />
-              <CardBody flush>
-                {motivos.length === 0 ? (
-                  <EmptyState
-                    title="Sin motivos registrados"
-                    description="No hay fichas de solicitud de apoyo en el semestre seleccionado."
-                    icon={<ScrollText />}
-                  />
-                ) : (
-                  <ul className="list">
-                    {motivos.map(([motivo, total]) => (
-                      <li className="list__item" key={motivo}>
-                        <span className="list__body">
-                          <strong>{motivo}</strong>
-                          <p>{total} caso(s) en el semestre</p>
-                        </span>
-                        <span className="list__aside">
-                          <Badge tone="info">{total}</Badge>
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </CardBody>
-            </Card>
-          </div>
-        </SecondaryPanel>
-        <SecondaryPanel title="Cómo se calculan las cifras">
-          <Card flat>
-            <CardHead
-              title="Cómo se calculan las cifras"
-              description="Criterios usados para calcular este reporte."
-            />
-            <CardBody>
-              <dl className="def-list">
-                <div>
-                  <dt>Estudiantes atendidos</dt>
-                  <dd>
-                    Un estudiante con varias sesiones se cuenta una sola vez, aunque haya asistido a
-                    tutoría individual y grupal.
-                  </dd>
-                </div>
-                <div>
-                  <dt>Total de asistencias</dt>
-                  <dd>Cada asistencia registrada en una sesión cuenta como una atención.</dd>
-                </div>
-                <div>
-                  <dt>Sesiones realizadas</dt>
-                  <dd>
-                    Sesiones efectivamente ejecutadas y registradas en el sistema (individuales y
-                    grupales).
-                  </dd>
-                </div>
-                <div>
-                  <dt>Cobertura</dt>
-                  <dd>
-                    Porcentaje de estudiantes asignados con al menos una atención efectiva. No se
-                    calcula sobre matrícula total de la escuela.
-                  </dd>
-                </div>
-                <div>
-                  <dt>Matrícula condicionada</dt>
-                  <dd>
-                    No se configura como restricción automática; requiere disposición expresa de la
-                    autoridad (pendiente de validación).
-                  </dd>
-                </div>
-                <div>
-                  <dt>Fuente de los datos</dt>
-                  <dd>
-                    Registro y expediente: DIAA (solo lectura). Docentes: Recursos Humanos.
-                    Asignaciones: comisiones de tutoría.
-                  </dd>
-                </div>
-              </dl>
+              )}
             </CardBody>
-            <CardFoot>
-              <span>Este reporte usa datos ficticios para probar el sistema.</span>
-              <button type="button" className="btn btn-falcon-default btn-sm" onClick={exportar}>
-                <Download aria-hidden="true" /> Descargar tabla (CSV)
-              </button>
-            </CardFoot>
           </Card>
-        </SecondaryPanel>
-      </div>
-    </CompactPage>
+        </div>
+      </DirectoryDisclosure>
+      <DirectoryDisclosure title="Cómo se calculan las cifras">
+        <Card flat>
+          <CardBody>
+            <dl className="def-list">
+              <div>
+                <dt>Estudiantes atendidos</dt>
+                <dd>
+                  Un estudiante con varias sesiones se cuenta una sola vez, aunque haya asistido a
+                  tutoría individual y grupal.
+                </dd>
+              </div>
+              <div>
+                <dt>Total de asistencias</dt>
+                <dd>Cada asistencia registrada en una sesión cuenta como una atención.</dd>
+              </div>
+              <div>
+                <dt>Sesiones realizadas</dt>
+                <dd>
+                  Sesiones efectivamente ejecutadas y registradas en el sistema (individuales y
+                  grupales).
+                </dd>
+              </div>
+              <div>
+                <dt>Cobertura</dt>
+                <dd>
+                  Porcentaje de estudiantes asignados con al menos una atención efectiva. No se
+                  calcula sobre matrícula total de la escuela.
+                </dd>
+              </div>
+              <div>
+                <dt>Matrícula condicionada</dt>
+                <dd>
+                  No se configura como restricción automática; requiere disposición expresa de la
+                  autoridad (pendiente de validación).
+                </dd>
+              </div>
+              <div>
+                <dt>Fuente de los datos</dt>
+                <dd>
+                  Registro y expediente: DIAA (solo lectura). Docentes: Recursos Humanos.
+                  Asignaciones: comisiones de tutoría.
+                </dd>
+              </div>
+            </dl>
+          </CardBody>
+        </Card>
+      </DirectoryDisclosure>
+    </DirectoryPage>
   );
 }

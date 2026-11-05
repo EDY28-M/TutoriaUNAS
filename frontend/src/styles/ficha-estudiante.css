@@ -1,0 +1,204 @@
+/* ==========================================================================
+   Ficha de persona (coordinación) — «Estudiantes» y «Padrón»
+   Compacta: cifras en una línea, pestañas y filas de datos etiqueta | valor.
+   Grises mate y líneas finas; sin tarjetas grandes ni rótulos en mayúsculas.
+   ========================================================================== */
+
+dialog.sheet.sheet--ficha {
+  width: min(720px, calc(100vw - 32px));
+  max-height: min(680px, calc(100dvh - 48px));
+}
+dialog.sheet--ficha .sheet__body {
+  padding: 16px 20px 20px;
+}
+
+.fe {
+  --fe-linea: #e3e8e5;
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* —— Cifras e insignias —— */
+.fe-cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+}
+.fe-cifras {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+}
+.fe-cifras > div {
+  display: grid;
+  gap: 1px;
+  padding: 0 18px;
+  border-left: 1px solid var(--fe-linea);
+}
+.fe-cifras > div:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+.fe-cifras dt {
+  color: var(--ink-600);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.fe-cifras dd {
+  margin: 0;
+  color: var(--ink-900);
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.fe-cifras > div[data-riesgo] dd {
+  color: var(--danger);
+}
+.fe-insignias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* El panel conserva su alto al cambiar de pestaña para que el diálogo no salte. */
+.fe-panel {
+  min-height: 260px;
+}
+
+/* —— Datos: etiqueta | valor en dos columnas —— */
+.fe-datos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 28px;
+  margin: 0;
+}
+.fe-datos > .fe-datos__ancho {
+  grid-column: 1 / -1;
+}
+.fe-datos > div {
+  display: grid;
+  grid-template-columns: 118px minmax(0, 1fr);
+  gap: 10px;
+  align-items: baseline;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--fe-linea);
+}
+.fe-datos dt {
+  color: var(--ink-600);
+  font-size: var(--text-ui-small);
+}
+.fe-datos dd {
+  margin: 0;
+  color: var(--ink-900);
+  font-size: var(--text-ui-secondary);
+  overflow-wrap: anywhere;
+}
+
+.fe-nota {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-ui-small);
+}
+
+/* —— Cursos —— */
+.fe-cursos {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.fe-cursos > li {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 6px 20px;
+  align-items: start;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--fe-linea);
+}
+.fe-cursos > li:first-child {
+  padding-top: 2px;
+}
+.fe-curso__materia {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.fe-curso__materia strong {
+  color: var(--ink-900);
+  font-size: var(--text-ui-secondary);
+  font-weight: 600;
+  line-height: 1.35;
+}
+.fe-curso__materia > span {
+  color: var(--ink-600);
+  font-size: var(--text-ui-small);
+}
+.fe-franjas {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.fe-franjas li {
+  display: grid;
+  grid-template-columns: 34px 92px minmax(0, 1fr);
+  gap: 8px;
+  color: var(--ink-700);
+  font-size: var(--text-ui-small);
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+}
+.fe-franjas b {
+  color: var(--ink-900);
+  font-weight: 600;
+}
+.fe-franja__aula {
+  color: var(--ink-600);
+  overflow-wrap: anywhere;
+}
+
+/* —— Tutoría —— */
+.fe-tutoria {
+  display: grid;
+  gap: 14px;
+}
+.fe-senales {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.fe-senales li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--fe-linea);
+  font-size: var(--text-ui-secondary);
+}
+.fe-senales small {
+  display: block;
+  color: var(--muted);
+  font-size: var(--text-ui-small);
+}
+
+@media (max-width: 640px) {
+  .fe-datos {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .fe-datos > div {
+    grid-template-columns: 104px minmax(0, 1fr);
+  }
+  .fe-cifras > div {
+    padding: 0 12px;
+  }
+  .fe-cursos > li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

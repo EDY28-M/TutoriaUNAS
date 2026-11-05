@@ -1,0 +1,62 @@
+.assignment-sheet .sheet__head {
+  padding: 24px 26px 18px;
+  border-bottom: 0;
+}
+
+.assignment-sheet .sheet__head h2 {
+  font-size: 1.2rem;
+}
+
+.assignment-sheet .sheet__body {
+  padding: 4px 26px 24px;
+}
+
+.assignment-sheet .sheet__foot {
+  padding: 16px 26px;
+  background: var(--surface);
+}
+
+.assignment-form {
+  display: grid;
+  gap: 20px;
+}
+
+.assignment-people {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 16px;
+}
+
+.assignment-people .searchable-select {
+  gap: 6px;
+}
+
+.assignment-optional {
+  color: var(--ink-500);
+  font-weight: 400;
+}
+
+.assignment-capacity {
+  display: grid;
+  gap: 10px;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-2);
+}
+
+@media (max-width: 580px) {
+  .assignment-people {
+    grid-template-columns: 1fr;
+  }
+
+  .assignment-sheet .sheet__head,
+  .assignment-sheet .sheet__foot {
+    padding-inline: 18px;
+  }
+
+  .assignment-sheet .sheet__body {
+    padding-inline: 18px;
+  }
+}

@@ -4,7 +4,7 @@ test('formato 07: quitar una fila intermedia conserva la identidad y el borrador
   page,
 }) => {
   await page.goto('/login');
-  await page.getByRole('tab', { name: 'Tutor', exact: true }).click();
+
   await page.locator('#identifier').fill('DOC-0421');
   await page.locator('#password').fill('tutoria2026');
   await page.locator('button[type="submit"]').click();

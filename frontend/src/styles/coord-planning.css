@@ -1,0 +1,90 @@
+.coord-planning {
+  gap: 24px;
+}
+.coord-planning .btn > i {
+  margin-inline-end: 4px;
+}
+.plan-activity-name {
+  display: grid;
+  gap: 4px;
+  overflow-wrap: anywhere;
+}
+.plan-activity-name small,
+.semester-dates small,
+.semester-formats small {
+  color: var(--muted);
+  font-size: 0.73rem;
+}
+.semester-picker {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.semester-picker .select {
+  min-height: 40px;
+  width: auto;
+  font-size: 0.78rem;
+  border-radius: 7px;
+}
+.semester-dates,
+.semester-formats {
+  margin: 0;
+  padding: 0;
+  font-size: 0.82rem;
+}
+.semester-dates > div,
+.semester-formats > li {
+  display: grid;
+  align-items: baseline;
+  gap: 6px 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--directory-line);
+}
+.semester-dates > div:last-child,
+.semester-formats > li:last-child {
+  border-bottom: 0;
+}
+.semester-dates > div {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.semester-dates dt,
+.semester-formats strong {
+  font-weight: 650;
+}
+.semester-dates dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.semester-dates small,
+.semester-formats small {
+  display: block;
+}
+.semester-formats > li {
+  grid-template-columns: 34px minmax(0, 1.25fr) minmax(0, 1fr);
+}
+.semester-calendar {
+  padding-block: 14px;
+}
+.planning-form-section {
+  margin: 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 0.86rem;
+  font-weight: 650;
+}
+.planning-form-section p {
+  margin: 6px 0 0;
+  font-weight: 400;
+}
+@media (max-width: 540px) {
+  .semester-dates > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .semester-formats > li {
+    grid-template-columns: 34px minmax(0, 1fr);
+  }
+  .semester-formats > li > small {
+    grid-column: 2;
+  }
+}

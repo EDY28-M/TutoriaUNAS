@@ -127,4 +127,5 @@ public sealed class AuditoriaEntity
     public string Accion { get; set; } = "";
     public string RecursoId { get; set; } = "";
     public int Version { get; set; }
+    public string? Dispositivo { get; set; }
 }

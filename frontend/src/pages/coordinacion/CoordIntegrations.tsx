@@ -2,8 +2,9 @@ import { CompactPage, SecondaryPanel } from '../../components/ui/CompactPage';
 import { API_MODE } from '../../services/apiConfig';
 import { RespuestaInsumo } from '../../components/panels/GestionCoordinacion';
 import { useCallback, useMemo, useState } from 'react';
-import type { DefinicionSelect } from '../../components/panels/PanelFiltros';
-import { PanelFiltros, useFiltro } from '../../components/panels/PanelFiltros';
+import type { DefinicionSelect } from '../../hooks/useFiltro';
+import { useFiltro } from '../../hooks/useFiltro';
+import { DirectoryToolbar } from '../../components/ui/DirectoryToolbar';
 import { Alert } from '../../components/ui/Alert';
 import { Card, CardBody, CardFoot, CardHead } from '../../components/ui/Card';
 import type { Column } from '../../components/ui/DataTable';
@@ -254,17 +255,14 @@ export function CoordIntegrations() {
         />
         <CardBody>
           <div className="stack">
-            <PanelFiltros<InsumoSolicitud>
+            <DirectoryToolbar
               busqueda={filtro.busqueda}
               onBusqueda={filtro.setBusqueda}
               selects={selects}
               valores={filtro.valores}
-              onValor={(id, valor) =>
-                filtro.setValores((actuales) => ({ ...actuales, [id]: valor }))
-              }
+              onValores={filtro.setValores}
               mostrados={filtro.filtrados.length}
               total={insumosInstitucionales.length}
-              activos={filtro.activos}
               onLimpiar={filtro.limpiar}
               etiqueta="Filtros de las solicitudes de datos"
               placeholder="Buscar por área, insumo o responsable…"

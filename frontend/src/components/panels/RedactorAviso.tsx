@@ -6,6 +6,8 @@ import { semestreActual } from '../../data/catalogos';
 import type { MensajePersistido } from '../../types/sistema';
 import { Sheet } from '../ui/Sheet';
 import { FormularioPersistente, EliminarPersistente } from './OperacionPersistente';
+import { normalizar } from '../../utils/busqueda';
+import '../../styles/coord-modals.css';
 
 export function RedactorAviso({
   aviso,
@@ -23,6 +25,8 @@ export function RedactorAviso({
   const [asunto, setAsunto] = useState(aviso?.asunto ?? '');
   const [cuerpo, setCuerpo] = useState(aviso?.cuerpo ?? '');
   const [destinatarios, setDestinatarios] = useState<string[]>(aviso?.destinatarioIds ?? []);
+  const [buscarDestinatario, setBuscarDestinatario] = useState('');
+  const [busquedaAbierta, setBusquedaAbierta] = useState(false);
   const [estado, setEstado] = useState<'borrador' | 'enviado' | 'programado'>(
     aviso?.estado === 'programado' && !copiar ? 'programado' : 'borrador',
   );
@@ -43,6 +47,9 @@ export function RedactorAviso({
       : '',
   );
   const opciones = sistema?.destinatariosDisponibles ?? [];
+  const visibles = opciones.filter((opcion) =>
+    normalizar(`${opcion.nombre} ${opcion.rol}`).includes(normalizar(buscarDestinatario.trim())),
+  );
   const editando = aviso?.editable && !copiar;
   return (
     <Sheet
@@ -50,8 +57,10 @@ export function RedactorAviso({
       description={`Tutoría · ${semestreActual}`}
       onClose={onCerrar}
       wide
+      className="coord-form-sheet coord-notice-sheet"
     >
       <FormularioPersistente
+        deshabilitado={destinatarios.length === 0}
         guardar={() =>
           mutarSistema(
             `mensajes${editando ? `/${encodeURIComponent(aviso!.id)}` : ''}`,
@@ -80,33 +89,81 @@ export function RedactorAviso({
               : 'Publicar aviso'
         }
       >
-        <div className="field">
-          <label htmlFor={`${id}-dest`}>Destinatarios</label>
-          <select
-            id={`${id}-dest`}
-            className="select"
-            multiple
-            required
-            size={Math.min(8, Math.max(3, opciones.length))}
-            value={destinatarios}
-            onChange={(e) => setDestinatarios(Array.from(e.target.selectedOptions, (o) => o.value))}
+        <div className="field coord-recipients">
+          <label htmlFor={`${id}-dest`}>
+            Destinatarios · {destinatarios.length}{' '}
+            {destinatarios.length === 1 ? 'seleccionado' : 'seleccionados'}
+          </label>
+          <div
+            className="coord-recipient-search"
+            onBlur={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node | null))
+                setBusquedaAbierta(false);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape' && busquedaAbierta) {
+                e.preventDefault();
+                e.stopPropagation();
+                setBusquedaAbierta(false);
+              }
+            }}
           >
-            {opciones.map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.nombre} · {o.rol}
-              </option>
-            ))}
-          </select>
+            <input
+              id={`${id}-dest`}
+              className="input"
+              type="search"
+              placeholder="Buscar por nombre o perfil"
+              value={buscarDestinatario}
+              onFocus={() => setBusquedaAbierta(true)}
+              onClick={() => setBusquedaAbierta(true)}
+              onChange={(e) => setBuscarDestinatario(e.target.value)}
+            />
+            {busquedaAbierta && (
+              <div
+                className="coord-recipient-list"
+                role="group"
+                aria-label="Destinatarios disponibles"
+              >
+                {visibles.map((o) => (
+                  <label className="coord-recipient" key={o.id}>
+                    <input
+                      type="checkbox"
+                      checked={destinatarios.includes(o.id)}
+                      onChange={(e) =>
+                        setDestinatarios((actuales) =>
+                          e.target.checked
+                            ? [...actuales, o.id]
+                            : actuales.filter((id) => id !== o.id),
+                        )
+                      }
+                    />
+                    <span>
+                      {o.nombre}
+                      <small>{o.rol}</small>
+                    </span>
+                  </label>
+                ))}
+                {!visibles.length && <p className="small muted">Sin coincidencias.</p>}
+              </div>
+            )}
+          </div>
+          <div className="coord-recipient-actions">
+            <button
+              type="button"
+              className="btn btn-link"
+              onClick={() =>
+                setDestinatarios(opciones.filter((o) => o.rol === 'estudiante').map((o) => o.id))
+              }
+            >
+              Seleccionar estudiantes
+            </button>
+            {destinatarios.length > 0 && (
+              <button type="button" className="btn btn-link" onClick={() => setDestinatarios([])}>
+                Limpiar selección
+              </button>
+            )}
+          </div>
         </div>
-        <button
-          type="button"
-          className="btn btn-link"
-          onClick={() =>
-            setDestinatarios(opciones.filter((o) => o.rol === 'estudiante').map((o) => o.id))
-          }
-        >
-          Seleccionar estudiantes de mi ámbito
-        </button>
         <div className="field">
           <label htmlFor={`${id}-plantilla`}>Plantilla</label>
           <select

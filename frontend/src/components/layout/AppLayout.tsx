@@ -117,6 +117,13 @@ export function AppLayout() {
 
   const reducida = preferences.sidebarMini && !esMovil;
   const segmento = pathname.split('/')[2] ?? 'dashboard';
+  // Rutas de detalle (/rol/modulo/:id): el módulo se vuelve enlace y el detalle cierra la ruta.
+  const detalle =
+    pathname.split('/').length > 3
+      ? segmento === 'instrumentos'
+        ? 'Formulario'
+        : 'Expediente'
+      : null;
   const grupoActual = user
     ? navigation[user.role].find((grupo) =>
         grupo.items.some(
@@ -220,10 +227,21 @@ export function AppLayout() {
                       <li aria-hidden="true">
                         <ChevronRight />
                       </li>
-                      <li aria-current="page">
-                        {itemActual?.label ?? 'Detalle'}
-                        {pathname.split('/').length > 3 ? ' · Expediente' : ''}
-                      </li>
+                      {detalle ? (
+                        <>
+                          <li>
+                            <Link to={`/${user.role}/${segmento}`}>
+                              {itemActual?.label ?? 'Módulo'}
+                            </Link>
+                          </li>
+                          <li aria-hidden="true">
+                            <ChevronRight />
+                          </li>
+                          <li aria-current="page">{detalle}</li>
+                        </>
+                      ) : (
+                        <li aria-current="page">{itemActual?.label ?? 'Detalle'}</li>
+                      )}
                     </>
                   )}
                 </ol>

@@ -1,184 +1,191 @@
 import { useId, useState } from 'react';
 import { ConfiguracionPeriodo } from '../../components/panels/GestionCoordinacion';
-import { CompactPage } from '../../components/ui/CompactPage';
-import { PageHeading } from '../../components/ui/PageHeading';
-import { Card } from '../../components/ui/Card';
-import { Tabs, TabPanel } from '../../components/ui/Tabs';
-import { Sheet } from '../../components/ui/Sheet';
 import { Calendar } from '../../components/ui/Calendar';
 import type { EventoCalendario } from '../../components/ui/Calendar';
-import { Badge } from '../../components/ui/StatusBadge';
+import { Card, CardBody, CardHead } from '../../components/ui/Card';
+import { DirectoryPage } from '../../components/ui/DirectoryPage';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { PageHeading } from '../../components/ui/PageHeading';
+import { Sheet } from '../../components/ui/Sheet';
+import { Badge } from '../../components/ui/StatusBadge';
+import { Tabs, TabPanel } from '../../components/ui/Tabs';
 import { semestres, semestreActual } from '../../data/catalogos';
 import { definicionesFormato } from '../../data/formatos';
 import { useSistema } from '../../hooks/useSistema';
 import { API_MODE } from '../../services/apiConfig';
 import { formatFecha } from '../../utils/fechas';
+import '../../styles/coord-planning.css';
+
+function Fecha({ fecha }: { fecha: string }) {
+  return <time dateTime={fecha}>{formatFecha(fecha)}</time>;
+}
 
 export function CoordSemesters() {
   const sistema = useSistema();
   const id = useId();
-  const [seleccionado, setSeleccionado] = useState(semestreActual);
+  const [eleccion, setEleccion] = useState<string>();
   const [vista, setVista] = useState('fechas');
   const [editar, setEditar] = useState(false);
   const [evento, setEvento] = useState<EventoCalendario | null>(null);
+  const seleccionado = eleccion ?? semestreActual;
   const semestre = semestres.find((s) => s.id === seleccionado);
   const config = seleccionado === semestreActual ? sistema?.configuracionPeriodo : null;
   if (!semestre) return <EmptyState title="Sin semestres registrados" />;
-  const fechas = [
-    { id: 'matricula-inicio', titulo: 'Inicio de matrícula', fecha: semestre.matriculaInicio },
-    { id: 'matricula-fin', titulo: 'Fin de matrícula', fecha: semestre.matriculaFin },
-    { id: 'inicio', titulo: 'Inicio de clases', fecha: semestre.inicio },
-    ...(config
-      ? [
-          {
-            id: 'entrevistas',
-            titulo: 'Entrevistas · fecha recomendada',
-            fecha: config.entrevistasHasta,
-          },
-        ]
-      : []),
-    { id: 'fin', titulo: 'Fin de clases', fecha: semestre.fin },
-    ...(config
-      ? [{ id: 'informes', titulo: 'Plazo de informes', fecha: config.informesHasta }]
-      : []),
-  ].sort((a, b) => a.fecha.localeCompare(b.fecha));
-  const eventos: EventoCalendario[] = fechas.map((f) => ({ ...f, tono: 'verde' }));
+
+  const inicio = config?.inicio ?? semestre.inicio;
+  const fin = config?.fin ?? semestre.fin;
+  const cerrado = semestre.estado === 'cerrado' || config?.cerrado;
+  const estado = cerrado ? 'Cerrado' : semestre.estado === 'en-curso' ? 'En curso' : 'Planificado';
+  const eventos: EventoCalendario[] = [
+    {
+      id: 'matricula-inicio',
+      titulo: 'Inicio de matrícula',
+      fecha: semestre.matriculaInicio,
+      tono: 'info',
+    },
+    { id: 'matricula-fin', titulo: 'Fin de matrícula', fecha: semestre.matriculaFin, tono: 'info' },
+    { id: 'clases-inicio', titulo: 'Inicio de clases', fecha: inicio, tono: 'verde' },
+    { id: 'clases-fin', titulo: 'Fin de clases', fecha: fin, tono: 'verde' },
+  ];
+  if (config) {
+    eventos.push(
+      {
+        id: 'entrevistas',
+        titulo: 'Fecha recomendada de entrevistas',
+        fecha: config.entrevistasHasta,
+        tono: 'info',
+      },
+      { id: 'informes', titulo: 'Plazo de informes', fecha: config.informesHasta, tono: 'dorado' },
+    );
+  }
+
   return (
-    <CompactPage>
+    <DirectoryPage className="coord-planning">
       <PageHeading
-        eyebrow="Coordinación"
+        eyebrow="Coordinación de tutoría"
         title="Semestres y fechas"
+        description="Calendario académico y plazos de tutoría."
         actions={
-          API_MODE && seleccionado === semestreActual ? (
+          API_MODE &&
+          config && (
             <button type="button" className="btn btn-primary" onClick={() => setEditar(true)}>
               <i className="fa-regular fa-pen-to-square" aria-hidden="true" /> Editar fechas
             </button>
-          ) : undefined
+          )
         }
       />
-      <div className="compact-toolbar">
-        <div className="field">
-          <label htmlFor={id}>Semestre</label>
-          <select
-            id={id}
-            className="select"
-            value={seleccionado}
-            onChange={(e) => setSeleccionado(e.target.value)}
-          >
-            {semestres.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.nombre}
-              </option>
-            ))}
-          </select>
-        </div>
-        <Badge tone={semestre.estado === 'cerrado' ? 'neutro' : 'ok'}>
-          {semestre.estado === 'cerrado'
-            ? 'Cerrado'
-            : semestre.estado === 'en-curso'
-              ? 'En curso'
-              : 'Planificado'}
-        </Badge>
-      </div>
       <Card>
-        <div className="compact-date-summary">
-          <dl>
-            <dt>Inicio</dt>
-            <dd>{formatFecha(semestre.inicio)}</dd>
-          </dl>
-          <dl>
-            <dt>Fin</dt>
-            <dd>{formatFecha(semestre.fin)}</dd>
-          </dl>
-          {config && (
-            <dl>
-              <dt>Escritura</dt>
-              <dd>{config.cerrado ? 'Cerrada' : 'Habilitada'}</dd>
+        <CardHead
+          title="Periodo académico"
+          actions={
+            <div className="semester-picker">
+              <Badge tone={cerrado ? 'neutro' : semestre.estado === 'en-curso' ? 'ok' : 'info'}>
+                {estado}
+              </Badge>
+              <label className="sr-only" htmlFor={id}>
+                Semestre
+              </label>
+              <select
+                id={id}
+                className="select"
+                value={seleccionado}
+                onChange={(e) => setEleccion(e.target.value)}
+              >
+                {semestres.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
+          }
+        />
+        <CardBody>
+          <div className="directory-toolbar">
+            <Tabs
+              etiqueta="Fechas del semestre"
+              activo={vista}
+              onChange={setVista}
+              items={[
+                { id: 'fechas', label: 'Fechas' },
+                { id: 'calendario', label: 'Calendario' },
+                { id: 'formularios', label: 'Formularios' },
+              ]}
+            />
+          </div>
+          <TabPanel id="fechas" activo={vista}>
+            <dl className="semester-dates">
+              <div>
+                <dt>Matrícula</dt>
+                <dd>
+                  <Fecha fecha={semestre.matriculaInicio} /> –{' '}
+                  <Fecha fecha={semestre.matriculaFin} />
+                </dd>
+              </div>
+              <div>
+                <dt>Clases</dt>
+                <dd>
+                  <Fecha fecha={inicio} /> – <Fecha fecha={fin} />
+                </dd>
+              </div>
+              {config && (
+                <>
+                  <div>
+                    <dt>
+                      Entrevistas <small>Fecha recomendada</small>
+                    </dt>
+                    <dd>
+                      <Fecha fecha={config.entrevistasHasta} />
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Entrega de informes</dt>
+                    <dd>
+                      <Fecha fecha={config.informesHasta} />
+                    </dd>
+                  </div>
+                </>
+              )}
             </dl>
-          )}
-        </div>
-      </Card>
-      <Tabs
-        etiqueta="Fechas del semestre"
-        activo={vista}
-        onChange={setVista}
-        items={[
-          { id: 'fechas', label: 'Fechas' },
-          { id: 'calendario', label: 'Calendario' },
-          { id: 'formularios', label: 'Formularios' },
-        ]}
-      />
-      <TabPanel id="fechas" activo={vista}>
-        <Card>
-          <ul className="compact-list" aria-label="Fechas importantes">
-            {fechas.map((f) => (
-              <li key={f.id}>
-                <div className="compact-list__row">
-                  <span className="compact-list__body">
-                    <strong>{f.titulo}</strong>
-                  </span>
-                  <time dateTime={f.fecha}>{formatFecha(f.fecha)}</time>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </Card>
-      </TabPanel>
-      <TabPanel id="calendario" activo={vista}>
-        <Card>
-          <Calendar
-            key={seleccionado}
-            eventos={eventos}
-            etiqueta="Calendario del semestre"
-            mesInicial={semestre.inicio}
-            vistaInicial="mes"
-            onAbrir={setEvento}
-          />
-        </Card>
-      </TabPanel>
-      <TabPanel id="formularios" activo={vista}>
-        <Card>
-          <ul className="compact-list">
-            {definicionesFormato.map((f) => (
-              <li key={f.codigo}>
-                <div className="compact-list__row">
-                  <span className="compact-code">{f.numero}</span>
-                  <span className="compact-list__body">
+          </TabPanel>
+          <TabPanel id="calendario" activo={vista}>
+            <div className="semester-calendar">
+              <Calendar
+                key={`${seleccionado}-${inicio}`}
+                eventos={eventos}
+                etiqueta="Calendario del semestre"
+                mesInicial={inicio}
+                vistaInicial="mes"
+                onAbrir={setEvento}
+              />
+            </div>
+          </TabPanel>
+          <TabPanel id="formularios" activo={vista}>
+            <ul className="semester-formats" aria-label="Plazos de los formularios">
+              {definicionesFormato.map((f) => (
+                <li key={f.codigo}>
+                  <Badge mono>{f.numero}</Badge>
+                  <span>
                     <strong>{f.nombre}</strong>
                     <small>{f.actorEtiqueta}</small>
                   </span>
-                  <span className="compact-list__end">
-                    {['F01', 'F02', 'F09'].includes(f.codigo)
-                      ? 'Al cierre'
-                      : ['F03', 'F04', 'F05'].includes(f.codigo)
-                        ? 'Al inicio · según ciclo'
-                        : ['F10', 'F11'].includes(f.codigo)
-                          ? 'Después de cada sesión'
-                          : ['F06', 'F07'].includes(f.codigo)
-                            ? 'Por sesión'
-                            : 'Según el caso'}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </Card>
-        <p className="compact-note">
-          Las entrevistas pendientes se pueden completar durante el semestre abierto. Las
-          evaluaciones requieren asistencia confirmada.
-        </p>
-      </TabPanel>
-      {editar && (
-        <Sheet title="Editar fechas del semestre" onClose={() => setEditar(false)}>
-          <ConfiguracionPeriodo />
+                  <small>{f.periodicidad}</small>
+                </li>
+              ))}
+            </ul>
+          </TabPanel>
+        </CardBody>
+      </Card>
+      {editar && config && (
+        <Sheet title="Editar fechas" description={semestre.nombre} onClose={() => setEditar(false)}>
+          <ConfiguracionPeriodo key={config.periodoId} actual={config} />
         </Sheet>
       )}
       {evento && (
         <Sheet title={evento.titulo} onClose={() => setEvento(null)}>
-          <p>{formatFecha(evento.fecha)}</p>
+          <Fecha fecha={evento.fecha} />
         </Sheet>
       )}
-    </CompactPage>
+    </DirectoryPage>
   );
 }

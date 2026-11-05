@@ -1,3 +1,5 @@
+import { DirectoryDisclosure, DirectoryPage } from '../../components/ui/DirectoryPage';
+import { DirectorySearch } from '../../components/ui/DirectoryToolbar';
 import { useDeferredValue, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
@@ -10,7 +12,9 @@ import { Alert } from '../../components/ui/Alert';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { apiJson } from '../../services/apiClient';
 import { API_MODE } from '../../services/apiConfig';
-import type { Docente, Escuela, Estudiante, MatriculaCurso } from '../../types/domain';
+import type { Docente, Escuela, Estudiante } from '../../types/domain';
+import { FichaEstudiante } from '../../components/panels/FichaEstudiante';
+import { useDetallePadron } from '../../hooks/useDetallePadron';
 import '../../styles/padron.css';
 
 type Persona = (Estudiante | Docente) & {
@@ -36,14 +40,6 @@ interface Padron {
   escuelas: Escuela[];
   importaciones: Importacion[];
 }
-interface Detalle {
-  persona: Persona;
-  matriculas: {
-    semestreId: string;
-    estado: string;
-    cursos: (MatriculaCurso & { codigo: string; nombre: string })[];
-  }[];
-}
 
 /** Consulta completa de ambas hojas. El servidor pagina y restringe el padrón a coordinación. */
 export function CoordPadron() {
@@ -62,11 +58,7 @@ export function CoordPadron() {
       ),
     enabled: API_MODE,
   });
-  const detalle = useQuery({
-    queryKey: ['padron-detalle', id],
-    queryFn: () => apiJson<Detalle>(`/api/padron/${encodeURIComponent(id!)}`),
-    enabled: API_MODE && id !== null,
-  });
+  const detalle = useDetallePadron(id, API_MODE);
   const datos = padron.data;
   const reporte = datos?.importaciones[0];
   const persona = detalle.data?.persona;
@@ -127,7 +119,7 @@ export function CoordPadron() {
     },
   ];
   return (
-    <div className="padron-page stack stack--lg">
+    <DirectoryPage className="padron-page">
       <PageHeading
         eyebrow="Coordinación · Datos institucionales"
         title="Padrón importado"
@@ -141,8 +133,8 @@ export function CoordPadron() {
       ) : (
         <>
           {reporte && (
-            <Card>
-              <CardBody>
+            <DirectoryDisclosure title="Resumen de la importación">
+              <div className="stack">
                 <div className="grid grid--3">
                   <div>
                     <strong>{reporte.alumnos.toLocaleString('es-PE')}</strong>
@@ -162,8 +154,8 @@ export function CoordPadron() {
                   incompletos. {reporte.horariosSinNormalizar} horarios con datos por revisar
                   conservan su texto original en la ficha del alumno.
                 </p>
-              </CardBody>
-            </Card>
+              </div>
+            </DirectoryDisclosure>
           )}
           <Tabs
             etiqueta="Hojas del padrón"
@@ -178,25 +170,21 @@ export function CoordPadron() {
               { id: 'tutor', label: 'Docentes' },
             ]}
           />
-          <div className="grid grid--2">
-            <label>
-              Buscar por nombre, apellido, correo o código
-              <input
-                className="form-control"
-                type="search"
-                maxLength={150}
-                value={buscar}
-                onChange={(e) => {
-                  setBuscar(e.target.value);
-                  setPagina(1);
-                }}
-              />
-            </label>
+          <div className="directory-controls">
+            <DirectorySearch
+              label="Nombre, correo o código"
+              maxLength={150}
+              value={buscar}
+              onChange={(value) => {
+                setBuscar(value);
+                setPagina(1);
+              }}
+            />
             {tipo === 'estudiante' && (
-              <label>
+              <label className="field">
                 Escuela
                 <select
-                  className="form-select"
+                  className="select"
                   value={escuela}
                   onChange={(e) => {
                     setEscuela(e.target.value);
@@ -244,6 +232,8 @@ export function CoordPadron() {
                     rowKey={(p) => p.id}
                     pageSize={25}
                     pagination="auto"
+                    paginationPosition="bottom"
+                    inlineActions
                     emptyTitle="Sin coincidencias"
                   />
                   <nav className="padron-pager" aria-label="Páginas del padrón">
@@ -275,159 +265,14 @@ export function CoordPadron() {
       )}
       {id && (
         <Sheet
-          wide
+          className="sheet--ficha"
           title={persona ? `${persona.apellidos}, ${persona.nombres}` : 'Ficha del padrón'}
+          description={persona?.codigo}
           onClose={() => setId(null)}
         >
-          {detalle.isPending ? (
-            <p role="status">Cargando ficha…</p>
-          ) : detalle.isError ? (
-            <Alert tone="riesgo" title="No se pudo cargar la ficha">
-              <p>{detalle.error.message}</p>
-              <button
-                type="button"
-                className="btn btn-falcon-default"
-                onClick={() => void detalle.refetch()}
-              >
-                Reintentar
-              </button>
-            </Alert>
-          ) : (
-            persona && (
-              <div className="stack stack--lg">
-                <dl className="def-list">
-                  <div>
-                    <dt>Apellido paterno</dt>
-                    <dd>{persona.apellidoPaterno || 'Sin informar'}</dd>
-                  </div>
-                  <div>
-                    <dt>Apellido materno</dt>
-                    <dd>{persona.apellidoMaterno || 'Sin informar'}</dd>
-                  </div>
-                  <div>
-                    <dt>Nombres</dt>
-                    <dd>{persona.nombres}</dd>
-                  </div>
-                  <div>
-                    <dt>Correo</dt>
-                    <dd>
-                      <a href={`mailto:${persona.correo}`}>{persona.correo}</a>
-                    </dd>
-                  </div>
-                  {'departamento' in persona ? (
-                    <div>
-                      <dt>Departamento académico</dt>
-                      <dd>{persona.departamento}</dd>
-                    </div>
-                  ) : (
-                    <>
-                      <div>
-                        <dt>Código de alumno</dt>
-                        <dd className="mono">{persona.codigo}</dd>
-                      </div>
-                      <div>
-                        <dt>Escuela</dt>
-                        <dd>{escuelaDe(persona.escuelaId)}</dd>
-                      </div>
-                      <div>
-                        <dt>Estado en el Excel</dt>
-                        <dd>{persona.estadoFuente}</dd>
-                      </div>
-                      <div>
-                        <dt>Celular</dt>
-                        <dd>{persona.telefono || 'Sin informar'}</dd>
-                      </div>
-                      <div>
-                        <dt>PPA</dt>
-                        <dd>{persona.ppaFuente || 'Sin informar'}</dd>
-                      </div>
-                      <div>
-                        <dt>TCA</dt>
-                        <dd>{persona.tcaFuente || 'Sin informar'}</dd>
-                      </div>
-                    </>
-                  )}
-                </dl>
-                {detalle.data?.matriculas.map((m) => (
-                  <section className="stack" key={m.semestreId}>
-                    <h2>Matrícula {m.semestreId}</h2>
-                    <p>
-                      {m.estado} · {m.cursos.length} cursos
-                    </p>
-                    {m.cursos.map((c) => (
-                      <details key={`${c.cursoId}-${c.seccion}`}>
-                        <summary>
-                          <strong>
-                            {c.codigo} · {c.nombre}
-                          </strong>{' '}
-                          · Grupo {c.seccion}
-                        </summary>
-                        <p>Docente: {c.docente || 'Sin informar'}</p>
-                        <div
-                          className="table-wrap"
-                          role="region"
-                          aria-label={`Horario de ${c.nombre}`}
-                          tabIndex={0}
-                        >
-                          <table className="data-table data-table--compact">
-                            <caption>
-                              Horario original de {c.nombre} · grupo {c.seccion}
-                            </caption>
-                            <thead>
-                              <tr>
-                                <th>Día</th>
-                                <th>Horas</th>
-                                <th>Duración</th>
-                                <th>Aula</th>
-                                <th>Cód. aula</th>
-                                <th>Teórica</th>
-                                <th>Docente</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {c.horariosOriginales?.map((h) => (
-                                <tr key={h.fila}>
-                                  <td>
-                                    {[
-                                      'Lunes',
-                                      'Martes',
-                                      'Miércoles',
-                                      'Jueves',
-                                      'Viernes',
-                                      'Sábado',
-                                      'Domingo',
-                                    ][Number(h.dia) - 1] ?? h.dia}
-                                  </td>
-                                  <td className="nowrap">{h.horas}</td>
-                                  <td>{h.duracion === '0' ? '0 · Por revisar' : h.duracion}</td>
-                                  <td>{h.aula || 'Sin informar'}</td>
-                                  <td>{h.codigoAula || 'Sin informar'}</td>
-                                  <td>
-                                    {h.esHoraTeorica === '1'
-                                      ? 'Sí'
-                                      : h.esHoraTeorica === '0'
-                                        ? 'No'
-                                        : h.esHoraTeorica}
-                                  </td>
-                                  <td>{h.docente}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </details>
-                    ))}
-                  </section>
-                ))}
-                <p className="small muted">
-                  Fuente: {persona.origen?.archivo} · {persona.origen?.hoja}. Filas:{' '}
-                  {persona.origen?.filas?.join(', ')}.
-                </p>
-              </div>
-            )
-          )}
+          <FichaEstudiante key={id} id={id} />
         </Sheet>
       )}
-    </div>
+    </DirectoryPage>
   );
 }

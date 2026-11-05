@@ -32,15 +32,22 @@ export function AccountSetupPage({ modo }: { modo: ModoCuenta }) {
     <div className="d01__form-wrap account-access">
       <h2 className="d01__title">{titulo}</h2>
       <p className="d01__sub">
-        {c.fase === 'correo'
-          ? modo === 'activacion'
-            ? `Confirma que tienes acceso a ${c.correo}.`
-            : 'Usa el correo institucional registrado en el padrón de la universidad.'
-          : c.fase === 'codigo'
-            ? 'Introduce el código que enviamos a tu correo institucional.'
-            : c.fase === 'password'
-              ? 'Elige una contraseña personal que no uses en otros servicios.'
-              : 'Cuenta verificada'}
+        {c.fase === 'correo' ? (
+          modo === 'activacion' ? (
+            `Confirma que tienes acceso a ${c.correo}.`
+          ) : (
+            'Usa el correo institucional registrado en el padrón de la universidad.'
+          )
+        ) : c.fase === 'codigo' ? (
+          <>
+            Si el correo está habilitado, recibirás un código en <strong>{c.correo.trim()}</strong>.
+            Revisa tu bandeja de entrada.
+          </>
+        ) : c.fase === 'password' ? (
+          'Elige una contraseña personal que no uses en otros servicios.'
+        ) : (
+          'Cuenta verificada'
+        )}
       </p>
       {c.fase !== 'terminado' && (
         <p className="small muted" aria-label="Paso actual">

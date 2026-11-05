@@ -48,7 +48,6 @@ try {
     });
     try {
       await page.goto(`${base}/login`);
-      await page.locator(`#login-role-${account.role}`).click();
       await page.locator('#identifier').fill(account.id);
       await page.locator('#password').fill('tutoria2026');
       await page.locator('button[type="submit"]').click();

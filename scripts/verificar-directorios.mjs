@@ -37,7 +37,6 @@ async function metricStyle(locator) {
 page.on('pageerror', (error) => errors.push(error.message));
 try {
   await page.goto(`${base}/login`);
-  await page.locator('#login-role-coordinacion').click();
   await page.locator('#identifier').fill('coordinacion.tutoria');
   await page.locator('#password').fill('tutoria2026');
   await page.locator('button[type="submit"]').click();

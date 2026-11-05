@@ -15,8 +15,9 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { PersonCell } from '../../components/ui/PersonCell';
 import { Sheet } from '../../components/ui/Sheet';
 import { Timeline } from '../../components/ui/Timeline';
-import { PanelFiltros, useFiltro } from '../../components/panels/PanelFiltros';
-import type { DefinicionSelect } from '../../components/panels/PanelFiltros';
+import { useFiltro } from '../../hooks/useFiltro';
+import { DirectoryToolbar } from '../../components/ui/DirectoryToolbar';
+import type { DefinicionSelect } from '../../hooks/useFiltro';
 import { usePortal } from '../../hooks/usePortal';
 import { areasDerivacion, etiquetasEstadoDerivacion, semestreActual } from '../../data/catalogos';
 import { definicionPorCodigo } from '../../data/formatos';
@@ -371,15 +372,14 @@ export function TutorReferrals() {
         </nav>
         <CardBody>
           <div className="referral-list__content">
-            <PanelFiltros<FilaDerivacion>
+            <DirectoryToolbar
               busqueda={filtro.busqueda}
               onBusqueda={filtro.setBusqueda}
               selects={selects}
               valores={filtro.valores}
-              onValor={(id, valor) => filtro.setValores((actual) => ({ ...actual, [id]: valor }))}
+              onValores={filtro.setValores}
               mostrados={visibles.length}
               total={delAlcance.length}
-              activos={filtro.activos}
               onLimpiar={filtro.limpiar}
               etiqueta="Filtros de solicitudes de apoyo"
               placeholder="Estudiante, motivo o código…"
@@ -403,6 +403,7 @@ export function TutorReferrals() {
               }
               initialSort={{ key: 'actualizado', direction: 'desc' }}
               pagination="auto"
+              paginationPosition="bottom"
             />
           </div>
         </CardBody>

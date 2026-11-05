@@ -1,6 +1,7 @@
+import { DirectorySearch } from '../../components/ui/DirectoryToolbar';
 import { useId, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CompactPage, CompactSearch } from '../../components/ui/CompactPage';
+import { CompactPage } from '../../components/ui/CompactPage';
 import { PageHeading } from '../../components/ui/PageHeading';
 import { Tabs, TabPanel } from '../../components/ui/Tabs';
 import { Card } from '../../components/ui/Card';
@@ -116,7 +117,7 @@ export function CoordFields() {
             </select>
           </div>
         )}
-        <CompactSearch
+        <DirectorySearch
           value={buscar}
           onChange={setBuscar}
           label={tab === 'preguntas' ? 'Buscar pregunta' : 'Buscar regla'}

@@ -182,6 +182,9 @@ la API con su configuración local. Un `dotnet run` sin `TUTORIA_LOCAL_CONFIG` n
 EventLog de Windows para evitar que la falta de permisos interrumpa las respuestas HTTP;
 los demás proveedores de logs permanecen activos.
 
+El formulario de acceso pide el usuario o correo y la contraseña. La API determina el perfil
+y la aplicación abre su portal.
+
 Solo en Development, con `LocalDevelopment:Enabled=true`, `/api/auth/login` acepta las cuentas
 ficticias: estudiante `2023010456`, tutor `DOC-0421`, coordinación `coordinacion.tutoria`;
 contraseña de prueba `tutoria2026`. Las contraseñas se almacenan como hash y el servidor emite
@@ -340,6 +343,9 @@ Para una demostración sin servidor configura `VITE_DATA_SOURCE=demo` explícita
 de iniciar Vite. Para persistencia usa `.env.example` o el preparador local y ejecuta también
 la API. Ejecutar `dotnet run` directamente requiere configurar la conexión mediante variables
 de entorno; `Start-Backend.ps1` carga el archivo local ignorado durante Development.
+
+La auditoría de Coordinación muestra la cuenta de cada operación. Para los accesos,
+también registra la categoría de dispositivo, el sistema y el navegador que puede identificar.
 
 ## Desplegar en Vercel
 

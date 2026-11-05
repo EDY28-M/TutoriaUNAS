@@ -1,6 +1,9 @@
 .account-access {
   min-width: 0;
 }
+.account-access .d01__sub {
+  overflow-wrap: anywhere;
+}
 .account-access__status {
   padding: 12px;
   border-radius: 8px;

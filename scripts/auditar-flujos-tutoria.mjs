@@ -25,7 +25,6 @@ page.on("pageerror", (error) => errores.push(error.message));
 
 async function login(label, identifier) {
   await page.goto(`${baseURL}/login`);
-  await page.getByRole("tab", { name: label, exact: true }).click();
   await page.locator("#identifier").fill(identifier);
   await page.locator("#password").fill("tutoria2026");
   await page.locator('button[type="submit"]').click();
@@ -42,19 +41,7 @@ try {
   await page.setViewportSize({ width: 320, height: 950 });
   await page.goto(`${baseURL}/login`);
   await page.evaluate(() => document.fonts.ready);
-  const roles = await page.locator(".role-switch__btn").evaluateAll((buttons) =>
-    buttons.map((button) => {
-      const rect = button.getBoundingClientRect();
-      const text = button.querySelector("span").getBoundingClientRect();
-      return {
-        rol: button.textContent.trim(),
-        ancho: rect.width,
-        anchoTexto: text.width,
-        exceso: Math.max(rect.left - text.left, text.right - rect.right, 0),
-      };
-    }),
-  );
-  hallazgos.push({ id: "login-320", roles });
+  hallazgos.push({ id: "login-320", formularios: await page.getByRole("form").count() });
   await page.screenshot({ path: `${output}/login-320.png` });
 
   await page.setViewportSize({ width: 1440, height: 1000 });

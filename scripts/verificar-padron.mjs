@@ -15,7 +15,6 @@ page.on('pageerror', (e) => errores.push(e.message));
 const resultados = [];
 try {
   await page.goto('http://127.0.0.1:5173/login');
-  await page.locator('#login-role-coordinacion').click();
   await page.locator('#identifier').fill('coordinacion.tutoria');
   await page.locator('#password').fill('tutoria2026');
   await page.locator('button[type="submit"]').click();

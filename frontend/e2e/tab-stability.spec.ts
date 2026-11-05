@@ -3,7 +3,7 @@ import type { Locator, Page } from '@playwright/test';
 
 async function login(page: Page, role: 'Estudiante' | 'Tutor') {
   await page.goto('/login');
-  await page.getByRole('tab', { name: role, exact: true }).click();
+
   await page.locator('#identifier').fill(role === 'Estudiante' ? '2023010456' : 'DOC-0421');
   await page.locator('#password').fill('tutoria2026');
   await page.locator('button[type="submit"]').click();
@@ -39,7 +39,8 @@ for (const width of [320, 375, 390, 768, 1024, 1440]) {
   test(`estudiante: filtros con resultados y vacíos sin desplazar la página a ${width}px`, async ({
     page,
   }) => {
-    await page.setViewportSize({ width, height: 650 });
+    // Alto reducido: «Mis formularios» es una lista corta y debe haber recorrido para el desplazamiento.
+    await page.setViewportSize({ width, height: 420 });
     await login(page, 'Estudiante');
     await page.goto('/estudiante/instrumentos');
     const filters = page.getByRole('group', { name: 'Filtrar mis formularios', exact: true });

@@ -14,7 +14,7 @@ export function ApiBoundary({ children }: { children: ReactNode }) {
     const cargar = () => {
       void refrescarApi().catch(() => undefined);
     };
-    cargar();
+    if (!snapshotApi().datos) cargar();
     const timer = window.setInterval(cargar, 10_000);
     window.addEventListener('focus', cargar);
     return () => {

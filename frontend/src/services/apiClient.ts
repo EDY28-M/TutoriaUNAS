@@ -4,7 +4,7 @@ import { z } from 'zod';
 export interface ApiSession {
   accessToken: string;
   expiresAt: number;
-  user: DemoUser;
+  user: DemoUser | null;
 }
 const SESSION_KEY = 'unas:api-session:v1';
 const sessionSchema = z.object({
@@ -35,7 +35,7 @@ export function getApiSession() {
 export function setApiSession(value: ApiSession | null, remember = true) {
   session = value;
   try {
-    if (value && remember) sessionStorage.setItem(SESSION_KEY, JSON.stringify(value));
+    if (value?.user && remember) sessionStorage.setItem(SESSION_KEY, JSON.stringify(value));
     else sessionStorage.removeItem(SESSION_KEY);
   } catch {
     /* Sesión solo en memoria. */

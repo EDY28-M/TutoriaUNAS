@@ -75,7 +75,7 @@ public sealed class CuentasFixture : IAsyncLifetime
     public async Task<string> Codigo(string email)
     {
         await Drenar();
-        var mail = Correo.Mensajes.Last(m => m.Para == email && m.Asunto.StartsWith("Verifica", StringComparison.Ordinal));
+        var mail = Correo.Mensajes.Last(m => m.Para == email && (m.Asunto.StartsWith("Verifica", StringComparison.Ordinal) || m.Asunto.StartsWith("Recupera", StringComparison.Ordinal)));
         return Regex.Match(mail.Contenido, @"\b\d{6}\b").Value;
     }
     public async Task Modificar(Func<TutoriaDbContext, Task> fn)
@@ -161,7 +161,8 @@ public sealed class CuentasCorreoTests(CuentasFixture fixture) : IClassFixture<C
     {
         using var admin = await fixture.Admin(); using var c = fixture.App.CreateClient(); var email = Email("temporal-");
         var cuenta = await Ok<CuentaCreadaDto>(await admin.PostAsJsonAsync("/api/cuentas", new CrearCuentaInput(email, "estudiante", "Ficticio", "Prueba")));
-        var acceso = await Ok<ActivacionRequeridaDto>(await c.PostAsJsonAsync("/api/auth/login", new LoginLocalDto(email, cuenta.PasswordTemporal, "estudiante")));
+        var acceso = await Ok<ActivacionRequeridaDto>(await c.PostAsJsonAsync("/api/auth/login", new LoginLocalDto(email, cuenta.PasswordTemporal)));
+        Assert.Equal("estudiante", acceso.Role);
         var reto = await Ok<CodigoEnCaminoDto>(await c.PostAsJsonAsync("/api/auth/codigo", new SolicitarCodigoInput(email, "activacion", TokenActivacion: acceso.TokenActivacion)));
         var codigo = await fixture.Codigo(email);
         Assert.Equal(HttpStatusCode.Unauthorized, (await c.PostAsJsonAsync("/api/auth/codigo/confirmar", new ConfirmarCodigoInput(reto.RetoId, codigo))).StatusCode);
@@ -191,6 +192,39 @@ public sealed class CuentasCorreoTests(CuentasFixture fixture) : IClassFixture<C
         var sinPadron = await Ok<CodigoEnCaminoDto>(await c.PostAsJsonAsync("/api/auth/codigo", new SolicitarCodigoInput(extra, "registro")));
         Assert.Equal(reto.Mensaje, sinPadron.Mensaje);
         Assert.DoesNotContain(fixture.Correo.Mensajes, m => m.Para == extra);
+    }
+
+    [PostgresFact]
+    public async Task AccesoUnificadoDistinguePerfilesDelMismoCorreoPorSuClave()
+    {
+        using var c = fixture.App.CreateClient();
+        var email = Email("dos-perfiles-");
+        var estudianteId = await fixture.Persona(email);
+        var tutorId = await fixture.Persona(email, "tutor");
+        const string claveTutor = "Frase del segundo perfil de prueba 2026!";
+        await using var scope = fixture.App.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<TutoriaDbContext>();
+        var credenciales = scope.ServiceProvider.GetRequiredService<CredencialesCuentaService>();
+        var estudiante = await db.Personas.SingleAsync(p => p.Id == estudianteId);
+        var tutor = await db.Personas.SingleAsync(p => p.Id == tutorId);
+        credenciales.Crear(estudiante, email, "estudiante", Password, false);
+        var usuarioTutor = credenciales.Crear(tutor, email, "tutor", claveTutor, false);
+        await db.SaveChangesAsync();
+
+        foreach (var (clave, rol) in new[] { (Password, "estudiante"), (claveTutor, "tutor") })
+        {
+            var acceso = await Ok<JsonElement>(await c.PostAsJsonAsync("/api/auth/login", new LoginLocalDto(email, clave, IncluirEstado: true)));
+            Assert.Equal(rol, acceso.GetProperty("estado").GetProperty("usuario").GetProperty("role").GetString());
+            c.DefaultRequestHeaders.Authorization = new("Bearer", acceso.GetProperty("accessToken").GetString());
+            var estado = await Ok<EstadoTutoriaDto>(await c.GetAsync("/api/tutoria/estado"));
+            Assert.Equal(rol, estado.Usuario.Role);
+        }
+
+        var credencialTutor = await db.CredencialesCuenta.SingleAsync(x => x.UsuarioId == usuarioTutor.Id);
+        credenciales.CambiarPassword(credencialTutor, Password);
+        await db.SaveChangesAsync();
+        var ambiguo = await c.PostAsJsonAsync("/api/auth/login", new LoginLocalDto(email, Password));
+        Assert.Equal(HttpStatusCode.Conflict, ambiguo.StatusCode);
     }
 
     [PostgresFact]
@@ -235,6 +269,10 @@ public sealed class CuentasCorreoTests(CuentasFixture fixture) : IClassFixture<C
         await fixture.Modificar(async db => { foreach (var x in await db.RetosCorreo.Where(x => x.Correo == email).ToArrayAsync()) x.UltimoEnvio = DateTimeOffset.UtcNow.AddMinutes(-2); await db.SaveChangesAsync(); });
         var reset = await Ok<CodigoEnCaminoDto>(await c.PostAsJsonAsync("/api/auth/codigo", new SolicitarCodigoInput(email, "recuperacion")));
         var codigo = await fixture.Codigo(email);
+        var mensaje = fixture.Correo.Mensajes.Last(m => m.Para == email && m.Asunto.StartsWith("Recupera", StringComparison.Ordinal));
+        Assert.Equal("Recupera tu contraseña · Tutoría UNAS", mensaje.Asunto);
+        Assert.Contains($"Tu código para recuperar tu contraseña es: {codigo}", mensaje.Contenido);
+        Assert.Contains("Vence en 10 minutos", mensaje.Contenido);
         using var otro = fixture.App.CreateClient();
         var responses = await Task.WhenAll(c.PostAsJsonAsync("/api/auth/codigo/confirmar", new ConfirmarCodigoInput(reset.RetoId, codigo)), otro.PostAsJsonAsync("/api/auth/codigo/confirmar", new ConfirmarCodigoInput(reset.RetoId, codigo)));
         var valido = Assert.Single(responses, x => x.IsSuccessStatusCode); Assert.Single(responses, x => x.StatusCode == HttpStatusCode.BadRequest);

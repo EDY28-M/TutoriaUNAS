@@ -1,7 +1,9 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
-const baseURL = process.env.PORTAL_BASE_URL ?? 'http://127.0.0.1:5173';
+// Por defecto usa el servidor de demostración que levanta Playwright (puerto 5188): las cuentas y
+// los datos son fijos. Para medir un entorno en vivo, define PORTAL_BASE_URL.
+const baseURL = process.env.PORTAL_BASE_URL ?? 'http://127.0.0.1:5188';
 const accounts = [
   { role: 'estudiante', label: 'Estudiante', id: '2023010456' },
   { role: 'tutor', label: 'Tutor', id: 'DOC-0421' },
@@ -35,7 +37,8 @@ async function appearance(page: Page) {
       body: style('body'),
       sidebar: style('.sidebar'),
       brand: style('.sidebar__brand-text strong'),
-      menu: style('.sidebar__link-label'),
+      // El perfil nunca es la ruta activa de este recorrido: su color no cambia con la ruta.
+      menu: style('.sidebar__nav a[href$="/perfil"] .sidebar__link-label'),
       heading: style('.page-head h1'),
       description: style('.page-head__text > p:not(.sr-only)'),
       topbar: style('.topbar'),
@@ -70,7 +73,7 @@ for (const account of accounts) {
       const errors: string[] = [];
       page.on('pageerror', (error) => errors.push(error.message));
       await page.goto(`${baseURL}/login`);
-      await page.getByRole('tab', { name: account.label, exact: true }).click();
+
       await page.locator('#identifier').fill(account.id);
       await page.locator('#password').fill('tutoria2026');
       await page.locator('.d01__form button[type="submit"]').click();
@@ -87,13 +90,16 @@ for (const account of accounts) {
       const { overflow, ...theme } = calendar;
       expect(overflow).toBeLessThanOrEqual(1);
       const todayLines = await page
-        .locator('.calendar__daypanel-head > .badge')
+        .locator('.calendar__daypanel-head .calendar__agenda-count')
         .evaluate((element) => {
-          const range = document.createRange();
-          range.selectNodeContents(element);
-          return range.getClientRects().length;
+          // Líneas que ocupa el contador: altura de la caja entre el alto de su línea.
+          const estilo = getComputedStyle(element);
+          const linea =
+            Number.parseFloat(estilo.lineHeight) || Number.parseFloat(estilo.fontSize) * 1.4;
+          return Math.round(element.getBoundingClientRect().height / linea);
         });
-      expect(todayLines).toBe(1);
+      // Una línea como máximo (0 cuando el contador no se muestra en ese ancho).
+      expect(todayLines).toBeLessThanOrEqual(1);
       const assertSameTheme = async () => {
         const { overflow, ...current } = await appearance(page);
         expect(overflow).toBeLessThanOrEqual(1);
