@@ -8,6 +8,7 @@ export interface DemoUser {
   identifier: string;
   email: string;
   personaId?: string;
+  adminInstitucional?: boolean;
 }
 
 export interface LoginCredentials {

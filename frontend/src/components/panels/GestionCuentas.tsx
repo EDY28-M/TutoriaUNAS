@@ -13,6 +13,8 @@ import { usePermiso } from '../../hooks/usePermiso';
 import type { Role } from '../../types/auth';
 import { normalizar } from '../../utils/busqueda';
 import { CrearCuenta } from './CrearCuenta';
+import { useSistema } from '../../hooks/useSistema';
+import { escuelaDe } from '../../data/personas';
 
 const perfiles: Record<Role, string> = {
   estudiante: 'Estudiante',
@@ -21,6 +23,7 @@ const perfiles: Record<Role, string> = {
 };
 export function GestionCuentas() {
   const queryClient = useQueryClient();
+  const institucional = Boolean(useSistema()?.periodosEscuela?.length);
   const consulta = useQuery({
     queryKey: ['cuentas-administracion'],
     queryFn: () => apiJson<CuentaAdmin[]>('/api/cuentas'),
@@ -79,6 +82,9 @@ export function GestionCuentas() {
         <span className="person-cell__text">
           <strong>{c.nombre}</strong>
           <small>{c.correo}</small>
+          {institucional && (
+            <small>{c.escuelaId ? escuelaDe(c.escuelaId) : 'Sin escuela vinculada'}</small>
+          )}
         </span>
       ),
     },
@@ -124,7 +130,12 @@ export function GestionCuentas() {
             <button
               className="btn btn-falcon-default btn-sm"
               type="button"
-              disabled={ocupado}
+              disabled={ocupado || (institucional && c.pendienteVinculacion)}
+              title={
+                institucional && c.pendienteVinculacion
+                  ? 'Selecciona la escuela de destino en Ámbito'
+                  : undefined
+              }
               onClick={() => void accion(c, c.pendienteVinculacion)}
             >
               {c.pendienteVinculacion
@@ -150,7 +161,9 @@ export function GestionCuentas() {
   ];
   const filas =
     consulta.data?.filter((c) =>
-      normalizar(`${c.nombre} ${c.correo} ${perfiles[c.rol]}`).includes(normalizar(buscar)),
+      normalizar(
+        `${c.nombre} ${c.correo} ${perfiles[c.rol]} ${c.escuelaId ? escuelaDe(c.escuelaId) : ''}`,
+      ).includes(normalizar(buscar)),
     ) ?? [];
   return (
     <>

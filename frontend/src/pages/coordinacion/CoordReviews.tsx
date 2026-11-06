@@ -19,7 +19,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { persistirRevision } from '../../services/mutacionesTutoria';
 import { API_MODE } from '../../services/apiConfig';
 import type { CodigoFormato, Docente, Instrumento } from '../../types/domain';
-import { abreviaturaEscuela, docentePorId } from '../../data/personas';
+import { escuelaDe, docentePorId } from '../../data/personas';
 import { escuelas, semestreActual } from '../../data/catalogos';
 import { definicionPorCodigo } from '../../data/formatos';
 import { HOY_ISO, formatFecha } from '../../utils/fechas';
@@ -96,9 +96,10 @@ export function CoordReviews() {
           instrumento,
           tutor,
           escuelaId:
-            escuelaDeclarada && escuelas.some((escuela) => escuela.id === escuelaDeclarada)
+            instrumento.escuelaId ??
+            (escuelaDeclarada && escuelas.some((escuela) => escuela.id === escuelaDeclarada)
               ? escuelaDeclarada
-              : (tutor?.escuelaId ?? portal.escuelaId),
+              : (tutor?.escuelaId ?? portal.escuelaId)),
           estado,
           comentario:
             decision?.comentario ??
@@ -118,7 +119,7 @@ export function CoordReviews() {
         nombreFormato(fila.instrumento),
         fila.tutor?.apellidos ?? '',
         fila.tutor?.nombres ?? '',
-        abreviaturaEscuela(fila.escuelaId),
+        escuelaDe(fila.escuelaId),
         fila.instrumento.id,
         fila.estado,
       ].join(' '),
@@ -142,7 +143,7 @@ export function CoordReviews() {
       {
         id: 'escuela',
         etiqueta: 'Escuela',
-        opciones: escuelas.map((escuela) => ({ valor: escuela.id, etiqueta: escuela.abreviatura })),
+        opciones: escuelas.map((escuela) => ({ valor: escuela.id, etiqueta: escuela.nombre })),
         valorDe: (fila) => fila.escuelaId,
       },
       {
@@ -222,7 +223,7 @@ export function CoordReviews() {
             {definicionPorCodigo(fila.instrumento.formato)?.nombre}
           </strong>
           <span className="cell-note">
-            {fila.instrumento.formato} · {abreviaturaEscuela(fila.escuelaId)}
+            {fila.instrumento.formato} · {escuelaDe(fila.escuelaId)}
           </span>
         </span>
       ),
@@ -356,7 +357,7 @@ export function CoordReviews() {
         <Sheet
           wide
           title={`Formato ${detalleFormato?.numero ?? '—'} · ${detalleFormato?.nombre ?? seleccionado.formato}`}
-          description={`${seleccionado.id} · ${abreviaturaEscuela(detalleFila.escuelaId)} · semestre ${seleccionado.semestreId}`}
+          description={`${seleccionado.id} · ${escuelaDe(detalleFila.escuelaId)} · semestre ${seleccionado.semestreId}`}
           onClose={() => {
             setSeleccionado(null);
             setAvisoInterno(null);

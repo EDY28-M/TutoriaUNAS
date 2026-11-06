@@ -2,6 +2,7 @@ import { promedioDe } from '../../utils/datosAcademicos';
 import { etiquetaEtapa } from '../../utils/datosAcademicos';
 import { useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { API_MODE } from '../../services/apiConfig';
 import { CircleAlert, UserCheck, Users, TrendingUp } from '../../components/ui/icons';
 import { PageHeading } from '../../components/ui/PageHeading';
 import { Card, CardBody, CardFoot, CardHead } from '../../components/ui/Card';
@@ -22,16 +23,10 @@ import type { DefinicionSelect } from '../../hooks/useFiltro';
 import { usePortal } from '../../hooks/usePortal';
 import { usePersonasPortal } from '../../hooks/usePersonasPortal';
 import { AccionesCuentas } from '../../components/panels/AccionesCuentas';
-import type { AlertaAcademica, Estudiante, Sesion } from '../../types/domain';
-import {
-  abreviaturaEscuela,
-  docentePorId,
-  escuelaDe,
-  iniciales,
-  nombreCompleto,
-} from '../../data/personas';
+import type { AlertaAcademica, Asignacion, Docente, Estudiante, Sesion } from '../../types/domain';
+import { escuelaDe, iniciales, nombreCompleto } from '../../data/personas';
 import { escuelas, semestreActual } from '../../data/catalogos';
-import { asignaciones, sesionesDeEstudiante } from '../../data/tutoria';
+import { useSistema } from '../../hooks/useSistema';
 import { cursoPorId, matriculaDe } from '../../data/academico';
 import { FichaEstudiante } from '../../components/panels/FichaEstudiante';
 import type { CursoVista } from '../../components/panels/FichaEstudiante';
@@ -43,7 +38,7 @@ const NIVELES_ALERTA: Array<AlertaAcademica['nivel']> = ['alta', 'media', 'baja'
 /** Fila del padrón de tutorados con la asignación vigente resuelta. */
 interface FilaTutorado {
   estudiante: Estudiante;
-  tutorId: string | null;
+  tutor: { id: string; nombres: string; apellidos: string } | null;
   grupo: string | null;
   criterio: string | null;
   sesiones: number;
@@ -65,15 +60,12 @@ function etapaTexto(etapa: Estudiante['etapa']): string {
 }
 
 /** Construye la fila del padrón a partir del expediente y su asignación. */
-function filaDe(estudiante: Estudiante, sesionesActuales?: Sesion[]): FilaTutorado {
-  const asignacion = asignaciones.find(
-    (item) => item.estudianteId === estudiante.id && item.estado === 'activa',
-  );
-  const sesiones = sesionesActuales
-    ? sesionesActuales.filter((sesion) =>
-        sesion.asistentes.some((asistente) => asistente.estudianteId === estudiante.id),
-      )
-    : sesionesDeEstudiante(estudiante.id);
+function filaDe(
+  estudiante: Estudiante,
+  asignacion: Asignacion | undefined,
+  sesiones: Sesion[],
+  docentes: Map<string, Docente>,
+): FilaTutorado {
   const asistidas = sesiones.filter((sesion) =>
     sesion.asistentes.some(
       (asistente) =>
@@ -83,7 +75,7 @@ function filaDe(estudiante: Estudiante, sesionesActuales?: Sesion[]): FilaTutora
   );
   return {
     estudiante,
-    tutorId: asignacion?.tutorId ?? null,
+    tutor: asignacion ? (docentes.get(asignacion.tutorId) ?? null) : null,
     grupo: asignacion?.grupo ?? null,
     criterio: asignacion?.criterio ?? null,
     sesiones: sesiones.filter((sesion) => sesion.estado === 'realizada').length,
@@ -93,22 +85,51 @@ function filaDe(estudiante: Estudiante, sesionesActuales?: Sesion[]): FilaTutora
 }
 
 /**
- * Padrón de tutorados de la escuela: expediente académico consultado en modo
- * lectura, asignación tutorial vigente, etapa académica, promedio ponderado y
- * alertas de acompañamiento, con la ficha ampliada de cada estudiante.
+ * Directorio académico y tutorial. Administración consulta todas las escuelas.
  */
 export function CoordTutees() {
   const portal = usePortal();
-  const { estudiantes } = usePersonasPortal();
-  const [detalle, setDetalle] = useState<Estudiante | null>(null);
+  const { institucional, tutorados, sesiones } = portal;
+  const periodos = useSistema()?.periodosEscuela;
+  const { estudiantes, docentes } = usePersonasPortal();
+  const [detalleId, setDetalleId] = useState<string | null>(null);
 
-  const filas = useMemo<FilaTutorado[]>(
-    () =>
-      estudiantes
-        .map((estudiante) => filaDe(estudiante, portal.sesiones))
-        .sort((a, b) => a.estudiante.apellidos.localeCompare(b.estudiante.apellidos, 'es')),
-    [estudiantes, portal.sesiones],
-  );
+  const filas = useMemo<FilaTutorado[]>(() => {
+    const semestrePorEscuela = new Map(periodos?.map((p) => [p.escuelaId, p.semestreId]));
+    const asignacionesVigentes = new Map(
+      tutorados
+        .filter(
+          (a) =>
+            a.estado === 'activa' &&
+            a.semestreId === (semestrePorEscuela.get(a.escuelaId) ?? semestreActual),
+        )
+        .map((a) => [a.estudianteId, a]),
+    );
+    const sesionesPorEstudiante = new Map<string, Sesion[]>();
+    for (const sesion of sesiones) {
+      if (
+        sesion.estado !== 'realizada' ||
+        sesion.semestreId !== (semestrePorEscuela.get(sesion.escuelaId ?? '') ?? semestreActual)
+      )
+        continue;
+      for (const asistente of sesion.asistentes) {
+        const lista = sesionesPorEstudiante.get(asistente.estudianteId);
+        if (lista) lista.push(sesion);
+        else sesionesPorEstudiante.set(asistente.estudianteId, [sesion]);
+      }
+    }
+    const docentesPorId = new Map(docentes.map((d) => [d.id, d]));
+    return estudiantes
+      .map((e) =>
+        filaDe(
+          e,
+          asignacionesVigentes.get(e.id),
+          sesionesPorEstudiante.get(e.id) ?? [],
+          docentesPorId,
+        ),
+      )
+      .sort((a, b) => a.estudiante.apellidos.localeCompare(b.estudiante.apellidos, 'es'));
+  }, [estudiantes, docentes, tutorados, sesiones, periodos]);
 
   const buscarEn = useCallback(
     (fila: FilaTutorado) =>
@@ -118,7 +139,7 @@ export function CoordTutees() {
         fila.estudiante.nombres,
         fila.estudiante.correo,
         fila.grupo ?? '',
-        fila.tutorId ? (docentePorId(fila.tutorId)?.apellidos ?? '') : '',
+        fila.tutor?.apellidos ?? '',
       ].join(' '),
     [],
   );
@@ -128,13 +149,16 @@ export function CoordTutees() {
       {
         id: 'escuela',
         etiqueta: 'Escuela',
-        opciones: escuelas.map((escuela) => ({ valor: escuela.id, etiqueta: escuela.abreviatura })),
+        opciones: escuelas
+          .filter((escuela) => !API_MODE || institucional || escuela.id === portal.escuelaId)
+          .map((escuela) => ({ valor: escuela.id, etiqueta: escuela.nombre }))
+          .sort((a, b) => a.etiqueta.localeCompare(b.etiqueta, 'es')),
         valorDe: (fila) => fila.estudiante.escuelaId,
       },
       {
         id: 'ciclo',
         etiqueta: 'Ciclo',
-        opciones: [...new Set(estudiantes.map((estudiante) => estudiante.ciclo))]
+        opciones: [...new Set(filas.map(({ estudiante }) => estudiante.ciclo))]
           .sort((a, b) => (a ?? Infinity) - (b ?? Infinity))
           .map((ciclo) => ({
             valor: String(ciclo),
@@ -188,35 +212,29 @@ export function CoordTutees() {
         etiqueta: 'Tutor',
         opciones: [
           { valor: 'sin-tutor', etiqueta: 'Sin tutor asignado' },
-          ...[...new Set(estudiantes.map((estudiante) => filaDe(estudiante).tutorId))]
-            .filter((id): id is string => Boolean(id))
-            .map((id) => ({
-              valor: id,
-              etiqueta: docentePorId(id)
-                ? `${docentePorId(id)?.apellidos ?? ''}, ${docentePorId(id)?.nombres ?? ''}`
-                : id,
-            })),
+          ...Array.from(
+            new Map(filas.flatMap(({ tutor }) => (tutor ? [[tutor.id, tutor]] : []))).values(),
+            (tutor) => ({ valor: tutor.id, etiqueta: `${tutor.apellidos}, ${tutor.nombres}` }),
+          ),
         ],
-        valorDe: (fila) => fila.tutorId ?? 'sin-tutor',
+        valorDe: (fila) => fila.tutor?.id ?? 'sin-tutor',
       },
     ],
-    [estudiantes],
+    [filas, institucional, portal.escuelaId],
   );
 
   const filtro = useFiltro(filas, buscarEn, selects);
 
-  const deLaEscuela = filas.filter((fila) => fila.estudiante.escuelaId === portal.escuelaId);
-  const conTutor = deLaEscuela.filter((fila) => fila.tutorId).length;
+  const conTutor = filas.filter((fila) => fila.tutor).length;
   const alertaAlta = filas.filter((fila) => fila.nivelAlerta === 'alta').length;
-  const promedioEscuela = promedioDe(deLaEscuela.map((fila) => fila.estudiante));
+  const promedio = promedioDe(filas.map((fila) => fila.estudiante));
   const enRiesgoAcademico = filas.filter(
     (fila) => (fila.estudiante.promedioPonderado ?? Infinity) < 12,
   ).length;
   const conObservaciones = filas.filter((fila) => fila.estudiante.estado === 'observado').length;
 
-  const detalleFila = detalle ? filaDe(detalle, portal.sesiones) : null;
-  const tutorDelDetalle =
-    detalleFila && detalleFila.tutorId ? docentePorId(detalleFila.tutorId) : undefined;
+  const detalleFila = filas.find((fila) => fila.estudiante.id === detalleId);
+  const detalle = detalleFila?.estudiante;
   const matricula = detalle ? matriculaDe(detalle.id) : undefined;
   const cursosFicha: CursoVista[] = (matricula?.cursos ?? [])
     .map((inscrito) => {
@@ -242,7 +260,7 @@ export function CoordTutees() {
         <PersonCell
           nombres={fila.estudiante.nombres}
           apellidos={fila.estudiante.apellidos}
-          detalle={`${fila.estudiante.codigo} · ${abreviaturaEscuela(fila.estudiante.escuelaId)}`}
+          detalle={`${fila.estudiante.codigo} · ${escuelaDe(fila.estudiante.escuelaId)}`}
           iniciales={iniciales(fila.estudiante)}
           tono={fila.nivelAlerta === 'alta' ? 'dorado' : 'verde'}
         />
@@ -297,9 +315,9 @@ export function CoordTutees() {
       key: 'tutor',
       header: 'Tutor asignado',
       sortable: true,
-      sortValue: (fila) => (fila.tutorId ? (docentePorId(fila.tutorId)?.apellidos ?? '') : ''),
+      sortValue: (fila) => fila.tutor?.apellidos ?? '',
       render: (fila) => {
-        const tutor = fila.tutorId ? docentePorId(fila.tutorId) : undefined;
+        const tutor = fila.tutor;
         return tutor ? (
           <span className="stack" style={{ gap: 1 }}>
             <strong className="cell-strong">{nombreCompleto(tutor)}</strong>
@@ -319,7 +337,7 @@ export function CoordTutees() {
             type="button"
             className="btn btn-falcon-default btn-sm"
             aria-label={`Ver ficha de ${fila.estudiante.apellidos}, ${fila.estudiante.nombres}`}
-            onClick={() => setDetalle(fila.estudiante)}
+            onClick={() => setDetalleId(fila.estudiante.id)}
           >
             Ver ficha
           </button>
@@ -331,9 +349,13 @@ export function CoordTutees() {
   return (
     <DirectoryPage>
       <PageHeading
-        eyebrow={`Coordinación de tutoría · ${abreviaturaEscuela(portal.escuelaId)} · Semestre ${semestreActual}`}
+        eyebrow={`Coordinación de tutoría · ${institucional ? 'Todas las escuelas' : escuelaDe(portal.escuelaId)}`}
         title="Estudiantes"
-        description="Padrón académico y seguimiento del acompañamiento tutorial."
+        description={
+          institucional
+            ? 'Directorio y seguimiento tutorial de todas las escuelas.'
+            : 'Padrón académico y seguimiento del acompañamiento tutorial.'
+        }
         actions={
           <>
             <AccionesCuentas rol="estudiante" />
@@ -347,23 +369,23 @@ export function CoordTutees() {
       <DirectorySummary
         label="Cobertura tutorial"
         icon={<UserCheck aria-hidden="true" />}
-        value={`${filas.filter((fila) => fila.tutorId).length} / ${filas.length}`}
-        percent={
-          filas.length
-            ? Math.round((filas.filter((fila) => fila.tutorId).length / filas.length) * 100)
-            : 0
-        }
+        value={`${conTutor} / ${filas.length}`}
+        percent={filas.length ? Math.round((conTutor / filas.length) * 100) : 0}
         note="con tutor asignado"
         metrics={[
           {
-            label: `Estudiantes de ${abreviaturaEscuela(portal.escuelaId)}`,
-            value: deLaEscuela.length,
+            label: institucional
+              ? 'Estudiantes en total'
+              : `Estudiantes de ${escuelaDe(portal.escuelaId)}`,
+            value: filas.length,
             note: `${conTutor} con tutor asignado`,
             icon: <Users aria-hidden="true" />,
           },
           {
-            label: `Promedio de ${abreviaturaEscuela(portal.escuelaId)}`,
-            value: promedioEscuela?.toFixed(1) ?? 'Sin datos',
+            label: institucional
+              ? 'Promedio institucional'
+              : `Promedio de ${escuelaDe(portal.escuelaId)}`,
+            value: promedio?.toFixed(1) ?? 'Sin datos',
             note: `${enRiesgoAcademico} del padrón con promedio < 12`,
             icon: <TrendingUp aria-hidden="true" />,
           },
@@ -380,7 +402,11 @@ export function CoordTutees() {
       <Card>
         <CardHead
           title="Directorio de estudiantes"
-          actions={<span className="directory-result">Semestre {semestreActual}</span>}
+          actions={
+            <span className="directory-result">
+              {institucional ? 'Todas las escuelas' : `Semestre ${semestreActual}`}
+            </span>
+          }
         />
         <CardBody>
           <div className="stack">
@@ -408,7 +434,7 @@ export function CoordTutees() {
                     },
                     {
                       label: 'Sin tutor',
-                      count: filas.filter((fila) => !fila.tutorId).length,
+                      count: filas.length - conTutor,
                       active:
                         filtro.valores.tutor === 'sin-tutor' &&
                         !filtro.valores.alerta &&
@@ -453,7 +479,11 @@ export function CoordTutees() {
             <DataTable<FilaTutorado>
               rows={filtro.filtrados}
               columns={columnas}
-              caption={`Registro de estudiantes asignados · semestre ${semestreActual}`}
+              caption={
+                institucional
+                  ? 'Directorio institucional de estudiantes'
+                  : `Registro de estudiantes · semestre ${semestreActual}`
+              }
               rowKey={(fila) => fila.estudiante.id}
               pageSize={10}
               paginationPosition="bottom"
@@ -480,7 +510,7 @@ export function CoordTutees() {
           className="sheet--ficha"
           title={`${detalle.apellidos}, ${detalle.nombres}`}
           description={`${detalle.codigo} · ${escuelaDe(detalle.escuelaId)}`}
-          onClose={() => setDetalle(null)}
+          onClose={() => setDetalleId(null)}
         >
           <FichaEstudiante
             key={detalle.id}
@@ -491,8 +521,8 @@ export function CoordTutees() {
             insignias={
               <>
                 <StatusBadge estado={detalle.estado} />
-                <Badge tone={detalleFila.tutorId ? 'ok' : 'alerta'}>
-                  {detalleFila.tutorId ? 'Con tutor' : 'Sin tutor'}
+                <Badge tone={detalleFila.tutor ? 'ok' : 'alerta'}>
+                  {detalleFila.tutor ? 'Con tutor' : 'Sin tutor'}
                 </Badge>
               </>
             }
@@ -507,14 +537,12 @@ export function CoordTutees() {
                     <div>
                       <dt>Docente tutor</dt>
                       <dd>
-                        {tutorDelDetalle
-                          ? nombreCompleto(tutorDelDetalle)
-                          : detalleFila.tutorId
-                            ? 'Tutor no registrado'
-                            : 'Sin asignación vigente'}
+                        {detalleFila.tutor
+                          ? nombreCompleto(detalleFila.tutor)
+                          : 'Sin asignación vigente'}
                       </dd>
                     </div>
-                    {detalleFila.tutorId && (
+                    {detalleFila.tutor && (
                       <div>
                         <dt>Grupo</dt>
                         <dd>
@@ -536,7 +564,7 @@ export function CoordTutees() {
                       </div>
                     )}
                   </dl>
-                  {!detalleFila.tutorId && (
+                  {!detalleFila.tutor && (
                     <div>
                       <Link
                         className="btn btn-falcon-default btn-sm"

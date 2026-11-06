@@ -20,7 +20,7 @@ import { EmptyState } from '../../components/ui/EmptyState';
 import { Sheet } from '../../components/ui/Sheet';
 import { usePortal } from '../../hooks/usePortal';
 import { avisos, insumos, notificaciones, reglasTutoria } from '../../data/institucional';
-import { abreviaturaEscuela } from '../../data/personas';
+import { escuelaDe } from '../../data/personas';
 import type { Aviso, Notificacion } from '../../types/domain';
 import { formatFechaHora } from '../../utils/fechas';
 import '../../assets/vendor/fontawesome.min.css';
@@ -200,7 +200,7 @@ export function TutorNotices() {
   return (
     <div className="tutor-notices">
       <PageHeading
-        eyebrow={`Docente tutor · ${abreviaturaEscuela(docente.escuelaId)} · Cuenta institucional`}
+        eyebrow={`Docente tutor · ${escuelaDe(docente.escuelaId)} · Cuenta institucional`}
         title="Avisos"
         description={`${docente.correo} · Comunicaciones de tutoría`}
         actions={

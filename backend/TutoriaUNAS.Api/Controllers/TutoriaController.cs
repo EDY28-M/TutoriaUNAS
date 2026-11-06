@@ -47,12 +47,13 @@ public sealed class TutoriaController(EstadoTutoriaService estado, AgendaService
     {
         var actor = await context.Actor(ct);
         Domain.TutoriaError.Exigir(actor.Rol == "coordinacion", "Solo coordinación consulta la auditoría.", 403);
-        var registros = await db.Auditoria.AsNoTracking().Where(a => a.EscuelaId == actor.EscuelaId)
+        var registros = await db.Auditoria.AsNoTracking().Where(a => actor.ConsultaInstitucional || a.EscuelaId == actor.EscuelaId)
             .OrderByDescending(a => a.Id).Take(200).ToArrayAsync(ct);
         var ids = registros.Select(a => a.UsuarioId).Distinct().ToArray();
         var cuentas = await (from usuario in db.Usuarios.AsNoTracking()
             join persona in db.Personas.AsNoTracking() on usuario.PersonaId equals persona.Id
-            where ids.Contains(usuario.Id) && usuario.EscuelaId == actor.EscuelaId && persona.EscuelaId == actor.EscuelaId
+            where ids.Contains(usuario.Id) && (actor.ConsultaInstitucional || usuario.AdminInstitucional ||
+                (usuario.EscuelaId == actor.EscuelaId && persona.EscuelaId == actor.EscuelaId))
             select new { usuario.Id, usuario.Identificador, usuario.Rol, persona.DatosJson })
             .ToDictionaryAsync(u => u.Id, ct);
         return Ok(registros.Select(registro =>

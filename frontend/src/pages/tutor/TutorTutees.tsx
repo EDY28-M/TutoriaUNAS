@@ -16,12 +16,7 @@ import { DirectoryToolbar } from '../../components/ui/DirectoryToolbar';
 import type { DefinicionSelect } from '../../hooks/useFiltro';
 import { usePortal } from '../../hooks/usePortal';
 import { semestreActual } from '../../data/catalogos';
-import {
-  abreviaturaEscuela,
-  estudiantePorId,
-  iniciales,
-  nombreCompleto,
-} from '../../data/personas';
+import { escuelaDe, estudiantePorId, iniciales, nombreCompleto } from '../../data/personas';
 import { resumenDe } from '../../data/academico';
 import type { Asignacion, Estudiante, Instrumento, NivelAlerta, Sesion } from '../../types/domain';
 import { formatFecha } from '../../utils/fechas';
@@ -370,9 +365,9 @@ export function TutorTutees() {
   return (
     <div className="tutor-tutees">
       <PageHeading
-        eyebrow={`Docente tutor · ${abreviaturaEscuela(docente.escuelaId)} · Semestre ${semestreActual}`}
+        eyebrow={`Docente tutor · ${escuelaDe(docente.escuelaId)} · Semestre ${semestreActual}`}
         title="Mis estudiantes"
-        description={`${semestreActual} · ${abreviaturaEscuela(docente.escuelaId)} · Seguimiento de tus tutorados`}
+        description={`${semestreActual} · ${escuelaDe(docente.escuelaId)} · Seguimiento de tus tutorados`}
         actions={
           <>
             <Link className="btn btn-falcon-default" to="/tutor/sesiones">

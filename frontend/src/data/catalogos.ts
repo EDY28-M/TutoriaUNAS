@@ -38,7 +38,6 @@ export const escuelas: Escuela[] = [
   { id: 'E-AGR', nombre: 'Ingeniería Agronómica', abreviatura: 'AGR', facultadId: 'FIA' },
   { id: 'E-FOR', nombre: 'Ingeniería Forestal', abreviatura: 'FOR', facultadId: 'FRNR' },
   { id: 'E-ZOO', nombre: 'Zootecnia', abreviatura: 'ZOO', facultadId: 'FZ' },
-  { id: 'E-BIO', nombre: 'Biología', abreviatura: 'BIO', facultadId: 'FC' },
 ];
 
 export const semestres: Semestre[] = [

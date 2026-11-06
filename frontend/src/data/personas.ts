@@ -744,6 +744,7 @@ export function iniciales(persona: { nombres: string; apellidos: string }): stri
 }
 
 export function escuelaDe(escuelaId: string): string {
+  if (!escuelaId) return 'Sin escuela asignada';
   return escuelas.find((escuela) => escuela.id === escuelaId)?.nombre ?? 'Escuela no registrada';
 }
 

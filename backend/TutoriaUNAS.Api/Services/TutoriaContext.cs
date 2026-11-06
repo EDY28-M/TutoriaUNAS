@@ -9,16 +9,21 @@ using TutoriaUNAS.Api.Services.Accounts;
 
 namespace TutoriaUNAS.Api.Services;
 
-public sealed record ActorTutoria(UsuarioEntity Usuario, PersonaEntity Persona, Dictionary<string, string[]> Permisos)
+public sealed record ActorTutoria(UsuarioEntity Usuario, PersonaEntity Persona, Dictionary<string, string[]> Permisos, string? EscuelaSeleccionada = null, bool ConsultaInstitucional = false)
 {
     public bool Puede(string recurso, string accion) => Permisos.TryGetValue(recurso, out var acciones) && acciones.Contains(accion);
     public void Exigir(string recurso, string accion) => TutoriaError.Exigir(Puede(recurso, accion), "Tu cuenta no tiene permiso para esta operación.", 403);
     public string Id => Usuario.PersonaId;
     public string Rol => Usuario.Rol;
-    public string EscuelaId => Usuario.EscuelaId;
+    public bool AdminInstitucional => Rol == "coordinacion" && Usuario.AdminInstitucional;
+    public string EscuelaId => EscuelaSeleccionada ?? Usuario.EscuelaId;
+    public ActorTutoria ParaEscuela(string? escuela) => ConsultaInstitucional && !string.IsNullOrEmpty(escuela)
+        ? this with { EscuelaSeleccionada = escuela, ConsultaInstitucional = false }
+        : this;
+    public void ExigirEscuelaParaGestion() => TutoriaError.Exigir(!ConsultaInstitucional, "Selecciona la escuela para esta gestión.");
     public UsuarioDto Dto => new(Usuario.Rol == "coordinacion" ? Usuario.Id : Id, Rol,
         JsonDatos.Texto(Persona.DatosJson, "nombres") + " " + JsonDatos.Texto(Persona.DatosJson, "apellidos"),
-        Usuario.Identificador, JsonDatos.Texto(Persona.DatosJson, "correo"), Id);
+        Usuario.Identificador, JsonDatos.Texto(Persona.DatosJson, "correo"), Id, AdminInstitucional);
 }
 public static class JsonDatos
 {
@@ -30,21 +35,21 @@ public static class JsonDatos
     public static string Fecha(DateTimeOffset value) => TimeZoneInfo.ConvertTimeBySystemTimeZoneId(value, "America/Lima").ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
     public static InstrumentoDto Dto(InstrumentoEntity d) => new(d.Id, d.Formato, d.SemestreId, d.TutorId, d.EstudianteId, d.SesionId,
         d.Estado, d.Avance, d.Version, Fecha(d.Creado), Fecha(d.Actualizado), d.Enviado is { } fecha ? Fecha(fecha) : null,
-        d.RevisadoPor, Elemento(d.ObservacionesJson), false, Leer<Dictionary<string, string>>(d.RespuestasJson));
+        d.RevisadoPor, Elemento(d.ObservacionesJson), false, Leer<Dictionary<string, string>>(d.RespuestasJson), d.EscuelaId);
     public static SesionDto Dto(SesionEntity s, string? soloEstudiante = null) => new(s.Id, "TUT-" + s.Id, s.Tipo, s.TutorId, s.SemestreId,
         s.Fecha, s.HoraInicio, s.HoraFin, s.Modalidad, s.Lugar, s.Tema, s.Objetivo, s.Estado,
         s.Asistentes.Where(a => soloEstudiante is null || a.EstudianteId == soloEstudiante).Select(a => new AsistenteDto(a.EstudianteId, a.Estado, a.HoraRegistro, a.Observacion)).ToArray(),
-        Elemento(s.AcuerdosJson), s.InstrumentoId, null, s.AsistenciaConfirmada, s.Version, s.Asistentes.Count, s.Asistentes.Count(a => a.Estado is "asistio" or "tarde"));
+        Elemento(s.AcuerdosJson), s.InstrumentoId, null, s.AsistenciaConfirmada, s.Version, s.Asistentes.Count, s.Asistentes.Count(a => a.Estado is "asistio" or "tarde"), s.EscuelaId);
 }
 public sealed class TutoriaContext(TutoriaDbContext db, IHttpContextAccessor accessor, TimeProvider clock)
 {
     private ActorTutoria? actorResuelto;
     public DateTimeOffset Ahora => clock.GetUtcNow();
     public string Hoy => JsonDatos.Fecha(Ahora);
-    public async Task<Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction> Transaccion(ActorTutoria actor, CancellationToken ct)
+    public async Task<Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction> Transaccion(ActorTutoria actor, CancellationToken ct, string? clave = null)
     {
         var tx = await db.Database.BeginTransactionAsync(ct);
-        try { await db.Database.ExecuteSqlInterpolatedAsync($"SELECT pg_advisory_xact_lock(hashtextextended({actor.EscuelaId}, 0))", ct); return tx; }
+        try { await db.Database.ExecuteSqlInterpolatedAsync($"SELECT pg_advisory_xact_lock(hashtextextended({clave ?? actor.EscuelaId}, 0))", ct); return tx; }
         catch { await tx.DisposeAsync(); throw; }
     }
     public async Task<ActorTutoria> Actor(CancellationToken ct)
@@ -61,8 +66,24 @@ public sealed class TutoriaContext(TutoriaDbContext db, IHttpContextAccessor acc
             TutoriaError.Exigir(await db.CredencialesCuenta.AnyAsync(c => c.UsuarioId == user.Id && c.Verificada && !c.CambioObligatorio, ct), "Verifica tu cuenta y establece tu contraseña para continuar.", 401);
         var persona = await db.Personas.SingleAsync(p => p.Id == user.PersonaId, ct);
         TutoriaError.Exigir(persona.Activa && persona.EscuelaId == user.EscuelaId, "La cuenta no tiene una vinculación vigente.", 403);
+        var ambito = accessor.HttpContext!.Request.Query["ambitoEscuela"];
+        var institucional = accessor.HttpContext.Request.Query["ambitoInstitucional"];
+        if (institucional.Count > 0)
+        {
+            TutoriaError.Exigir(user.Rol == "coordinacion" && user.AdminInstitucional, "Solo administración puede consultar todas las escuelas.", 403);
+            TutoriaError.Exigir(institucional.Count == 1 && institucional[0] == "true" && ambito.Count == 0, "Ámbito institucional inválido.");
+        }
+        string? escuelaSeleccionada = null;
+        if (ambito.Count > 0)
+        {
+            TutoriaError.Exigir(user.Rol == "coordinacion" && user.AdminInstitucional, "Solo la administración institucional puede cambiar de escuela.", 403);
+            escuelaSeleccionada = ambito.ToString();
+            TutoriaError.Exigir(ambito.Count == 1 && escuelaSeleccionada.Length is > 0 and <= 80 &&
+                await db.Periodos.AnyAsync(p => p.Activo && p.EscuelaId == escuelaSeleccionada, ct),
+                "La escuela seleccionada no tiene un periodo tutorial activo.", 400);
+        }
         var permisos = await db.Permisos.AsNoTracking().Where(p => p.Rol == user.Rol).ToArrayAsync(ct);
-        return actorResuelto = new(user, persona, permisos.ToDictionary(p => p.Recurso, p => JsonDatos.Leer<string[]>(p.AccionesJson)));
+        return actorResuelto = new(user, persona, permisos.ToDictionary(p => p.Recurso, p => JsonDatos.Leer<string[]>(p.AccionesJson)), escuelaSeleccionada, institucional.Count > 0);
     }
     public async Task<PeriodoEntity> Periodo(ActorTutoria actor, CancellationToken ct) =>
         await db.Periodos.SingleOrDefaultAsync(p => p.EscuelaId == actor.EscuelaId && p.Activo, ct) ?? throw new TutoriaError(409, "No hay un periodo tutorial activo para tu escuela.");

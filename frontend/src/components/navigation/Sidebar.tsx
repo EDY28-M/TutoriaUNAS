@@ -8,7 +8,7 @@ import type { NavigationItem } from '../../data/navegacion';
 import { useAuth } from '../../hooks/useAuth';
 import { usePortal } from '../../hooks/usePortal';
 import { escuelas } from '../../data/catalogos';
-import { abreviaturaEscuela, iniciales } from '../../data/personas';
+import { escuelaDe, iniciales } from '../../data/personas';
 import { roleDetails } from '../../utils/roles';
 import { preloadPortalRoute } from '../../routes/portalPages';
 
@@ -97,11 +97,10 @@ export function Sidebar({ onNavigate, mini = false, onToggleMini, onCerrar }: Si
 
   if (!user) return null;
 
-  const ambito =
-    user.role === 'coordinacion'
-      ? 'Vicerrectorado Académico'
-      : (escuelas.find((escuela) => escuela.id === portal.escuelaId)?.nombre ??
-        'Escuela profesional');
+  const ambito = user.adminInstitucional
+    ? 'Vicerrectorado Académico'
+    : (escuelas.find((escuela) => escuela.id === portal.escuelaId)?.nombre ??
+      'Escuela profesional');
 
   function enlace(item: NavigationItem, hijo = false) {
     const Icon = item.icon;
@@ -210,9 +209,7 @@ export function Sidebar({ onNavigate, mini = false, onToggleMini, onCerrar }: Si
       <div className="sidebar__context">
         <span>{roleDetails[user.role].label} · 2026-II</span>
         <strong>{ambito}</strong>
-        <em>
-          {user.role === 'coordinacion' ? 'Administración' : abreviaturaEscuela(portal.escuelaId)}
-        </em>
+        <em>{user.adminInstitucional ? 'Administración' : escuelaDe(portal.escuelaId)}</em>
       </div>
       <nav
         aria-label="Navegación principal"

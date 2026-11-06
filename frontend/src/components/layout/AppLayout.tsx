@@ -51,6 +51,7 @@ export function AppLayout() {
   const sistema = useSistema();
   const [menuOpen, setMenuOpen] = useState(false);
   const [errorMenu, setErrorMenu] = useState('');
+  const [scopeHost, setScopeHost] = useState<HTMLDivElement | null>(null);
   const guardandoMenu = useRef(false);
   const esMovil = useSyncExternalStore(subscribeMobile, mobileSnapshot, () => false);
   const rawPreferences = useSyncExternalStore(subscribePreferences, preferenceSnapshot, () => '{}');
@@ -202,6 +203,7 @@ export function AppLayout() {
           menuOpen={menuOpen && esMovil}
           menuExpanded={esMovil ? menuOpen : !reducida}
           onToggleMenu={alternarMenu}
+          scopeHostRef={setScopeHost}
         />
         <main id="main-content" className="workspace" ref={mainRef} tabIndex={-1}>
           <div
@@ -248,7 +250,7 @@ export function AppLayout() {
               </nav>
             )}
             <Suspense fallback={<PageLoading />}>
-              <ApiBoundary>
+              <ApiBoundary scopeHost={scopeHost}>
                 <RouteContent />
               </ApiBoundary>
             </Suspense>

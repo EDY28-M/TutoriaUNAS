@@ -2,18 +2,19 @@ using System.Text.Json;
 
 namespace TutoriaUNAS.Api.DTOs;
 
-public sealed record UsuarioDto(string Id, string Role, string Name, string Identifier, string Email, string PersonaId);
+public sealed record UsuarioDto(string Id, string Role, string Name, string Identifier, string Email, string PersonaId, bool AdminInstitucional = false);
 public sealed record EstadoTutoriaDto(UsuarioDto Usuario, string SemestreId, string Momento, int PeriodoVersion,
     JsonElement[] Estudiantes, JsonElement[] Docentes, JsonElement[] Asignaciones,
     JsonElement[] Matriculas, JsonElement[] Horarios, InstrumentoDto[] Registros, SesionDto[] Sesiones,
-    Dictionary<string, Dictionary<string, string>> Precargas, SistemaDto? Sistema = null, InstrumentoDto[]? Historial = null);
+    Dictionary<string, Dictionary<string, string>> Precargas, SistemaDto? Sistema = null, InstrumentoDto[]? Historial = null,
+    string? EscuelaId = null, string[]? EscuelasAdministrables = null, bool ConsultaInstitucional = false);
 public sealed record InstrumentoDto(string Id, string Formato, string SemestreId, string TutorId, string? EstudianteId,
     string? SesionId, string Estado, int Avance, int Version, string Creado, string Actualizado, string? Enviado,
-    string? RevisadoPor, JsonElement Observaciones, bool DescargaDisponible, Dictionary<string, string> Respuestas);
+    string? RevisadoPor, JsonElement Observaciones, bool DescargaDisponible, Dictionary<string, string> Respuestas, string? EscuelaId = null);
 public sealed record SesionDto(string Id, string Codigo, string Tipo, string TutorId, string SemestreId,
     string Fecha, string HoraInicio, string HoraFin, string Modalidad, string Lugar, string Tema, string Objetivo,
     string Estado, AsistenteDto[] Asistentes, JsonElement Acuerdos, string? InstrumentoId, string? Observacion,
-    bool AsistenciaConfirmada, int Version, int TotalConvocados, int TotalAsistentes);
+    bool AsistenciaConfirmada, int Version, int TotalConvocados, int TotalAsistentes, string? EscuelaId = null);
 public sealed record AsistenteDto(string EstudianteId, string Estado, string? HoraRegistro, string? Observacion);
 public sealed record ProgramarSesionDto(string Tipo, string Fecha, string HoraInicio, string HoraFin, string Modalidad,
     string Lugar, string Tema, string Objetivo, string[] Estudiantes);

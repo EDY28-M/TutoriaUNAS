@@ -22,14 +22,19 @@ public sealed class CuentasAdminService(TutoriaDbContext db, TutoriaContext cont
     public async Task<object[]> Listar(CancellationToken ct)
     {
         var actor = await Actor("ver", ct);
-        var users = await db.Usuarios.AsNoTracking().Where(u => u.EscuelaId == actor.EscuelaId || (u.EscuelaId == "" && u.Issuer == SeguridadCuenta.Issuer)).ToArrayAsync(ct);
+        var escuelasActivas = actor.ConsultaInstitucional
+            ? await db.Periodos.AsNoTracking().Where(p => p.Activo).Select(p => p.EscuelaId).ToArrayAsync(ct)
+            : [];
+        var users = await db.Usuarios.AsNoTracking().Where(u => (!u.AdminInstitucional || u.Id == actor.Usuario.Id) &&
+            ((actor.ConsultaInstitucional && escuelasActivas.Contains(u.EscuelaId)) || u.EscuelaId == actor.EscuelaId || (u.EscuelaId == "" && u.Issuer == SeguridadCuenta.Issuer))).ToArrayAsync(ct);
         var ids = users.Select(u => u.Id).ToArray(); var pids = users.Select(u => u.PersonaId).ToArray();
         var personas = await db.Personas.AsNoTracking().Where(p => pids.Contains(p.Id)).ToDictionaryAsync(p => p.Id, ct);
         var cred = await db.CredencialesCuenta.AsNoTracking().Where(c => ids.Contains(c.UsuarioId)).ToDictionaryAsync(c => c.UsuarioId, ct);
-        var mails = await db.CorreosCuenta.AsNoTracking().Where(m => ids.Contains(m.UsuarioId!)).OrderByDescending(m => m.Creado).ToArrayAsync(ct);
+        var mails = (await db.CorreosCuenta.AsNoTracking().Where(m => ids.Contains(m.UsuarioId!)).OrderByDescending(m => m.Creado).ToArrayAsync(ct))
+            .ToLookup(m => m.UsuarioId);
         return users.Select(u => {
-            var c = cred.GetValueOrDefault(u.Id); var mail = mails.FirstOrDefault(m => m.UsuarioId == u.Id);
-            return (object)new { u.Id, u.PersonaId, rol = u.Rol, identifier = u.Identificador, nombre = DocumentosService.Nombre(personas[u.PersonaId]), u.Activo, u.Version,
+            var c = cred.GetValueOrDefault(u.Id); var mail = mails[u.Id].FirstOrDefault();
+            return (object)new { u.Id, u.PersonaId, u.EscuelaId, rol = u.Rol, identifier = u.Identificador, nombre = DocumentosService.Nombre(personas[u.PersonaId]), u.Activo, u.Version,
                 verificada = c?.Verificada, cambioObligatorio = c?.CambioObligatorio ?? false, pendienteVinculacion = u.EscuelaId == "", propia = u.Id == actor.Usuario.Id,
                 correo = c?.CorreoNormalizado ?? JsonDatos.Texto(personas[u.PersonaId].DatosJson, "correo"),
                 correoEstado = mail is null ? "sin-envio" : mail.Enviado is not null ? "enviado" : mail.Cancelado is not null ? "no-entregado" : "pendiente" };
@@ -38,6 +43,7 @@ public sealed class CuentasAdminService(TutoriaDbContext db, TutoriaContext cont
     public async Task<object[]> Candidatos(string rol, string buscar, CancellationToken ct)
     {
         var actor = await Actor("crear", ct);
+        actor.ExigirEscuelaParaGestion();
         TutoriaError.Exigir(rol is "estudiante" or "tutor" or "coordinacion" && buscar.Length <= 150, "Filtros inválidos.");
         if (buscar.Trim().Length < 2) return [];
         var tipo = rol == "estudiante" ? "estudiante" : "tutor";
@@ -49,6 +55,7 @@ public sealed class CuentasAdminService(TutoriaDbContext db, TutoriaContext cont
     public async Task<CuentaCreadaDto> Crear(CrearCuentaInput input, CancellationToken ct)
     {
         var actor = await Actor("crear", ct); var email = seguridad.Correo(input.Correo);
+        actor.ExigirEscuelaParaGestion();
         TutoriaError.Exigir(input.Rol is "estudiante" or "tutor" or "coordinacion", "Elige un perfil válido.");
         TutoriaError.Exigir(input.Ciclo is null or >= 1 and <= 10 && (input.Codigo?.Length ?? 0) <= 40, "Revisa el código y ciclo del alumno.");
         await using var tx = await credenciales.Bloquear(email, ct);
@@ -93,7 +100,8 @@ public sealed class CuentasAdminService(TutoriaDbContext db, TutoriaContext cont
         var email = await db.CredencialesCuenta.Where(c => c.UsuarioId == id).Select(c => c.CorreoNormalizado).SingleOrDefaultAsync(ct) ?? throw new TutoriaError(404, "Cuenta no disponible.");
         await using var tx = await credenciales.Bloquear(email, ct);
         var user = await db.Usuarios.SingleAsync(u => u.Id == id, ct); var cred = await db.CredencialesCuenta.SingleAsync(c => c.UsuarioId == id, ct);
-        TutoriaError.Exigir(user.Id != actor.Usuario.Id && user.EscuelaId == actor.EscuelaId && user.Activo && !cred.Verificada && cred.CambioObligatorio, "Solo se renuevan accesos temporales pendientes de tu escuela.", 403);
+        actor = actor.ParaEscuela(user.EscuelaId);
+        TutoriaError.Exigir(!user.AdminInstitucional && user.Id != actor.Usuario.Id && user.EscuelaId == actor.EscuelaId && user.Activo && !cred.Verificada && cred.CambioObligatorio, "Solo se renuevan accesos temporales pendientes de tu escuela.", 403);
         TutoriaContext.Version(version, user.Version);
         var ahora = clock.GetUtcNow(); var password = "UNAS-" + Convert.ToHexString(RandomNumberGenerator.GetBytes(12));
         credenciales.CambiarPassword(cred, password); cred.TemporalHasta = ahora.AddHours(48); cred.IntentosFallidos = 0; cred.BloqueadaHasta = null; user.Version++;
@@ -106,6 +114,7 @@ public sealed class CuentasAdminService(TutoriaDbContext db, TutoriaContext cont
     public async Task Vincular(string id, int version, CancellationToken ct)
     {
         var actor = await Actor("editar", ct);
+        actor.ExigirEscuelaParaGestion();
         var email = await db.CredencialesCuenta.Where(c => c.UsuarioId == id).Select(c => c.CorreoNormalizado).SingleOrDefaultAsync(ct) ?? throw new TutoriaError(404, "Cuenta no disponible.");
         await using var tx = await credenciales.Bloquear(email, ct);
         var u = await db.Usuarios.SingleAsync(u => u.Id == id, ct); var p = await db.Personas.SingleAsync(p => p.Id == u.PersonaId, ct);
@@ -116,9 +125,13 @@ public sealed class CuentasAdminService(TutoriaDbContext db, TutoriaContext cont
     }
     public async Task Estado(string id, int version, bool activo, CancellationToken ct)
     {
-        var actor = await Actor("editar", ct); await using var tx = await context.Transaccion(actor, ct);
+        var actor = await Actor("editar", ct);
+        if (actor.ConsultaInstitucional)
+            actor = actor.ParaEscuela(await db.Usuarios.AsNoTracking().Where(u => u.Id == id).Select(u => u.EscuelaId).SingleOrDefaultAsync(ct));
+        await using var tx = await context.Transaccion(actor, ct);
         var u = await db.Usuarios.SingleOrDefaultAsync(u => u.Id == id && u.EscuelaId == actor.EscuelaId, ct) ?? throw new TutoriaError(404, "Cuenta no disponible.");
         TutoriaError.Exigir(u.Id != actor.Usuario.Id, "No puedes deshabilitar tu propia cuenta.", 409);
+        TutoriaError.Exigir(!u.AdminInstitucional, "La cuenta de administración institucional está protegida.", 403);
         TutoriaContext.Version(version, u.Version); u.Activo = activo; u.Version++;
         context.Auditar(actor, activo ? "habilitar-cuenta" : "deshabilitar-cuenta", id, u.Version); await db.SaveChangesAsync(ct); await tx.CommitAsync(ct);
     }

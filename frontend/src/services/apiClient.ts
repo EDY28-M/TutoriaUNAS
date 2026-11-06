@@ -17,9 +17,11 @@ const sessionSchema = z.object({
     identifier: z.string(),
     email: z.string(),
     personaId: z.string().optional(),
+    adminInstitucional: z.boolean().optional(),
   }),
 });
 let session: ApiSession | null = null;
+let escuelaAdministrada: string | undefined;
 try {
   const raw = sessionStorage.getItem(SESSION_KEY);
   if (raw) {
@@ -33,6 +35,7 @@ export function getApiSession() {
   return session && session.expiresAt > Date.now() ? session : null;
 }
 export function setApiSession(value: ApiSession | null, remember = true) {
+  if (value?.accessToken !== session?.accessToken) escuelaAdministrada = undefined;
   session = value;
   try {
     if (value?.user && remember) sessionStorage.setItem(SESSION_KEY, JSON.stringify(value));
@@ -40,6 +43,12 @@ export function setApiSession(value: ApiSession | null, remember = true) {
   } catch {
     /* Sesión solo en memoria. */
   }
+}
+export function seleccionarEscuelaApi(escuelaId: string | undefined) {
+  escuelaAdministrada = escuelaId;
+}
+export function rutaEscuela(path: string, escuela: string) {
+  return `${path}${path.includes('?') ? '&' : '?'}${new URLSearchParams({ ambitoEscuela: escuela })}`;
 }
 export class ApiError extends Error {
   constructor(
@@ -58,11 +67,24 @@ export async function apiJson<T>(
 ): Promise<T> {
   const baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5080';
   const current = getApiSession();
-  function comprobarCuenta() {
-    if (!path.endsWith('/login') && getApiSession()?.accessToken !== current?.accessToken)
-      throw new ApiError('La sesión cambió. Vuelve a abrir el registro.', 409);
+  const escuela = escuelaAdministrada;
+  const url = new URL(path, baseUrl);
+  if (
+    current?.user?.adminInstitucional &&
+    !url.searchParams.has('ambitoEscuela') &&
+    !url.searchParams.has('ambitoInstitucional')
+  ) {
+    if (escuela) url.searchParams.set('ambitoEscuela', escuela);
+    else url.searchParams.set('ambitoInstitucional', 'true');
   }
-  const response = await fetch(new URL(path, baseUrl), {
+  function comprobarCuenta() {
+    if (
+      !path.endsWith('/login') &&
+      (getApiSession()?.accessToken !== current?.accessToken || escuelaAdministrada !== escuela)
+    )
+      throw new ApiError('La sesión o la escuela cambió. Vuelve a abrir el registro.', 409);
+  }
+  const response = await fetch(url, {
     method,
     body: body === undefined ? undefined : JSON.stringify(body),
     credentials: 'omit',

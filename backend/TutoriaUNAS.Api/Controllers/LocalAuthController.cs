@@ -56,7 +56,7 @@ public sealed class LocalAuthController(IWebHostEnvironment environment, IConfig
         HttpContext.User = principal;
         var actor = await services.GetRequiredService<TutoriaContext>().Actor(ct);
         actor.Exigir("portal", "ver");
-        var estado = await services.GetRequiredService<EstadoTutoriaService>().Obtener(ct);
+        var estado = await services.GetRequiredService<EstadoTutoriaService>().Obtener(ct, inicioInstitucional: true);
         var options = services.GetRequiredService<IOptionsMonitor<BearerTokenOptions>>().Get(scheme);
         var now = services.GetRequiredService<TimeProvider>().GetUtcNow();
         // Mismo formato de ticket, protecciones y vigencia que el esquema BearerToken.

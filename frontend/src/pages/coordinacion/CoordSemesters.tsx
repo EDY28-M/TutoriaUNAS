@@ -4,12 +4,14 @@ import { Calendar } from '../../components/ui/Calendar';
 import type { EventoCalendario } from '../../components/ui/Calendar';
 import { Card, CardBody, CardHead } from '../../components/ui/Card';
 import { DirectoryPage } from '../../components/ui/DirectoryPage';
+import { DataTable } from '../../components/ui/DataTable';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { PageHeading } from '../../components/ui/PageHeading';
 import { Sheet } from '../../components/ui/Sheet';
 import { Badge } from '../../components/ui/StatusBadge';
 import { Tabs, TabPanel } from '../../components/ui/Tabs';
 import { semestres, semestreActual } from '../../data/catalogos';
+import { escuelaDe } from '../../data/personas';
 import { definicionesFormato } from '../../data/formatos';
 import { useSistema } from '../../hooks/useSistema';
 import { API_MODE } from '../../services/apiConfig';
@@ -74,6 +76,47 @@ export function CoordSemesters() {
           )
         }
       />
+      {!!sistema?.periodosEscuela?.length && (
+        <Card>
+          <CardHead
+            title="Periodos por escuela"
+            description="Selecciona una escuela en Ámbito para editar sus fechas."
+          />
+          <CardBody>
+            <DataTable
+              caption="Periodos tutoriales por escuela"
+              rows={sistema.periodosEscuela}
+              rowKey={(p) => p.escuelaId}
+              pagination="auto"
+              columns={[
+                {
+                  key: 'escuela',
+                  header: 'Escuela',
+                  sortable: true,
+                  sortValue: (p) => escuelaDe(p.escuelaId),
+                  render: (p) => escuelaDe(p.escuelaId),
+                },
+                { key: 'semestre', header: 'Semestre', render: (p) => p.semestreId },
+                {
+                  key: 'inicio',
+                  header: 'Inicio',
+                  render: (p) => (p.inicio ? <Fecha fecha={p.inicio} /> : '—'),
+                },
+                {
+                  key: 'fin',
+                  header: 'Fin',
+                  render: (p) => (p.fin ? <Fecha fecha={p.fin} /> : '—'),
+                },
+                {
+                  key: 'estado',
+                  header: 'Estado',
+                  render: (p) => (p.cerrado ? 'Cerrado' : 'Abierto'),
+                },
+              ]}
+            />
+          </CardBody>
+        </Card>
+      )}
       <Card>
         <CardHead
           title="Periodo académico"

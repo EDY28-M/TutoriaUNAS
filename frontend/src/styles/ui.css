@@ -597,6 +597,7 @@
 .person-cell__text small {
   color: var(--ink-600);
   font-size: 0.78rem;
+  overflow-wrap: anywhere;
 }
 
 /* ==========================================================================

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from './useAuth';
 import { useStudentNotices } from './useStudentNotices';
 import { API_MODE } from '../services/apiConfig';
+import { snapshotApi } from '../services/apiTutoria';
 import { useSessionAttendance } from './useSessionAttendance';
 import { resolverSesiones } from '../services/sessionWorkspace';
 import { useScheduledSessions } from './useScheduledSessions';
@@ -64,6 +65,7 @@ export interface Portal {
   contadores: Contadores;
   /** Ámbito institucional: escuela del estudiante o del tutor. */
   escuelaId: string;
+  institucional: boolean;
   avisosSinLeer: number;
   notificaciones: Notificacion[];
 }
@@ -77,6 +79,8 @@ export function usePortal(): Portal {
   const avisosEstudiante = useStudentNotices();
   const role = user?.role ?? 'estudiante';
   const userId = user?.id ?? '';
+  const escuelaActiva = API_MODE ? snapshotApi().datos?.escuelaId : undefined;
+  const institucional = API_MODE && snapshotApi().datos?.consultaInstitucional === true;
   const { registros: todosInstrumentos, momento } = useInstrumentWorkspace();
   const registrosAsistencia = useSessionAttendance();
   const programadas = useScheduledSessions();
@@ -169,7 +173,7 @@ export function usePortal(): Portal {
     ).length;
 
     const tutor = asignacion ? (docentePorId(asignacion.tutorId) ?? null) : null;
-    const escuelaId = estudiante?.escuelaId ?? doc?.escuelaId ?? 'E-IIS';
+    const escuelaId = escuelaActiva ?? estudiante?.escuelaId ?? doc?.escuelaId ?? 'E-IIS';
 
     return {
       estudiante,
@@ -191,6 +195,7 @@ export function usePortal(): Portal {
         ).length,
       },
       escuelaId,
+      institucional,
       avisosSinLeer,
       notificaciones: notificacionesVisibles,
     };
@@ -198,6 +203,8 @@ export function usePortal(): Portal {
     role,
     userId,
     user?.personaId,
+    escuelaActiva,
+    institucional,
     todosInstrumentos,
     momento,
     registrosAsistencia,

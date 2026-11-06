@@ -194,6 +194,13 @@ institucionales verificadas usan su propio esquema protegido y se habilitan expr
 Authority/Audience y vincular su `iss/sub` con usuarios, personas y roles activos de la base;
 su SSO sigue pendiente. El padrón real autorizado ya está cargado.
 
+La cuenta local `coordinacion.tutoria` tiene alcance de administración institucional.
+El portal abre en **Todas las escuelas** para administración. **Ámbito** permite consultar una
+escuela concreta. Las gestiones sobre registros existentes usan la escuela del registro, y las
+altas de asignaciones usan la escuela del estudiante. Para crear cuentas, redactar avisos o
+configurar un periodo se elige la escuela de destino.
+Las demás cuentas de coordinación operan dentro de su escuela.
+
 El esquema se aplica con scripts SQL versionados y checksum (`SchemaRunner`); el primer
 script proviene del modelo EF Core. Un script ya aplicado no se modifica: los cambios
 posteriores requieren otro script. El arranque local aplica migraciones y semilla solo con

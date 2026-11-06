@@ -59,7 +59,11 @@ function CoordPanel({ scope }: { scope: DashboardScopeData }) {
       <PageHeading
         eyebrow="Coordinación"
         title="Resumen de tutoría"
-        description="Revisa las sesiones, los formularios y las tareas pendientes de todas las escuelas."
+        description={
+          portal.institucional
+            ? 'Sesiones, formularios y tareas de todas las escuelas.'
+            : 'Sesiones, formularios y tareas de la escuela seleccionada.'
+        }
         actions={
           <>
             {scope.filtros}
@@ -149,9 +153,7 @@ function CoordPanel({ scope }: { scope: DashboardScopeData }) {
                 {porEscuela.map((e) => (
                   <li key={e.id}>
                     <div className="dashboard-school__name">
-                      <span title={e.nombre}>
-                        <b>{e.abreviatura}</b> {e.nombre}
-                      </span>
+                      <span title={e.nombre}>{e.nombre}</span>
                       <small>
                         {e.atendidos}/{e.asignados}
                       </small>

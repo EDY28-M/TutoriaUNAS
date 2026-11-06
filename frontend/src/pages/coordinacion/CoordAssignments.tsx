@@ -32,9 +32,10 @@ import { Sheet } from '../../components/ui/Sheet';
 import { SearchableSelect } from '../../components/ui/SearchableSelect';
 import { Badge, StatusBadge } from '../../components/ui/StatusBadge';
 import { escuelas, semestreActual } from '../../data/catalogos';
-import { abreviaturaEscuela, docentePorId, iniciales, nombreCompleto } from '../../data/personas';
+import { escuelaDe, docentePorId, iniciales, nombreCompleto } from '../../data/personas';
 import { asignaciones } from '../../data/tutoria';
 import { usePortal } from '../../hooks/usePortal';
+import { useSistema } from '../../hooks/useSistema';
 import { usePersonasPortal } from '../../hooks/usePersonasPortal';
 import { API_MODE } from '../../services/apiConfig';
 import { asignarTutorApi } from '../../services/apiTutoria';
@@ -87,6 +88,7 @@ interface CambioRegistrado extends CambioTutor {
 export function CoordAssignments() {
   const portal = usePortal();
   const { estudiantes, docentes } = usePersonasPortal();
+  const periodos = useSistema()?.periodosEscuela;
   const idFormulario = useId();
 
   const [registrosLocales, setRegistros] = useState<Asignacion[]>(() =>
@@ -104,8 +106,6 @@ export function CoordAssignments() {
   // —— Formulario de alta ——
   const [nuevoEstudiante, setNuevoEstudiante] = useState('');
   const [nuevoTutor, setNuevoTutor] = useState('');
-  const [nuevoCriterio, setNuevoCriterio] =
-    useState<Asignacion['criterio']>('asignación directiva');
   const [nuevoGrupo, setNuevoGrupo] = useState('');
   const [nuevaReferencia, setNuevaReferencia] = useState('');
 
@@ -133,7 +133,9 @@ export function CoordAssignments() {
       {
         id: 'escuela',
         etiqueta: 'Escuela',
-        opciones: escuelas.map((escuela) => ({ valor: escuela.id, etiqueta: escuela.abreviatura })),
+        opciones: escuelas
+          .filter((escuela) => !API_MODE || portal.institucional || escuela.id === portal.escuelaId)
+          .map((escuela) => ({ valor: escuela.id, etiqueta: escuela.nombre })),
         valorDe: (asignacion) => asignacion.escuelaId,
       },
       {
@@ -164,31 +166,31 @@ export function CoordAssignments() {
         valorDe: (asignacion) => asignacion.estado,
       },
     ],
-    [docentes],
+    [docentes, portal.escuelaId, portal.institucional],
   );
 
   const filtro = useFiltro(registros, buscarEn, selects);
 
-  const activas = registros.filter((asignacion) => asignacion.estado === 'activa');
+  const activas = useMemo(() => {
+    const porEscuela = new Map(periodos?.map((p) => [p.escuelaId, p.semestreId]));
+    return registros.filter(
+      (a) =>
+        a.estado === 'activa' && a.semestreId === (porEscuela.get(a.escuelaId) ?? semestreActual),
+    );
+  }, [periodos, registros]);
   const tutoresConTutorados = new Set(activas.map((asignacion) => asignacion.tutorId)).size;
-  const sinTutor = estudiantes.filter(
-    (estudiante) => !activas.some((asignacion) => asignacion.estudianteId === estudiante.id),
-  ).length;
-
-  const estudiantesSinAsignar = useMemo(
-    () =>
-      [...estudiantes]
-        .filter(
-          (estudiante) => !activas.some((asignacion) => asignacion.estudianteId === estudiante.id),
-        )
-        .sort((a, b) => a.apellidos.localeCompare(b.apellidos, 'es')),
-    [activas, estudiantes],
-  );
+  const estudiantesSinAsignar = useMemo(() => {
+    const asignados = new Set(activas.map((a) => a.estudianteId));
+    return estudiantes
+      .filter((e) => !asignados.has(e.id))
+      .sort((a, b) => a.apellidos.localeCompare(b.apellidos, 'es'));
+  }, [activas, estudiantes]);
+  const sinTutor = estudiantesSinAsignar.length;
 
   const tutoresDisponibles = useMemo(
     () =>
       [...docentes]
-        .filter((docente) => docente.activo)
+        .filter((docente) => docente.activo && docente.escuelaId)
         .sort((a, b) => a.apellidos.localeCompare(b.apellidos, 'es')),
     [docentes],
   );
@@ -204,9 +206,15 @@ export function CoordAssignments() {
   const estudianteElegido = nuevoEstudiante
     ? estudiantes.find((item) => item.id === nuevoEstudiante)
     : undefined;
+  const tutoresParaAlta = estudianteElegido
+    ? tutoresDisponibles.filter((docente) => docente.escuelaId === estudianteElegido.escuelaId)
+    : tutoresDisponibles;
 
   const puedeRegistrar = Boolean(
-    nuevoEstudiante && nuevoTutor && nuevaReferencia.trim() && cuposLibres > 0,
+    estudianteElegido &&
+    docenteElegido?.escuelaId === estudianteElegido.escuelaId &&
+    nuevaReferencia.trim() &&
+    cuposLibres > 0,
   );
 
   const asignacionEnCambio = cambioAbierto;
@@ -261,7 +269,7 @@ export function CoordAssignments() {
       fechaInicio: HOY_ISO,
       fechaFin: null,
       estado: 'activa',
-      criterio: nuevoCriterio,
+      criterio: 'asignación directiva',
       referenciaAprobacion: nuevaReferencia.trim(),
       historial: [
         {
@@ -277,12 +285,11 @@ export function CoordAssignments() {
     setAviso(
       `Asignación registrada: ${estudianteElegido.apellidos}, ${estudianteElegido.nombres} con ${
         tutor ? `${tutor.apellidos}, ${tutor.nombres}` : 'el tutor seleccionado'
-      } (${etiquetaCriterio(nuevoCriterio)}).`,
+      }.`,
     );
     setAltaAbierta(false);
     setNuevoEstudiante('');
     setNuevoTutor('');
-    setNuevoCriterio('asignación directiva');
     setNuevoGrupo('');
     setNuevaReferencia('');
   }
@@ -365,7 +372,7 @@ export function CoordAssignments() {
       filas.push([
         estudiante?.codigo ?? asignacion.estudianteId,
         estudiante ? `${estudiante.apellidos}, ${estudiante.nombres}` : '—',
-        abreviaturaEscuela(asignacion.escuelaId),
+        escuelaDe(asignacion.escuelaId),
         tutor ? `${tutor.apellidos}, ${tutor.nombres}` : 'Sin tutor',
         asignacion.grupo ?? '—',
         etiquetaCriterio(asignacion.criterio),
@@ -394,7 +401,7 @@ export function CoordAssignments() {
           <PersonCell
             nombres={estudiante.nombres}
             apellidos={estudiante.apellidos}
-            detalle={`${estudiante.codigo} · ${abreviaturaEscuela(asignacion.escuelaId)}`}
+            detalle={`${estudiante.codigo} · ${escuelaDe(asignacion.escuelaId)}`}
             iniciales={iniciales(estudiante)}
           />
         ) : (
@@ -471,7 +478,7 @@ export function CoordAssignments() {
   return (
     <DirectoryPage>
       <PageHeading
-        eyebrow={`Coordinación de tutoría · ${abreviaturaEscuela(portal.escuelaId)} · Semestre ${semestreActual}`}
+        eyebrow={`Coordinación de tutoría · ${portal.institucional ? 'Todas las escuelas' : escuelaDe(portal.escuelaId)}`}
         title="Asignar tutores"
         description="Organiza las asignaciones y la cobertura del semestre."
         actions={
@@ -535,7 +542,11 @@ export function CoordAssignments() {
       <Card>
         <CardHead
           title="Asignaciones del semestre"
-          actions={<span className="directory-result">Semestre {semestreActual}</span>}
+          actions={
+            <span className="directory-result">
+              {portal.institucional ? 'Todas las escuelas' : `Semestre ${semestreActual}`}
+            </span>
+          }
         />
         <CardBody>
           <div className="stack">
@@ -650,7 +661,7 @@ export function CoordAssignments() {
             <div>
               <dt>Escuela / grupo</dt>
               <dd>
-                {abreviaturaEscuela(detalle.escuelaId)} · {detalle.grupo ?? 'Sin grupo'}
+                {escuelaDe(detalle.escuelaId)} · {detalle.grupo ?? 'Sin grupo'}
               </dd>
             </div>
             <div>
@@ -765,47 +776,35 @@ export function CoordAssignments() {
                 options={estudiantesSinAsignar.map((estudiante) => ({
                   value: estudiante.id,
                   label: `${estudiante.apellidos}, ${estudiante.nombres}`,
-                  description: `${estudiante.codigo} · Ciclo ${estudiante.ciclo ?? 'sin informar'}`,
+                  description: `${estudiante.codigo} · ${escuelaDe(estudiante.escuelaId)}`,
                 }))}
                 value={nuevoEstudiante}
-                onChange={setNuevoEstudiante}
+                onChange={(id) => {
+                  setNuevoEstudiante(id);
+                  if (estudiantes.find((e) => e.id === id)?.escuelaId !== docenteElegido?.escuelaId)
+                    setNuevoTutor('');
+                }}
                 required
                 autoFocus={false}
+                limiteResultados={portal.institucional ? 50 : undefined}
               />
               <SearchableSelect
                 label="Docente tutor"
                 placeholder="Buscar por nombre o código"
-                options={tutoresDisponibles.map((docente) => ({
+                options={tutoresParaAlta.map((docente) => ({
                   value: docente.id,
                   label: `${docente.apellidos}, ${docente.nombres}`,
-                  description: `${docente.codigo} · ${abreviaturaEscuela(docente.escuelaId)}`,
+                  description: `${docente.codigo} · ${escuelaDe(docente.escuelaId)}`,
                 }))}
                 value={nuevoTutor}
                 onChange={setNuevoTutor}
                 required
                 autoFocus={false}
                 tipoResultado="docente"
+                limiteResultados={portal.institucional ? 50 : undefined}
               />
             </div>
             <div className="field-grid">
-              <div className="field">
-                <label htmlFor={`${idFormulario}-criterio`}>Criterio de asignación</label>
-                <select
-                  id={`${idFormulario}-criterio`}
-                  className="select"
-                  value={nuevoCriterio}
-                  onChange={(evento) =>
-                    setNuevoCriterio(evento.target.value as Asignacion['criterio'])
-                  }
-                >
-                  {CRITERIOS.map((criterio) => (
-                    <option key={criterio} value={criterio}>
-                      {etiquetaCriterio(criterio)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
               <div className="field">
                 <label htmlFor={`${idFormulario}-grupo`}>
                   Grupo <span className="assignment-optional">· Opcional</span>
@@ -818,19 +817,18 @@ export function CoordAssignments() {
                   placeholder="Ej.: G-IIS-2"
                 />
               </div>
-            </div>
-
-            <div className="field">
-              <label htmlFor={`${idFormulario}-referencia`}>
-                Referencia de aprobación <span className="field__required">*</span>
-              </label>
-              <input
-                id={`${idFormulario}-referencia`}
-                className="input"
-                value={nuevaReferencia}
-                onChange={(evento) => setNuevaReferencia(evento.target.value)}
-                placeholder="Acta de asignación tutorial · 2026-II"
-              />
+              <div className="field">
+                <label htmlFor={`${idFormulario}-referencia`}>
+                  Referencia de aprobación <span className="field__required">*</span>
+                </label>
+                <input
+                  id={`${idFormulario}-referencia`}
+                  className="input"
+                  value={nuevaReferencia}
+                  onChange={(evento) => setNuevaReferencia(evento.target.value)}
+                  placeholder="Acta de asignación tutorial · 2026-II"
+                />
+              </div>
             </div>
 
             {docenteElegido && (

@@ -7,6 +7,12 @@
   display: grid;
   gap: 6px;
 }
+.padron-page {
+  gap: 14px;
+}
+.padron-page .directory-controls {
+  padding-bottom: 0;
+}
 .padron-page a {
   overflow-wrap: anywhere;
 }

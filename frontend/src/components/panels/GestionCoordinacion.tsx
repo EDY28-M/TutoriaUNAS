@@ -5,7 +5,7 @@ import { usePermiso } from '../../hooks/usePermiso';
 import { usePortal } from '../../hooks/usePortal';
 import { mutarSistema } from '../../services/apiSistema';
 import { semestreActual, semestres } from '../../data/catalogos';
-import { docentes, estudiantePorId, nombreCompleto } from '../../data/personas';
+import { docentes, escuelaDe, estudiantePorId, nombreCompleto } from '../../data/personas';
 import type {
   ActividadPersistida,
   PeriodoConfiguracion,
@@ -90,7 +90,9 @@ export function EditorActividad({
           meta: '',
           fechaInicio: periodo?.inicio ?? sem?.inicio ?? '',
           fechaFin: periodo?.fin ?? sem?.fin ?? '',
-          responsableId: docentes.find((d) => d.escuelaId === escuelaId && d.activo)?.id ?? '',
+          responsableId: escuelaId
+            ? (docentes.find((d) => d.escuelaId === escuelaId && d.activo)?.id ?? '')
+            : '',
           evidencia: '',
           aprobacion: '',
           avance: 0,
@@ -164,11 +166,13 @@ export function EditorActividad({
             label="Responsable"
             placeholder="Buscar docente"
             options={docentes
-              .filter((d) => d.escuelaId === escuelaId && d.activo)
+              .filter(
+                (d) => d.activo && (escuelaId ? d.escuelaId === escuelaId : Boolean(d.escuelaId)),
+              )
               .map((d) => ({
                 value: d.id,
                 label: nombreCompleto(d),
-                description: d.codigo,
+                description: `${d.codigo} · ${escuelaDe(d.escuelaId)}`,
               }))}
             value={datos.responsableId}
             onChange={(responsableId) => setDatos((d) => ({ ...d, responsableId }))}
@@ -275,9 +279,12 @@ export function SolicitudesCambioPendientes() {
             <EditorSolicitud
               key={elegida.id}
               solicitud={elegida}
-              escuelaId={portal.escuelaId}
+              escuelaId={elegida.escuelaId}
               asignacionVersion={
-                portal.tutorados.find((a) => a.estudianteId === elegida.estudianteId)?.version ?? 0
+                portal.tutorados.find(
+                  (a) =>
+                    a.estudianteId === elegida.estudianteId && a.semestreId === elegida.semestreId,
+                )?.version ?? 0
               }
               onCerrar={() => setElegida(null)}
             />

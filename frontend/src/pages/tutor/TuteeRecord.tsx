@@ -29,7 +29,7 @@ import { usePortal } from '../../hooks/usePortal';
 import { definicionPorCodigo } from '../../data/formatos';
 import { areasDerivacion, semestreActual } from '../../data/catalogos';
 import {
-  abreviaturaEscuela,
+  escuelaDe,
   docentePorId,
   estudiantePorId,
   iniciales,
@@ -284,7 +284,7 @@ export function TuteeRecord() {
   return (
     <>
       <PageHeading
-        eyebrow={`Expediente tutorial · ${abreviaturaEscuela(estudiante.escuelaId)} · Semestre ${semestreActual}`}
+        eyebrow={`Expediente tutorial · ${escuelaDe(estudiante.escuelaId)} · Semestre ${semestreActual}`}
         title={nombreCompleto(estudiante)}
         description={`Código ${estudiante.codigo} · ciclo ${estudiante.ciclo ?? 'sin informar'} (${etiquetaEtapa(estudiante.etapa) ?? 'etapa por definir'}) · ${asignacion?.grupo ?? 'sin grupo'} · datos consultados al ${formatFecha(HOY_ISO)}.`}
         actions={

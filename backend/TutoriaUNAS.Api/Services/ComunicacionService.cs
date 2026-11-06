@@ -10,7 +10,10 @@ public sealed class ComunicacionService(TutoriaDbContext db, TutoriaContext cont
 {
     public async Task Eliminar(string id, int version, CancellationToken ct)
     {
-        var actor = await context.Actor(ct); await using var tx = await context.Transaccion(actor, ct);
+        var actor = await context.Actor(ct);
+        if (actor.ConsultaInstitucional)
+            actor = actor.ParaEscuela(await db.Mensajes.AsNoTracking().Where(m => m.Id == id && m.EmisorId == actor.Usuario.Id).Select(m => m.EscuelaId).SingleOrDefaultAsync(ct));
+        await using var tx = await context.Transaccion(actor, ct);
         var m = await db.Mensajes.Include(m => m.Destinatarios).SingleOrDefaultAsync(m => m.Id == id && m.EmisorId == actor.Usuario.Id && m.EscuelaId == actor.EscuelaId, ct) ?? throw new TutoriaError(404, "Aviso no disponible.");
         TutoriaContext.Version(version, m.Version);
         TutoriaError.Exigir(m.Estado is "borrador" or "programado" or "fallido", "Un aviso publicado se conserva en el historial.", 409);
@@ -19,7 +22,11 @@ public sealed class ComunicacionService(TutoriaDbContext db, TutoriaContext cont
     }
     public async Task<string> Guardar(string? id, MensajeInput r, CancellationToken ct)
     {
-        var actor = await context.Actor(ct); await using var tx = await context.Transaccion(actor, ct);
+        var actor = await context.Actor(ct);
+        if (actor.ConsultaInstitucional && id is not null)
+            actor = actor.ParaEscuela(await db.Mensajes.AsNoTracking().Where(m => m.Id == id && m.EmisorId == actor.Usuario.Id).Select(m => m.EscuelaId).SingleOrDefaultAsync(ct));
+        actor.ExigirEscuelaParaGestion();
+        await using var tx = await context.Transaccion(actor, ct);
         TutoriaError.Exigir(actor.Rol is "tutor" or "coordinacion", "Solo tutoría y coordinación pueden redactar avisos.", 403);
         TutoriaError.Exigir(r.Asunto.Trim().Length is >= 3 and <= 200 && r.Cuerpo.Trim().Length is >= 3 and <= 10000 && r.Plantilla.Length <= 100 && r.Canal is "sistema" or "correo" && r.Estado is "borrador" or "enviado" or "programado", "Revisa el asunto, contenido, canal y estado del aviso.");
         TutoriaError.Exigir(r.Estado == "borrador" || r.Canal == "sistema", "El envío de correo externo no está configurado. Guarda un borrador o publica por el sistema.", 409);
@@ -53,7 +60,7 @@ public sealed class ComunicacionService(TutoriaDbContext db, TutoriaContext cont
     }
     public static async Task Notificar(TutoriaDbContext db, TutoriaContext context, string escuela, string[] personas, string rol, string evento, string tipo, string titulo, string detalle, string enlace, CancellationToken ct)
     {
-        foreach (var u in await db.Usuarios.Where(u => u.EscuelaId == escuela && u.Rol == rol && (personas.Length == 0 || personas.Contains(u.PersonaId))).ToArrayAsync(ct))
+        foreach (var u in await db.Usuarios.Where(u => (u.EscuelaId == escuela || (rol == "coordinacion" && u.AdminInstitucional && u.Activo)) && u.Rol == rol && (personas.Length == 0 || personas.Contains(u.PersonaId))).ToArrayAsync(ct))
         {
             if (db.Notificaciones.Local.Any(n => n.UsuarioId == u.Id && n.Evento == evento) || await db.Notificaciones.AnyAsync(n => n.UsuarioId == u.Id && n.Evento == evento, ct)) continue;
             db.Notificaciones.Add(new() { Id = "NOT-" + Guid.NewGuid(), UsuarioId = u.Id, Evento = evento, Tipo = tipo, Titulo = titulo, Detalle = detalle, Enlace = enlace, Fecha = context.Ahora });
@@ -92,7 +99,9 @@ public sealed class PublicadorAvisos(IServiceScopeFactory scopes, ILogger<Public
             if (m.Estado != "programado" || m.ProgramadoPara > ahora) continue;
             var emisor = await db.Usuarios.SingleAsync(u => u.Id == m.EmisorId, ct);
             var permiso = await db.Permisos.FindAsync([emisor.Rol, "comunicacion"], ct);
-            var permitido = emisor.Activo && permiso is not null && JsonDatos.Leer<string[]>(permiso.AccionesJson).Contains("crear");
+            var permitido = emisor.Activo &&
+                (emisor.EscuelaId == m.EscuelaId || (emisor.Rol == "coordinacion" && emisor.AdminInstitucional)) &&
+                permiso is not null && JsonDatos.Leer<string[]>(permiso.AccionesJson).Contains("crear");
             foreach (var d in m.Destinatarios)
             {
                 var usuario = await db.Usuarios.SingleAsync(u => u.Id == d.UsuarioId, ct);

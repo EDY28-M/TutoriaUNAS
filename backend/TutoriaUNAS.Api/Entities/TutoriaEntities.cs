@@ -20,6 +20,7 @@ public sealed class UsuarioEntity
     public string EscuelaId { get; set; } = "";
     public string Identificador { get; set; } = "";
     public string? PasswordHashDesarrollo { get; set; }
+    public bool AdminInstitucional { get; set; }
     public bool Activo { get; set; } = true;
 }
 public sealed class PeriodoEntity

@@ -12,6 +12,7 @@ interface TopbarProps {
   menuOpen: boolean;
   menuExpanded: boolean;
   onToggleMenu(): void;
+  scopeHostRef(element: HTMLDivElement | null): void;
 }
 interface Resultado {
   id: string;
@@ -20,7 +21,7 @@ interface Resultado {
   destino: string;
 }
 
-export function Topbar({ menuOpen, menuExpanded, onToggleMenu }: TopbarProps) {
+export function Topbar({ menuOpen, menuExpanded, onToggleMenu, scopeHostRef }: TopbarProps) {
   const { user, logout } = useAuth();
   const portal = usePortal();
   const { pathname, search } = useLocation();
@@ -269,6 +270,7 @@ export function Topbar({ menuOpen, menuExpanded, onToggleMenu }: TopbarProps) {
           </div>
         )}
       </div>
+      <div className="topbar__scope" ref={scopeHostRef} />
       <div className="topbar__actions">
         <button
           type="button"

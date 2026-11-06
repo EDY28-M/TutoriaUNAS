@@ -44,18 +44,6 @@ interface Props {
 const presente = (valor: unknown) => valor !== null && valor !== undefined && valor !== '';
 const capital = (texto: string) => texto.charAt(0) + texto.slice(1).toLowerCase();
 
-/** «1580, 1581, 1582, 1590» → «1580–1582, 1590». */
-function rangos(numeros: number[]): string {
-  const orden = [...new Set(numeros)].sort((a, b) => a - b);
-  const tramos: string[] = [];
-  for (let i = 0; i < orden.length; i++) {
-    const desde = orden[i]!;
-    while (i + 1 < orden.length && orden[i + 1] === orden[i]! + 1) i++;
-    tramos.push(orden[i] === desde ? String(desde) : `${desde}–${orden[i]}`);
-  }
-  return tramos.join(', ');
-}
-
 /** Fila de datos: [etiqueta, valor, monoespaciado, ocupa las dos columnas]. */
 type FilaDato = [string, ReactNode, boolean?, boolean?];
 
@@ -183,22 +171,6 @@ export function FichaEstudiante({
       ].filter((c) => presente(c.valor))
     : [];
 
-  const apellidos =
-    persona.apellidoPaterno || persona.apellidoMaterno
-      ? null
-      : (persona.apellidos as string | undefined);
-  const origen = persona.origen;
-  const fuente = origen
-    ? [
-        origen.archivo,
-        origen.hoja && `hoja ${origen.hoja}`,
-        origen.filas?.length &&
-          `${origen.filas.length === 1 ? 'fila' : 'filas'} ${rangos(origen.filas)}`,
-      ]
-        .filter(Boolean)
-        .join(' · ')
-    : '';
-
   const carga = cargaSemanal(cursos.flatMap((c) => c.franjas));
   const pestanas = [
     { id: 'ficha-datos', label: 'Datos' },
@@ -237,11 +209,6 @@ export function FichaEstudiante({
         <TabPanel id="ficha-datos" activo={pestana}>
           <Datos
             filas={[
-              ['Apellido paterno', persona.apellidoPaterno],
-              ['Apellido materno', persona.apellidoMaterno],
-              ['Apellidos', apellidos],
-              ['Nombres', persona.nombres],
-              ['Código', persona.codigo, true],
               ['Celular', persona.telefono],
               ...(esDocente
                 ? ([
@@ -263,7 +230,6 @@ export function FichaEstudiante({
               ['Escuela', persona.escuelaId && escuelaDe(persona.escuelaId), false, true],
             ]}
           />
-          {fuente && <p className="fe-nota">Importado de {fuente}</p>}
         </TabPanel>
 
         <TabPanel id="ficha-cursos" activo={pestana}>

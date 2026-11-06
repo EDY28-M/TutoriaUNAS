@@ -29,18 +29,15 @@ import {
 import { DirectoryToolbar } from '../../components/ui/DirectoryToolbar';
 import type { DefinicionSelect } from '../../hooks/useFiltro';
 import { usePortal } from '../../hooks/usePortal';
+import type { Portal } from '../../hooks/usePortal';
 import { usePersonasPortal } from '../../hooks/usePersonasPortal';
+import { useSistema } from '../../hooks/useSistema';
+import { API_MODE } from '../../services/apiConfig';
 import { AccionesCuentas } from '../../components/panels/AccionesCuentas';
 import type { Docente } from '../../types/domain';
-import {
-  abreviaturaEscuela,
-  comisionTutoria,
-  escuelaDe,
-  iniciales,
-  nombreCompleto,
-} from '../../data/personas';
+import { comisionTutoria, escuelaDe, iniciales, nombreCompleto } from '../../data/personas';
 import { escuelas, semestreActual } from '../../data/catalogos';
-import { asignaciones, bloquesDeTutor, nombreTutor, sesionesDeTutor } from '../../data/tutoria';
+import { bloquesDeTutor, nombreTutor } from '../../data/tutoria';
 import { horariosDocentes, nombreCurso } from '../../data/academico';
 import { DIAS_SEMANA, formatFecha, formatHora } from '../../utils/fechas';
 
@@ -55,12 +52,12 @@ interface FilaTutor {
 }
 
 /** Calcula los indicadores del docente tutor para el semestre en curso. */
-function filaDeTutor(docente: Docente): FilaTutor {
-  const activas = asignaciones.filter(
-    (asignacion) => asignacion.tutorId === docente.id && asignacion.estado === 'activa',
+function filaDeTutor(docente: Docente, portal: Portal, semestre: string): FilaTutor {
+  const activas = portal.tutorados.filter(
+    (a) => a.tutorId === docente.id && a.estado === 'activa' && a.semestreId === semestre,
   );
-  const sesiones = sesionesDeTutor(docente.id).filter(
-    (sesion) => sesion.semestreId === semestreActual,
+  const sesiones = portal.sesiones.filter(
+    (sesion) => sesion.tutorId === docente.id && sesion.semestreId === semestre,
   );
   return {
     docente,
@@ -84,16 +81,18 @@ function diaLargo(dia: number): string {
  */
 export function CoordTutors() {
   const portal = usePortal();
+  const periodos = useSistema()?.periodosEscuela;
   const { estudiantes, docentes } = usePersonasPortal();
   const [detalle, setDetalle] = useState<Docente | null>(null);
 
-  const filas = useMemo<FilaTutor[]>(
-    () =>
-      docentes
-        .map((docente) => filaDeTutor(docente))
-        .sort((a, b) => a.docente.apellidos.localeCompare(b.docente.apellidos, 'es')),
-    [docentes],
-  );
+  const filas = useMemo<FilaTutor[]>(() => {
+    const porEscuela = new Map(periodos?.map((p) => [p.escuelaId, p.semestreId]));
+    return docentes
+      .map((docente) =>
+        filaDeTutor(docente, portal, porEscuela.get(docente.escuelaId) ?? semestreActual),
+      )
+      .sort((a, b) => a.docente.apellidos.localeCompare(b.docente.apellidos, 'es'));
+  }, [docentes, periodos, portal]);
 
   const buscarEn = useCallback(
     (fila: FilaTutor) =>
@@ -103,7 +102,7 @@ export function CoordTutors() {
         fila.docente.nombres,
         fila.docente.correo,
         fila.docente.departamento,
-        abreviaturaEscuela(fila.docente.escuelaId),
+        escuelaDe(fila.docente.escuelaId),
       ].join(' '),
     [],
   );
@@ -113,7 +112,9 @@ export function CoordTutors() {
       {
         id: 'escuela',
         etiqueta: 'Escuela',
-        opciones: escuelas.map((escuela) => ({ valor: escuela.id, etiqueta: escuela.abreviatura })),
+        opciones: escuelas
+          .filter((escuela) => !API_MODE || portal.institucional || escuela.id === portal.escuelaId)
+          .map((escuela) => ({ valor: escuela.id, etiqueta: escuela.nombre })),
         valorDe: (fila) => fila.docente.escuelaId,
       },
       {
@@ -148,7 +149,7 @@ export function CoordTutors() {
         valorDe: (fila) => fila.docente.dedicacion ?? '',
       },
     ],
-    [],
+    [portal.escuelaId, portal.institucional],
   );
 
   const filtro = useFiltro(filas, buscarEn, selects);
@@ -160,10 +161,13 @@ export function CoordTutors() {
   const ocupacionGlobal = aforoTotal ? Math.round((aforoUsado / aforoTotal) * 100) : 0;
   const sinHorario = activos.filter((fila) => fila.bloques === 0);
 
-  const detalleFila = detalle ? filaDeTutor(detalle) : null;
+  const detalleFila = filas.find((fila) => fila.docente.id === detalle?.id);
+  const semestreDetalle =
+    periodos?.find((p) => p.escuelaId === detalle?.escuelaId)?.semestreId ?? semestreActual;
   const tutoradosDelDetalle = detalle
-    ? asignaciones.filter(
-        (asignacion) => asignacion.tutorId === detalle.id && asignacion.estado === 'activa',
+    ? portal.tutorados.filter(
+        (a) =>
+          a.tutorId === detalle.id && a.estado === 'activa' && a.semestreId === semestreDetalle,
       )
     : [];
   const bloquesDelDetalle = detalle ? bloquesDeTutor(detalle.id) : [];
@@ -181,7 +185,7 @@ export function CoordTutors() {
         <PersonCell
           nombres={fila.docente.nombres}
           apellidos={fila.docente.apellidos}
-          detalle={`${fila.docente.codigo} · ${abreviaturaEscuela(fila.docente.escuelaId)}`}
+          detalle={`${fila.docente.codigo} · ${escuelaDe(fila.docente.escuelaId)}`}
           iniciales={iniciales(fila.docente)}
         />
       ),
@@ -262,7 +266,7 @@ export function CoordTutors() {
   return (
     <DirectoryPage>
       <PageHeading
-        eyebrow={`Coordinación de tutoría · ${abreviaturaEscuela(portal.escuelaId)} · Semestre ${semestreActual}`}
+        eyebrow={`Coordinación de tutoría · ${portal.institucional ? 'Todas las escuelas' : escuelaDe(portal.escuelaId)}`}
         title="Tutores"
         description="Equipo docente, disponibilidad y atención tutorial."
         actions={
@@ -312,7 +316,11 @@ export function CoordTutors() {
       <Card>
         <CardHead
           title="Directorio de tutores"
-          actions={<span className="directory-result">Semestre {semestreActual}</span>}
+          actions={
+            <span className="directory-result">
+              {portal.institucional ? 'Todas las escuelas' : `Semestre ${semestreActual}`}
+            </span>
+          }
         />
         <CardBody>
           <div className="stack">
@@ -434,7 +442,7 @@ export function CoordTutors() {
                   <div className="ui-row ui-row--between ui-row--wrap" key={fila.docente.id}>
                     <span className="small">
                       <strong>{nombreCompleto(fila.docente)}</strong>
-                      <span className="muted"> · {abreviaturaEscuela(fila.docente.escuelaId)}</span>
+                      <span className="muted"> · {escuelaDe(fila.docente.escuelaId)}</span>
                     </span>
                     {fila.bloques ? (
                       <Badge tone="ok">{fila.bloques} bloque(s)</Badge>

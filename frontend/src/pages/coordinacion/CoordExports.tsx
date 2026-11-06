@@ -18,12 +18,7 @@ import { useInstrumentWorkspace } from '../../hooks/useInstrumentWorkspace';
 import { definicionesFormato } from '../../data/formatos';
 import { muestrasFormatos } from '../../data/muestrasFormatos';
 import { semestreActual } from '../../data/catalogos';
-import {
-  abreviaturaEscuela,
-  docentePorId,
-  estudiantePorId,
-  nombreCompleto,
-} from '../../data/personas';
+import { escuelaDe, docentePorId, estudiantePorId, nombreCompleto } from '../../data/personas';
 import type { CodigoFormato, Estudiante } from '../../types/domain';
 import { esCierre } from '../../utils/cierreSemestre';
 import type { ResumenCierre } from '../../utils/cierreSemestre';
@@ -149,7 +144,7 @@ export function CoordExports() {
     const etiqueta = [
       esCierre(resumen.momento) ? 'cierre' : 'avance',
       semestreId,
-      escuelaId ? abreviaturaEscuela(escuelaId) : 'todas-las-escuelas',
+      escuelaId ? escuelaDe(escuelaId) : 'todas-las-escuelas',
       tutorId ? (docentePorId(tutorId)?.codigo ?? tutorId) : '',
     ].join(' ');
     setImpresion({

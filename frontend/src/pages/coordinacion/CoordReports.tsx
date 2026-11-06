@@ -23,7 +23,7 @@ import { Stat } from '../../components/ui/Stat';
 import { Badge, StatusBadge } from '../../components/ui/StatusBadge';
 import { areasDerivacion, escuelas, semestreActual, semestres } from '../../data/catalogos';
 import { estadosDerivacionAbiertos } from '../../data/derivaciones';
-import { abreviaturaEscuela, docentePorId, escuelaDe } from '../../data/personas';
+import { docentePorId, escuelaDe } from '../../data/personas';
 import { actividadesPlan, asignaciones } from '../../data/tutoria';
 import { usePortal } from '../../hooks/usePortal';
 import type { EstadoInstrumento } from '../../types/domain';
@@ -94,8 +94,8 @@ function indicadoresDe(
     if (instrumento.formato !== 'F01' && instrumento.formato !== 'F02') return false;
     const declarada = instrumento.formato === 'F01' ? instrumento.respuestas['escuela'] : undefined;
     const pertenece =
-      declarada === escuelaId ||
-      (!declarada && docentePorId(instrumento.tutorId)?.escuelaId === escuelaId);
+      (instrumento.escuelaId ?? declarada ?? docentePorId(instrumento.tutorId)?.escuelaId) ===
+      escuelaId;
     return pertenece && instrumento.estado === 'enviado';
   });
   const derivacionesEscuela = derivaciones.filter(
@@ -147,7 +147,7 @@ export function CoordReports() {
   const porEscuela = useMemo<Indicadores[]>(
     () =>
       escuelas
-        .filter((escuela) => !API_MODE || escuela.id === portal.escuelaId)
+        .filter((escuela) => !API_MODE || portal.institucional || escuela.id === portal.escuelaId)
         .map((escuela) => indicadoresDe(escuela.id, semestreId, portal))
         .sort((a, b) => b.cobertura - a.cobertura),
     [semestreId, portal],
@@ -229,7 +229,7 @@ export function CoordReports() {
     ];
     for (const fila of porEscuela) {
       filas.push([
-        `${abreviaturaEscuela(fila.escuelaId)} · ${escuelaDe(fila.escuelaId)}`,
+        escuelaDe(fila.escuelaId),
         String(fila.tutores),
         String(fila.asignados),
         String(fila.atendidos),
@@ -271,10 +271,8 @@ export function CoordReports() {
       key: 'escuela',
       header: 'Escuela',
       sortable: true,
-      sortValue: (fila) => abreviaturaEscuela(fila.escuelaId),
-      render: (fila) => (
-        <abbr title={escuelaDe(fila.escuelaId)}>{abreviaturaEscuela(fila.escuelaId)}</abbr>
-      ),
+      sortValue: (fila) => escuelaDe(fila.escuelaId),
+      render: (fila) => escuelaDe(fila.escuelaId),
     },
     {
       key: 'tutores',
@@ -417,10 +415,13 @@ export function CoordReports() {
                   onChange={(evento) => setEscuelaId(evento.target.value)}
                 >
                   {escuelas
-                    .filter((escuela) => !API_MODE || escuela.id === portal.escuelaId)
+                    .filter(
+                      (escuela) =>
+                        !API_MODE || portal.institucional || escuela.id === portal.escuelaId,
+                    )
                     .map((escuela) => (
                       <option key={escuela.id} value={escuela.id}>
-                        {escuela.abreviatura} · {escuela.nombre}
+                        {escuela.nombre}
                       </option>
                     ))}
                 </select>

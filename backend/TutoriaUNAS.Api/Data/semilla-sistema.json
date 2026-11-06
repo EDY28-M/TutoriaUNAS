@@ -80,12 +80,6 @@
         "nombre": "Zootecnia",
         "abreviatura": "ZOO",
         "facultadId": "FZ"
-      },
-      {
-        "id": "E-BIO",
-        "nombre": "Biología",
-        "abreviatura": "BIO",
-        "facultadId": "FC"
       }
     ],
     "semestres": [

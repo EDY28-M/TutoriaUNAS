@@ -25,7 +25,7 @@ import { Badge, StatusBadge } from '../../components/ui/StatusBadge';
 import { Timeline } from '../../components/ui/Timeline';
 import { areasDerivacion } from '../../data/catalogos';
 import { insumos as insumosInstitucionales } from '../../data/institucional';
-import { abreviaturaEscuela } from '../../data/personas';
+import { escuelaDe } from '../../data/personas';
 import { usePortal } from '../../hooks/usePortal';
 import type { InsumoSolicitud } from '../../types/domain';
 import { HOY_ISO, formatFecha } from '../../utils/fechas';
@@ -230,7 +230,7 @@ export function CoordIntegrations() {
   return (
     <CompactPage>
       <PageHeading
-        eyebrow={`Gestión institucional · Integraciones de datos · ${abreviaturaEscuela(portal.escuelaId)}`}
+        eyebrow={`Gestión institucional · Integraciones de datos · ${portal.institucional ? 'Todas las escuelas' : escuelaDe(portal.escuelaId)}`}
         title="Datos de otras áreas"
         description="Revisa qué datos se solicitaron a cada área y cuáles están pendientes de entrega."
         actions={

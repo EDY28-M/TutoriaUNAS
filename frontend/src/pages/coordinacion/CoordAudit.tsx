@@ -16,7 +16,7 @@ import { Stat } from '../../components/ui/Stat';
 import { Badge } from '../../components/ui/StatusBadge';
 import { semestreActual } from '../../data/catalogos';
 import { eventosAuditoria } from '../../data/institucional';
-import { abreviaturaEscuela } from '../../data/personas';
+import { escuelaDe } from '../../data/personas';
 import { usePortal } from '../../hooks/usePortal';
 import type { EventoAuditoria } from '../../types/domain';
 import { downloadCsv, encodeCsv } from '../../utils/csv';
@@ -67,6 +67,7 @@ const accionesAcceso: Record<string, string> = {
 };
 
 function AuditoriaPersistente() {
+  const { institucional } = usePortal();
   const [registros, setRegistros] = useState<RegistroServidor[]>([]);
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(true);
@@ -94,7 +95,11 @@ function AuditoriaPersistente() {
       <PageHeading
         eyebrow="Coordinación"
         title="Auditoría de tutoría"
-        description="Últimas 200 operaciones de tu escuela."
+        description={
+          institucional
+            ? 'Últimas 200 operaciones de todas las escuelas.'
+            : 'Últimas 200 operaciones de la escuela seleccionada.'
+        }
         actions={
           <button
             type="button"
@@ -124,6 +129,15 @@ function AuditoriaPersistente() {
         emptyTitle="Sin operaciones registradas"
         columns={[
           { key: 'fecha', header: 'Fecha y hora', render: (r) => formatFechaHora(r.fecha) },
+          ...(institucional
+            ? [
+                {
+                  key: 'escuela',
+                  header: 'Escuela',
+                  render: (r: RegistroServidor) => escuelaDe(r.escuelaId),
+                },
+              ]
+            : []),
           {
             key: 'cuenta',
             header: 'Usuario',
@@ -235,7 +249,7 @@ function AuditoriaDemostracion() {
   function exportar() {
     const filas: string[][] = [
       ['Auditoría y trazabilidad · Sistema de Tutoría UNAS'],
-      ['Corresponde a', `${abreviaturaEscuela(portal.escuelaId)} · semestre ${semestreActual}`],
+      ['Corresponde a', `${escuelaDe(portal.escuelaId)} · semestre ${semestreActual}`],
       ['Registros exportados', String(visibles.length)],
       [],
       ['ID', 'Fecha', 'Actor', 'Rol', 'Acción', 'Entidad', 'Detalle', 'IP de origen', 'Descarga'],

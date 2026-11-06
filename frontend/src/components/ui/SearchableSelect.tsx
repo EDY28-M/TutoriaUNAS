@@ -18,6 +18,7 @@ interface Props {
   autoFocus?: boolean;
   required?: boolean;
   tipoResultado?: 'estudiante' | 'docente';
+  limiteResultados?: number;
 }
 
 const normalizar = (texto: string) =>
@@ -36,6 +37,7 @@ export function SearchableSelect({
   autoFocus = true,
   required = false,
   tipoResultado = 'estudiante',
+  limiteResultados,
 }: Props) {
   const id = useId();
   const input = useRef<HTMLInputElement>(null);
@@ -97,11 +99,12 @@ export function SearchableSelect({
     .trim()
     .split(/\s+/)
     .filter(Boolean);
-  const resultados = options.filter((opcion) =>
+  const coincidencias = options.filter((opcion) =>
     palabras.every((palabra) =>
       normalizar(`${opcion.label} ${opcion.description ?? ''}`).includes(palabra),
     ),
   );
+  const resultados = coincidencias.slice(0, limiteResultados ?? coincidencias.length);
   const indiceActivo = resultados.length ? Math.min(activo, resultados.length - 1) : -1;
   function elegir(opcion: Option) {
     onChange(opcion.value);
@@ -238,7 +241,7 @@ export function SearchableSelect({
             </ul>
             <p className="searchable-select__results" role="status">
               {resultados.length
-                ? `${resultados.length} ${tipoResultado}${resultados.length === 1 ? '' : 's'}`
+                ? `${coincidencias.length} ${tipoResultado}${coincidencias.length === 1 ? '' : 's'}${resultados.length < coincidencias.length ? ' · Escribe para acotar' : ''}`
                 : `No se encontraron ${tipoResultado}s. Prueba otro nombre o código.`}
             </p>
           </div>,

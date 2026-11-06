@@ -120,11 +120,7 @@ export function CoordPadron() {
   ];
   return (
     <DirectoryPage className="padron-page">
-      <PageHeading
-        eyebrow="Coordinación · Datos institucionales"
-        title="Padrón importado"
-        description="Alumnos, docentes, matrícula y horarios del Excel."
-      />
+      <PageHeading eyebrow="Coordinación · Datos institucionales" title="Padrón importado" />
       {!API_MODE ? (
         <EmptyState
           title="Disponible con la base de datos"

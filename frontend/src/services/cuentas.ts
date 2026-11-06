@@ -63,6 +63,7 @@ export interface CodigoSolicitado {
 export interface CuentaAdmin {
   id: string;
   personaId: string;
+  escuelaId?: string;
   rol: Role;
   identifier: string;
   nombre: string;

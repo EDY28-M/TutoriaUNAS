@@ -19,7 +19,7 @@ public sealed class CalendarioService(TutoriaDbContext db, TutoriaContext contex
     {
         var actor = await context.Actor(ct);
         var tutores = await db.Asignaciones.Where(a => a.EstudianteId == actor.Id && a.Activa).Select(a => a.TutorId).ToArrayAsync(ct);
-        return (await db.CalendarioDocente.AsNoTracking().Where(c => c.EscuelaId == actor.EscuelaId && (actor.Rol == "coordinacion" || (actor.Rol == "tutor" ? c.TutorId == actor.Id : tutores.Contains(c.TutorId)))).ToArrayAsync(ct)).Select(Dto).ToArray();
+        return (await db.CalendarioDocente.AsNoTracking().Where(c => (actor.ConsultaInstitucional ? db.Periodos.Any(p => p.Activo && p.EscuelaId == c.EscuelaId) : c.EscuelaId == actor.EscuelaId) && (actor.Rol == "coordinacion" || (actor.Rol == "tutor" ? c.TutorId == actor.Id : tutores.Contains(c.TutorId)))).ToArrayAsync(ct)).Select(Dto).ToArray();
     }
     public static string[] Fechas(CalendarioInput r)
     {

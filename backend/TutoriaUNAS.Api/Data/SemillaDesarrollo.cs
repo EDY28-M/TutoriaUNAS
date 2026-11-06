@@ -23,14 +23,14 @@ public static class SemillaDesarrollo
                 personas.Add(new() { Id = p.GetProperty("id").GetString()!, Tipo = tipo, EscuelaId = p.GetProperty("escuelaId").GetString()!, Ciclo = tipo == "estudiante" ? p.GetProperty("ciclo").GetInt32() : null, Activa = tipo == "estudiante" || p.GetProperty("activo").GetBoolean(), DatosJson = p.GetRawText() });
         db.Personas.AddRange(personas);
         foreach (var e in seed.GetProperty("escuelas").EnumerateArray())
-        { var school = e.GetProperty("id").GetString()!; db.Periodos.Add(new() { Id = semestre + "|" + school, EscuelaId = school, SemestreId = semestre }); }
+        { var school = e.GetProperty("id").GetString()!; db.Periodos.Add(new() { Id = semestre + "|" + school, EscuelaId = school, SemestreId = semestre, Activo = school != "E-BIO" }); }
         var hasher = new PasswordHasher<UsuarioEntity>();
         foreach (var p in personas.Where(p => p.Activa))
         {
             var user = new UsuarioEntity { Id = p.Id, Issuer = "local-development", Subject = p.Id, Rol = p.Tipo, PersonaId = p.Id, EscuelaId = p.EscuelaId, Identificador = p.Tipo == "estudiante" ? JsonDatos.Texto(p.DatosJson, "codigo") : p.Id };
             user.PasswordHashDesarrollo = hasher.HashPassword(user, "tutoria2026"); db.Usuarios.Add(user);
         }
-        var coord = new UsuarioEntity { Id = "COM-01", Issuer = "local-development", Subject = "COM-01", Rol = "coordinacion", PersonaId = "DOC-0422", EscuelaId = "E-IIS", Identificador = "coordinacion.tutoria" };
+        var coord = new UsuarioEntity { Id = "COM-01", Issuer = "local-development", Subject = "COM-01", Rol = "coordinacion", PersonaId = "DOC-0422", EscuelaId = "E-IIS", Identificador = "coordinacion.tutoria", AdminInstitucional = true };
         coord.PasswordHashDesarrollo = hasher.HashPassword(coord, "tutoria2026"); db.Usuarios.Add(coord);
         var ahora = clock.GetUtcNow();
         foreach (var a in seed.GetProperty("asignaciones").EnumerateArray())

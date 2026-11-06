@@ -2,9 +2,11 @@ import { useId, useState } from 'react';
 import { useSistema } from '../../hooks/useSistema';
 import { usePermiso } from '../../hooks/usePermiso';
 import { mutarSistema } from '../../services/apiSistema';
+import { rutaEscuela } from '../../services/apiClient';
 import { semestreActual } from '../../data/catalogos';
 import type { MensajePersistido } from '../../types/sistema';
 import { Sheet } from '../ui/Sheet';
+import { EscuelaGestion } from '../ui/EscuelaGestion';
 import { FormularioPersistente, EliminarPersistente } from './OperacionPersistente';
 import { normalizar } from '../../utils/busqueda';
 import '../../styles/coord-modals.css';
@@ -19,6 +21,8 @@ export function RedactorAviso({
   onCerrar(): void;
 }) {
   const sistema = useSistema();
+  const escuelasGestion = sistema?.periodosEscuela?.map((p) => p.escuelaId) ?? [];
+  const [escuela, setEscuela] = useState(aviso?.escuelaId ?? '');
   const puedeEliminar = usePermiso('comunicacion', 'eliminar');
   const id = useId();
   const [version] = useState(aviso?.version ?? 0);
@@ -46,11 +50,14 @@ export function RedactorAviso({
           .replace(' ', 'T')
       : '',
   );
-  const opciones = sistema?.destinatariosDisponibles ?? [];
+  const opciones = (sistema?.destinatariosDisponibles ?? []).filter(
+    (p) => !escuelasGestion.length || p.escuelaId === escuela,
+  );
   const visibles = opciones.filter((opcion) =>
     normalizar(`${opcion.nombre} ${opcion.rol}`).includes(normalizar(buscarDestinatario.trim())),
   );
   const editando = aviso?.editable && !copiar;
+  const destino = editando ? `mensajes/${encodeURIComponent(aviso.id)}` : 'mensajes';
   return (
     <Sheet
       title={editando ? 'Editar aviso' : 'Redactar aviso'}
@@ -60,10 +67,12 @@ export function RedactorAviso({
       className="coord-form-sheet coord-notice-sheet"
     >
       <FormularioPersistente
-        deshabilitado={destinatarios.length === 0}
+        deshabilitado={destinatarios.length === 0 || (escuelasGestion.length > 0 && !escuela)}
         guardar={() =>
           mutarSistema(
-            `mensajes${editando ? `/${encodeURIComponent(aviso!.id)}` : ''}`,
+            !editando && escuela && escuelasGestion.length > 0
+              ? rutaEscuela(destino, escuela)
+              : destino,
             editando ? 'PUT' : 'POST',
             {
               version: editando ? version : 0,
@@ -89,6 +98,17 @@ export function RedactorAviso({
               : 'Publicar aviso'
         }
       >
+        {escuelasGestion.length > 0 && !editando && (
+          <EscuelaGestion
+            ids={escuelasGestion}
+            value={escuela}
+            onChange={(id) => {
+              setEscuela(id);
+              setDestinatarios([]);
+              setBuscarDestinatario('');
+            }}
+          />
+        )}
         <div className="field coord-recipients">
           <label htmlFor={`${id}-dest`}>
             Destinatarios · {destinatarios.length}{' '}

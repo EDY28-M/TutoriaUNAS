@@ -12,7 +12,7 @@ import { Sheet } from '../../components/ui/Sheet';
 import { usePortal } from '../../hooks/usePortal';
 import { areasDerivacion, semestreActual } from '../../data/catalogos';
 import { reglasTutoria } from '../../data/institucional';
-import { abreviaturaEscuela, estudiantePorId, nombreCompleto } from '../../data/personas';
+import { escuelaDe, estudiantePorId, nombreCompleto } from '../../data/personas';
 import type { EstadoInstrumento, Sesion } from '../../types/domain';
 import { HOY_ISO, formatFecha } from '../../utils/fechas';
 import { downloadCsv } from '../../utils/csv';
@@ -393,7 +393,7 @@ export function TutorReports() {
       <PageHeading
         eyebrow="Docente tutor · Reportes"
         title="Reportes de tutoría"
-        description={`${semestreActual} · ${abreviaturaEscuela(docente.escuelaId)}`}
+        description={`${semestreActual} · ${escuelaDe(docente.escuelaId)}`}
         actions={
           <>
             <button

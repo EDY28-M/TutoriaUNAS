@@ -21,12 +21,7 @@ import type { DefinicionSelect } from '../../hooks/useFiltro';
 import { usePortal } from '../../hooks/usePortal';
 import { areasDerivacion, etiquetasEstadoDerivacion, semestreActual } from '../../data/catalogos';
 import { definicionPorCodigo } from '../../data/formatos';
-import {
-  abreviaturaEscuela,
-  estudiantePorId,
-  iniciales,
-  nombreCompleto,
-} from '../../data/personas';
+import { escuelaDe, estudiantePorId, iniciales, nombreCompleto } from '../../data/personas';
 import type { Derivacion, Estudiante } from '../../types/domain';
 import { HOY_ISO, formatFecha, formatFechaHora } from '../../utils/fechas';
 import '../../assets/vendor/fontawesome.min.css';
@@ -283,12 +278,12 @@ export function TutorReferrals() {
   return (
     <div className="tutor-referrals">
       <PageHeading
-        eyebrow={`Docente tutor · ${abreviaturaEscuela(docente.escuelaId)} · Semestre ${semestreActual}`}
+        eyebrow={`Docente tutor · ${escuelaDe(docente.escuelaId)} · Semestre ${semestreActual}`}
         title={enSeguimiento ? 'Seguimiento de solicitudes' : 'Solicitudes de apoyo'}
         description={
           enSeguimiento
             ? `Citas, atenciones y seguimiento · ${semestreActual}`
-            : `${semestreActual} · ${abreviaturaEscuela(docente.escuelaId)} · Atención especializada`
+            : `${semestreActual} · ${escuelaDe(docente.escuelaId)} · Atención especializada`
         }
         actions={
           <>

@@ -25,7 +25,8 @@ public sealed class GestionSistemaService(TutoriaDbContext db, TutoriaContext co
     {
         var actor = await context.Actor(ct); TutoriaError.Exigir(actor.Rol == "coordinacion", "Solo coordinación resuelve solicitudes.", 403);
         TutoriaError.Exigir(r.Respuesta.Trim().Length is >= 3 and <= 1000 && r.Decision is "aprobada" or "rechazada", "Indica la decisión y su respuesta.");
-        var solicitud = await db.SolicitudesCambio.AsNoTracking().SingleOrDefaultAsync(s => s.Id == id && s.EscuelaId == actor.EscuelaId, ct) ?? throw new TutoriaError(404, "Solicitud no disponible.");
+        var solicitud = await db.SolicitudesCambio.AsNoTracking().SingleOrDefaultAsync(s => s.Id == id && (actor.ConsultaInstitucional || s.EscuelaId == actor.EscuelaId), ct) ?? throw new TutoriaError(404, "Solicitud no disponible.");
+        actor = actor.ParaEscuela(solicitud.EscuelaId);
         if (r.Decision == "aprobada")
         {
             TutoriaError.Exigir(!string.IsNullOrWhiteSpace(r.TutorId), "Selecciona el nuevo tutor.");
@@ -43,7 +44,13 @@ public sealed class GestionSistemaService(TutoriaDbContext db, TutoriaContext co
     }
     public async Task<string> Actividad(string? id, ActividadInput r, CancellationToken ct)
     {
-        var actor = await context.Actor(ct); await using var tx = await context.Transaccion(actor, ct); var p = await context.Periodo(actor, ct);
+        var actor = await context.Actor(ct);
+        if (actor.ConsultaInstitucional)
+            actor = actor.ParaEscuela(id is null
+                ? await db.Personas.AsNoTracking().Where(p => p.Id == r.ResponsableId && p.Tipo == "tutor").Select(p => p.EscuelaId).SingleOrDefaultAsync(ct)
+                : await db.ActividadesPlan.AsNoTracking().Where(a => a.Id == id).Select(a => a.EscuelaId).SingleOrDefaultAsync(ct));
+        actor.ExigirEscuelaParaGestion();
+        await using var tx = await context.Transaccion(actor, ct); var p = await context.Periodo(actor, ct);
         await context.ExigirPeriodoAbierto(actor, ct);
         TutoriaError.Exigir(actor.Rol == "coordinacion", "Solo coordinación administra el plan de la escuela.", 403);
         TutoriaError.Exigir(new[] { r.Problematica, r.Objetivo, r.Actividad, r.Meta }.All(s => !string.IsNullOrWhiteSpace(s) && s.Length <= 1000) && r.Evidencia.Length <= 2000 && r.Aprobacion.Length <= 500 &&
@@ -58,7 +65,10 @@ public sealed class GestionSistemaService(TutoriaDbContext db, TutoriaContext co
     }
     public async Task Seguimiento(string id, SeguimientoInput r, CancellationToken ct)
     {
-        var actor = await context.Actor(ct); await using var tx = await context.Transaccion(actor, ct);
+        var actor = await context.Actor(ct);
+        if (actor.ConsultaInstitucional)
+            actor = actor.ParaEscuela(await db.Instrumentos.AsNoTracking().Where(d => d.Id == id && d.Formato == "F12").Select(d => d.EscuelaId).SingleOrDefaultAsync(ct));
+        await using var tx = await context.Transaccion(actor, ct);
         TutoriaError.Exigir(actor.Rol == "coordinacion", "Coordinación registra la comunicación administrativa del área.", 403);
         await context.ExigirPeriodoAbierto(actor, ct);
         var d = await db.Instrumentos.SingleOrDefaultAsync(d => d.Id == id && d.Formato == "F12" && d.EscuelaId == actor.EscuelaId && (d.Estado == "enviado" || d.Estado == "aprobado"), ct) ?? throw new TutoriaError(404, "Derivación no disponible.");
@@ -98,7 +108,10 @@ public sealed class GestionSistemaService(TutoriaDbContext db, TutoriaContext co
 
     public async Task EliminarActividad(string id, int version, CancellationToken ct)
     {
-        var actor = await context.Actor(ct); await using var tx = await context.Transaccion(actor, ct);
+        var actor = await context.Actor(ct);
+        if (actor.ConsultaInstitucional)
+            actor = actor.ParaEscuela(await db.ActividadesPlan.AsNoTracking().Where(a => a.Id == id).Select(a => a.EscuelaId).SingleOrDefaultAsync(ct));
+        await using var tx = await context.Transaccion(actor, ct);
         TutoriaError.Exigir(actor.Rol == "coordinacion", "Solo coordinación administra el plan.", 403);
         await context.ExigirPeriodoAbierto(actor, ct);
         var p = await context.Periodo(actor, ct);

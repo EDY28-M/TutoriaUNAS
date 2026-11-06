@@ -1,4 +1,5 @@
 import { useId, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { EditorActividad } from '../../components/panels/GestionCoordinacion';
 import { GuidedInstrumentForm } from '../../components/panels/GuidedInstrumentForm';
 import { Alert } from '../../components/ui/Alert';
@@ -16,7 +17,7 @@ import { Sheet } from '../../components/ui/Sheet';
 import { Badge, StatusBadge } from '../../components/ui/StatusBadge';
 import { escuelas, semestreActual } from '../../data/catalogos';
 import { definicionPorCodigo } from '../../data/formatos';
-import { abreviaturaEscuela } from '../../data/personas';
+import { escuelaDe } from '../../data/personas';
 import { actividadesPlan } from '../../data/tutoria';
 import { useFiltro } from '../../hooks/useFiltro';
 import { useInstrumentWorkspace } from '../../hooks/useInstrumentWorkspace';
@@ -52,13 +53,27 @@ export function CoordPlan() {
   const [panel, setPanel] = useState<'informe' | 'calendario' | 'nueva' | null>(null);
   const [error, setError] = useState('');
   const [creando, setCreando] = useState(false);
-  const escuelaId = API_MODE ? portal.escuelaId : escuelaDemo;
+  const escuelaId = API_MODE ? (portal.institucional ? '' : portal.escuelaId) : escuelaDemo;
   const persistidas = sistema?.actividadesPlan ?? [];
+  const periodos = new Map(sistema?.periodosEscuela?.map((p) => [p.escuelaId, p.semestreId]));
   const actividades = (API_MODE ? persistidas : actividadesPlan).filter(
-    (a) => a.escuelaId === escuelaId && a.semestreId === semestreActual,
+    (a) =>
+      (!escuelaId || a.escuelaId === escuelaId) &&
+      a.semestreId === (periodos.get(a.escuelaId) ?? semestreActual),
   );
   const plan = registros.find((r) => r.formato === 'F01' && r.semestreId === semestreActual);
-  const filtro = useFiltro(actividades, buscarEn, FILTROS);
+  const filtros = portal.institucional
+    ? [
+        ...FILTROS,
+        {
+          id: 'escuela',
+          etiqueta: 'Escuela',
+          opciones: escuelas.map((e) => ({ valor: e.id, etiqueta: e.nombre })),
+          valorDe: (a: ActividadPlan) => a.escuelaId,
+        },
+      ]
+    : FILTROS;
+  const filtro = useFiltro(actividades, buscarEn, filtros);
   const seleccionada = actividades.find((a) => a.id === actividadId);
   const editable = persistidas.find((a) => a.id === actividadId);
   const vistas = [
@@ -98,6 +113,7 @@ export function CoordPlan() {
         <span className="plan-activity-name">
           <strong>{a.actividad}</strong>
           <small>{a.responsable}</small>
+          {portal.institucional && <small>{escuelaDe(a.escuelaId)}</small>}
         </span>
       ),
     },
@@ -159,7 +175,11 @@ export function CoordPlan() {
       <PageHeading
         eyebrow="Coordinación de tutoría"
         title={API_MODE ? 'Plan e informe de tutoría' : 'Plan de tutoría'}
-        description={`${semestreActual} · ${abreviaturaEscuela(escuelaId)}`}
+        description={
+          portal.institucional
+            ? 'Actividades de todas las escuelas.'
+            : `${semestreActual} · ${escuelaDe(escuelaId)}`
+        }
         actions={
           API_MODE && (
             <button
@@ -199,7 +219,7 @@ export function CoordPlan() {
                 >
                   {escuelas.map((e) => (
                     <option key={e.id} value={e.id}>
-                      {e.abreviatura} · {e.nombre}
+                      {e.nombre}
                     </option>
                   ))}
                 </select>
@@ -209,7 +229,7 @@ export function CoordPlan() {
           <DirectoryToolbar
             busqueda={filtro.busqueda}
             onBusqueda={filtro.setBusqueda}
-            selects={FILTROS}
+            selects={filtros}
             valores={filtro.valores}
             onValores={filtro.setValores}
             mostrados={filtro.filtrados.length}
@@ -223,7 +243,7 @@ export function CoordPlan() {
                   label: etiqueta,
                   active: (filtro.valores.estado ?? '') === valor,
                   count: actividades.filter((a) => !valor || a.estado === valor).length,
-                  onClick: () => filtro.setValores({ estado: valor }),
+                  onClick: () => filtro.setValores((actual) => ({ ...actual, estado: valor })),
                 }))}
               />
             }
@@ -246,19 +266,29 @@ export function CoordPlan() {
         <Card>
           <CardHead
             title="Informe del semestre"
-            description="Formato 01 · Actividades del proceso tutorial"
+            description={
+              portal.institucional
+                ? 'Selecciona una escuela en Ámbito para preparar su Formato 01.'
+                : 'Formato 01 · Actividades del proceso tutorial'
+            }
             actions={
-              <>
-                <StatusBadge estado={plan?.estado ?? 'no-iniciado'} contexto="formulario" />
-                <button
-                  type="button"
-                  className="btn btn-falcon-default"
-                  disabled={creando || !sistema}
-                  onClick={() => void abrirInforme()}
-                >
-                  {creando ? 'Preparando…' : plan ? 'Abrir formato 01' : 'Preparar formato 01'}
-                </button>
-              </>
+              portal.institucional ? (
+                <Link className="btn btn-falcon-default" to="/coordinacion/revisiones">
+                  Ver informes
+                </Link>
+              ) : (
+                <>
+                  <StatusBadge estado={plan?.estado ?? 'no-iniciado'} contexto="formulario" />
+                  <button
+                    type="button"
+                    className="btn btn-falcon-default"
+                    disabled={creando || !sistema}
+                    onClick={() => void abrirInforme()}
+                  >
+                    {creando ? 'Preparando…' : plan ? 'Abrir formato 01' : 'Preparar formato 01'}
+                  </button>
+                </>
+              )
             }
           />
           {error && (
@@ -287,7 +317,7 @@ export function CoordPlan() {
             <EditorActividad
               key={editable?.id ?? 'nueva'}
               actividad={editable}
-              escuelaId={escuelaId}
+              escuelaId={editable?.escuelaId ?? escuelaId}
               onCerrar={cerrarActividad}
             />
           ) : (

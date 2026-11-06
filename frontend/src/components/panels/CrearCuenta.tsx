@@ -2,8 +2,10 @@ import { useDeferredValue, useId, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Sheet } from '../ui/Sheet';
 import { Alert } from '../ui/Alert';
-import { apiJson } from '../../services/apiClient';
+import { apiJson, rutaEscuela } from '../../services/apiClient';
 import { refrescarApi } from '../../services/apiTutoria';
+import { useSistema } from '../../hooks/useSistema';
+import { EscuelaGestion } from '../ui/EscuelaGestion';
 import type { CandidatoCuenta, CuentaCreada } from '../../services/cuentas';
 import type { Role } from '../../types/auth';
 import '../../styles/coord-modals.css';
@@ -18,6 +20,9 @@ export function CrearCuenta({ onClose, rolInicial }: { onClose(): void; rolInici
   const queryClient = useQueryClient();
   const formId = useId();
   const [origen, setOrigen] = useState('nueva');
+  const escuelasGestion = useSistema()?.periodosEscuela?.map((p) => p.escuelaId) ?? [];
+  const [escuela, setEscuela] = useState('');
+  const faltaEscuela = escuelasGestion.length > 0 && !escuela;
 
   const [rol, setRol] = useState<Role>(rolInicial ?? 'estudiante');
   const [buscar, setBuscar] = useState('');
@@ -34,12 +39,12 @@ export function CrearCuenta({ onClose, rolInicial }: { onClose(): void; rolInici
   const [copiado, setCopiado] = useState(false);
   const texto = useDeferredValue(buscar);
   const candidatos = useQuery({
-    queryKey: ['cuenta-candidatos', rol, texto],
-    queryFn: () =>
-      apiJson<CandidatoCuenta[]>(
-        `/api/cuentas/candidatos?${new URLSearchParams({ rol, buscar: texto })}`,
-      ),
-    enabled: origen === 'padron' && texto.trim().length >= 2 && persona === null,
+    queryKey: ['cuenta-candidatos', escuela, rol, texto],
+    queryFn: () => {
+      const path = `/api/cuentas/candidatos?${new URLSearchParams({ rol, buscar: texto })}`;
+      return apiJson<CandidatoCuenta[]>(escuela ? rutaEscuela(path, escuela) : path);
+    },
+    enabled: !faltaEscuela && origen === 'padron' && texto.trim().length >= 2 && persona === null,
   });
   function limpiarDatos() {
     setPersona(null);
@@ -59,19 +64,23 @@ export function CrearCuenta({ onClose, rolInicial }: { onClose(): void; rolInici
     setCiclo(p.ciclo === null ? '' : String(p.ciclo));
   }
   async function guardar() {
-    if (ocupado || (origen === 'padron' && !persona)) return;
+    if (ocupado || faltaEscuela || (origen === 'padron' && !persona)) return;
     setOcupado(true);
     setError('');
     try {
-      const resultado = await apiJson<CuentaCreada>('/api/cuentas', 'POST', {
-        rol,
-        correo,
-        nombres,
-        apellidos,
-        personaId: persona?.id,
-        codigo: codigo || undefined,
-        ciclo: ciclo ? Number(ciclo) : null,
-      });
+      const resultado = await apiJson<CuentaCreada>(
+        escuela ? rutaEscuela('/api/cuentas', escuela) : '/api/cuentas',
+        'POST',
+        {
+          rol,
+          correo,
+          nombres,
+          apellidos,
+          personaId: persona?.id,
+          codigo: codigo || undefined,
+          ciclo: ciclo ? Number(ciclo) : null,
+        },
+      );
       setCreada(resultado);
       try {
         await queryClient.invalidateQueries({ queryKey: ['cuentas-administracion'] });
@@ -110,7 +119,7 @@ export function CrearCuenta({ onClose, rolInicial }: { onClose(): void; rolInici
               type="submit"
               form={formId}
               className="btn btn-primary"
-              disabled={ocupado || (origen === 'padron' && !persona)}
+              disabled={ocupado || faltaEscuela || (origen === 'padron' && !persona)}
             >
               {ocupado ? 'Creando cuenta…' : 'Crear cuenta'}
             </button>
@@ -173,6 +182,17 @@ export function CrearCuenta({ onClose, rolInicial }: { onClose(): void; rolInici
             void guardar();
           }}
         >
+          {escuelasGestion.length > 0 && (
+            <EscuelaGestion
+              ids={escuelasGestion}
+              value={escuela}
+              disabled={ocupado}
+              onChange={(id) => {
+                setEscuela(id);
+                limpiarDatos();
+              }}
+            />
+          )}
           <div className="coord-modal-grid">
             <label className="field">
               Perfil

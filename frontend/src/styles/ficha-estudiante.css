@@ -195,8 +195,17 @@ dialog.sheet--ficha .sheet__body {
   .fe-datos > div {
     grid-template-columns: 104px minmax(0, 1fr);
   }
+  .fe-cifras {
+    flex-wrap: nowrap;
+    width: 100%;
+  }
   .fe-cifras > div {
-    padding: 0 12px;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0 10px;
+  }
+  .fe-cifras dd {
+    font-size: 1rem;
   }
   .fe-cursos > li {
     grid-template-columns: minmax(0, 1fr);

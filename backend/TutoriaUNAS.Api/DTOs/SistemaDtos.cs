@@ -7,7 +7,9 @@ public sealed record PreferenciasDto(Dictionary<string, bool> Avisos, Dictionary
 public sealed record SistemaDto(Dictionary<string, JsonElement[]> Catalogos, Dictionary<string, JsonElement[]> Fuentes,
     PerfilContactoDto Contacto, PreferenciasDto Preferencias, JsonElement[] Mensajes, JsonElement[] Notificaciones,
     JsonElement[] SolicitudesCambio, JsonElement[] ActividadesPlan, JsonElement[] Cuentas,
-    JsonElement[] Permisos, JsonElement? ConfiguracionPeriodo, JsonElement[]? ActividadCuenta = null, bool AccesoLocal = false, JsonElement[]? DestinatariosDisponibles = null);
+    JsonElement[] Permisos, JsonElement? ConfiguracionPeriodo, JsonElement[]? ActividadCuenta = null, bool AccesoLocal = false, JsonElement[]? DestinatariosDisponibles = null,
+    PeriodoEscuelaDto[]? PeriodosEscuela = null);
+public sealed record PeriodoEscuelaDto(string EscuelaId, string SemestreId, string Momento, string? Inicio, string? Fin, bool Cerrado);
 public sealed record ContactoInput(int Version, string Correo, string Telefono);
 public sealed record PreferenciasInput(int Version, Dictionary<string, bool> Avisos, Dictionary<string, bool> Pantalla);
 public sealed record LecturaInput(string[] Ids, bool Leida = true);

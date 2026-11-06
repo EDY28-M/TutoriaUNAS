@@ -186,6 +186,7 @@ export type ModalidadSesion = 'individual' | 'grupal';
 export type EstadoSesion = 'programada' | 'realizada' | 'reprogramada' | 'cancelada';
 
 export interface Sesion {
+  escuelaId?: string;
   version?: number;
   id: string;
   codigo: string;
@@ -289,6 +290,7 @@ export interface CampoFormato {
 }
 
 export interface Instrumento {
+  escuelaId?: string;
   id: string;
   formato: CodigoFormato;
   semestreId: string;

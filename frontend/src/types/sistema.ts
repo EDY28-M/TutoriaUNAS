@@ -45,6 +45,7 @@ export interface PeriodoConfiguracion {
 }
 export type ActividadPersistida = ActividadPlan & { responsableId: string; version: number };
 export type MensajePersistido = Aviso & {
+  escuelaId?: string;
   emisorId: string;
   editable: boolean;
   version: number;
@@ -66,5 +67,19 @@ export interface SistemaApi {
   configuracionPeriodo: PeriodoConfiguracion | null;
   actividadCuenta?: { titulo: string; descripcion: string; fecha: string }[];
   accesoLocal?: boolean;
-  destinatariosDisponibles?: { id: string; personaId: string; rol: string; nombre: string }[];
+  destinatariosDisponibles?: {
+    id: string;
+    personaId: string;
+    rol: string;
+    nombre: string;
+    escuelaId?: string;
+  }[];
+  periodosEscuela?: {
+    escuelaId: string;
+    semestreId: string;
+    momento: string;
+    inicio: string | null;
+    fin: string | null;
+    cerrado: boolean;
+  }[];
 }

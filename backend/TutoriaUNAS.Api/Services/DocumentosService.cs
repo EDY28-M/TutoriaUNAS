@@ -16,6 +16,7 @@ public sealed class DocumentosService(TutoriaDbContext db, TutoriaContext contex
     public async Task<InstrumentoDto> Crear(CrearInstrumentoDto request, CancellationToken ct)
     {
         var actor = await context.Actor(ct);
+        actor.ExigirEscuelaParaGestion();
         await using var tx = await context.Transaccion(actor, ct);
         var periodo = await context.Periodo(actor, ct);
         await context.ExigirPeriodoAbierto(actor, ct);
@@ -46,7 +47,7 @@ public sealed class DocumentosService(TutoriaDbContext db, TutoriaContext contex
     public Task<bool> PuedeLeerResumen(ActorTutoria actor, InstrumentoEntity d, CancellationToken ct) => PuedeConsultar(actor, d, false, ct);
     private async Task<bool> PuedeConsultar(ActorTutoria actor, InstrumentoEntity d, bool contenido, CancellationToken ct)
     {
-        if (d.EscuelaId != actor.EscuelaId) return false;
+        if (!actor.ConsultaInstitucional && d.EscuelaId != actor.EscuelaId) return false;
         if (actor.Rol == "estudiante") return d.EstudianteId == actor.Id && catalogo.Actor(d.Formato) == "tutorado";
         if (contenido && catalogo.Actor(d.Formato) == "tutorado" && d.Estado is not ("enviado" or "aprobado")) return false;
         if (actor.Rol == "coordinacion") return true;
@@ -71,6 +72,8 @@ public sealed class DocumentosService(TutoriaDbContext db, TutoriaContext contex
     public async Task<InstrumentoDto> Guardar(string id, GuardarInstrumentoDto request, CancellationToken ct)
     {
         var actor = await context.Actor(ct);
+        if (actor.ConsultaInstitucional)
+            actor = actor.ParaEscuela(await db.Instrumentos.AsNoTracking().Where(d => d.Id == id).Select(d => d.EscuelaId).SingleOrDefaultAsync(ct));
         await using var tx = await context.Transaccion(actor, ct);
         var d = await Obtener(id, actor, true, ct);
         var kind = catalogo.Actor(d.Formato);
@@ -140,6 +143,8 @@ public sealed class DocumentosService(TutoriaDbContext db, TutoriaContext contex
     public async Task<InstrumentoDto> Revisar(string id, RevisarInstrumentoDto request, CancellationToken ct)
     {
         var actor = await context.Actor(ct);
+        if (actor.ConsultaInstitucional)
+            actor = actor.ParaEscuela(await db.Instrumentos.AsNoTracking().Where(d => d.Id == id).Select(d => d.EscuelaId).SingleOrDefaultAsync(ct));
         await using var tx = await context.Transaccion(actor, ct);
         var d = await Obtener(id, actor, false, ct);
         TutoriaError.Exigir(d.Formato is "F03" or "F04" or "F05" ? actor.Rol == "tutor" && d.TutorId == actor.Id : actor.Rol == "coordinacion" && d.Formato is not ("F10" or "F11"), "La revisión corresponde a otro responsable.", 403);

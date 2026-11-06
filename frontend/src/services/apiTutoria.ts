@@ -25,6 +25,9 @@ export interface EstadoApi {
   semestreId: string;
   momento: MomentoTutoria;
   periodoVersion: number;
+  escuelaId?: string;
+  escuelasAdministrables?: string[];
+  consultaInstitucional?: boolean;
   estudiantes: Estudiante[];
   docentes: Docente[];
   asignaciones: Asignacion[];
